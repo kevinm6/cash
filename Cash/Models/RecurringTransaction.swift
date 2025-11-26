@@ -2,280 +2,218 @@
 //  RecurringTransaction.swift
 //  Cash
 //
-//  Created by Michele Broggi on 25/11/25.
+//  Created by Michele Broggi on 26/11/25.
 //
 
 import Foundation
 import SwiftData
 
-enum RecurrenceFrequency: String, Codable, CaseIterable, Identifiable {
+// MARK: - Recurrence Frequency
+
+enum RecurrenceFrequency: String, CaseIterable, Identifiable, Codable {
     case daily = "daily"
     case weekly = "weekly"
     case monthly = "monthly"
+    case yearly = "yearly"
     
     var id: String { rawValue }
     
     var localizedName: String {
         switch self {
-        case .daily:
-            return String(localized: "Daily")
-        case .weekly:
-            return String(localized: "Weekly")
-        case .monthly:
-            return String(localized: "Monthly")
+        case .daily: return String(localized: "Daily")
+        case .weekly: return String(localized: "Weekly")
+        case .monthly: return String(localized: "Monthly")
+        case .yearly: return String(localized: "Yearly")
+        }
+    }
+    
+    var iconName: String {
+        switch self {
+        case .daily: return "sun.max"
+        case .weekly: return "calendar.badge.clock"
+        case .monthly: return "calendar"
+        case .yearly: return "calendar.badge.plus"
         }
     }
 }
 
-enum WeekDay: Int, Codable, CaseIterable, Identifiable {
-    case sunday = 1
-    case monday = 2
-    case tuesday = 3
-    case wednesday = 4
-    case thursday = 5
-    case friday = 6
-    case saturday = 7
-    
-    var id: Int { rawValue }
-    
-    var localizedName: String {
-        switch self {
-        case .sunday:
-            return String(localized: "Sunday")
-        case .monday:
-            return String(localized: "Monday")
-        case .tuesday:
-            return String(localized: "Tuesday")
-        case .wednesday:
-            return String(localized: "Wednesday")
-        case .thursday:
-            return String(localized: "Thursday")
-        case .friday:
-            return String(localized: "Friday")
-        case .saturday:
-            return String(localized: "Saturday")
-        }
-    }
-    
-    var shortName: String {
-        switch self {
-        case .sunday:
-            return String(localized: "Sun")
-        case .monday:
-            return String(localized: "Mon")
-        case .tuesday:
-            return String(localized: "Tue")
-        case .wednesday:
-            return String(localized: "Wed")
-        case .thursday:
-            return String(localized: "Thu")
-        case .friday:
-            return String(localized: "Fri")
-        case .saturday:
-            return String(localized: "Sat")
-        }
-    }
-    
-    var isWeekend: Bool {
-        self == .saturday || self == .sunday
-    }
-}
+// MARK: - Weekend Adjustment
 
-enum WeekendHandling: String, Codable, CaseIterable, Identifiable {
+enum WeekendAdjustment: String, CaseIterable, Identifiable, Codable {
     case none = "none"
-    case prepone = "prepone"
-    case postpone = "postpone"
+    case previousFriday = "previousFriday"
+    case nextMonday = "nextMonday"
     
     var id: String { rawValue }
     
     var localizedName: String {
         switch self {
-        case .none:
-            return String(localized: "Execute on weekend")
-        case .prepone:
-            return String(localized: "Move to Friday")
-        case .postpone:
-            return String(localized: "Move to Monday")
+        case .none: return String(localized: "No adjustment")
+        case .previousFriday: return String(localized: "Previous Friday")
+        case .nextMonday: return String(localized: "Next Monday")
         }
     }
 }
+
+// MARK: - Recurrence Rule
 
 @Model
-final class RecurringTransaction {
+final class RecurrenceRule {
     var id: UUID
-    var descriptionText: String
-    var category: String
-    var amount: Decimal
-    var typeRawValue: String
     var frequencyRawValue: String
-    var dayOfMonth: Int?
-    var weekDayRawValue: Int?
-    var weekendHandlingRawValue: String
+    var interval: Int // every N days/weeks/months/years
+    var dayOfMonth: Int? // for monthly: 1-31
+    var dayOfWeek: Int? // for weekly: 1=Sunday, 7=Saturday
+    var monthOfYear: Int? // for yearly: 1-12
+    var weekendAdjustmentRawValue: String
     var startDate: Date
     var endDate: Date?
-    var lastExecutedDate: Date?
+    var nextOccurrence: Date?
     var isActive: Bool
-    var createdAt: Date
     
-    var account: Account?
-    
-    var transactionType: TransactionType {
-        get { TransactionType(rawValue: typeRawValue) ?? .expense }
-        set { typeRawValue = newValue.rawValue }
-    }
+    var transaction: Transaction?
     
     var frequency: RecurrenceFrequency {
         get { RecurrenceFrequency(rawValue: frequencyRawValue) ?? .monthly }
         set { frequencyRawValue = newValue.rawValue }
     }
     
-    var weekDay: WeekDay? {
-        get {
-            guard let raw = weekDayRawValue else { return nil }
-            return WeekDay(rawValue: raw)
-        }
-        set { weekDayRawValue = newValue?.rawValue }
-    }
-    
-    var weekendHandling: WeekendHandling {
-        get { WeekendHandling(rawValue: weekendHandlingRawValue) ?? .none }
-        set { weekendHandlingRawValue = newValue.rawValue }
+    var weekendAdjustment: WeekendAdjustment {
+        get { WeekendAdjustment(rawValue: weekendAdjustmentRawValue) ?? .none }
+        set { weekendAdjustmentRawValue = newValue.rawValue }
     }
     
     init(
-        descriptionText: String,
-        category: String,
-        amount: Decimal,
-        transactionType: TransactionType,
-        frequency: RecurrenceFrequency,
+        frequency: RecurrenceFrequency = .monthly,
+        interval: Int = 1,
         dayOfMonth: Int? = nil,
-        weekDay: WeekDay? = nil,
-        weekendHandling: WeekendHandling = .none,
+        dayOfWeek: Int? = nil,
+        monthOfYear: Int? = nil,
+        weekendAdjustment: WeekendAdjustment = .none,
         startDate: Date = Date(),
-        endDate: Date? = nil,
-        account: Account? = nil
+        endDate: Date? = nil
     ) {
         self.id = UUID()
-        self.descriptionText = descriptionText
-        self.category = category
-        self.amount = amount
-        self.typeRawValue = transactionType.rawValue
         self.frequencyRawValue = frequency.rawValue
+        self.interval = interval
         self.dayOfMonth = dayOfMonth
-        self.weekDayRawValue = weekDay?.rawValue
-        self.weekendHandlingRawValue = weekendHandling.rawValue
+        self.dayOfWeek = dayOfWeek
+        self.monthOfYear = monthOfYear
+        self.weekendAdjustmentRawValue = weekendAdjustment.rawValue
         self.startDate = startDate
         self.endDate = endDate
-        self.lastExecutedDate = nil
         self.isActive = true
-        self.createdAt = Date()
-        self.account = account
+        self.nextOccurrence = startDate
     }
     
-    func nextExecutionDate(from date: Date = Date()) -> Date? {
+    // MARK: - Recurrence Description
+    
+    var localizedDescription: String {
+        var desc = ""
+        
+        if interval == 1 {
+            desc = frequency.localizedName
+        } else {
+            switch frequency {
+            case .daily:
+                desc = String(localized: "Every \(interval) days")
+            case .weekly:
+                desc = String(localized: "Every \(interval) weeks")
+            case .monthly:
+                desc = String(localized: "Every \(interval) months")
+            case .yearly:
+                desc = String(localized: "Every \(interval) years")
+            }
+        }
+        
+        if let day = dayOfMonth, frequency == .monthly || frequency == .yearly {
+            desc += " " + String(localized: "on day \(day)")
+        }
+        
+        return desc
+    }
+    
+    // MARK: - Next Occurrence Calculation
+    
+    func calculateNextOccurrence(from date: Date = Date()) -> Date? {
         let calendar = Calendar.current
         var nextDate: Date?
         
         switch frequency {
         case .daily:
-            nextDate = calendar.date(byAdding: .day, value: 1, to: date)
+            nextDate = calendar.date(byAdding: .day, value: interval, to: date)
             
         case .weekly:
-            if let weekDay = weekDay {
-                var components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
-                components.weekday = weekDay.rawValue
-                if let candidateDate = calendar.date(from: components), candidateDate <= date {
-                    nextDate = calendar.date(byAdding: .weekOfYear, value: 1, to: candidateDate)
-                } else {
-                    nextDate = calendar.date(from: components)
-                }
-            }
+            nextDate = calendar.date(byAdding: .weekOfYear, value: interval, to: date)
             
         case .monthly:
             if let day = dayOfMonth {
                 var components = calendar.dateComponents([.year, .month], from: date)
-                components.day = min(day, 28)
-                if let candidateDate = calendar.date(from: components), candidateDate <= date {
-                    nextDate = calendar.date(byAdding: .month, value: 1, to: candidateDate)
+                components.day = min(day, daysInMonth(for: date))
+                if let targetDate = calendar.date(from: components), targetDate <= date {
+                    components.month = (components.month ?? 1) + interval
+                    nextDate = calendar.date(from: components)
                 } else {
                     nextDate = calendar.date(from: components)
                 }
+            } else {
+                nextDate = calendar.date(byAdding: .month, value: interval, to: date)
+            }
+            
+        case .yearly:
+            if let month = monthOfYear, let day = dayOfMonth {
+                var components = calendar.dateComponents([.year], from: date)
+                components.month = month
+                components.day = day
+                if let targetDate = calendar.date(from: components), targetDate <= date {
+                    components.year = (components.year ?? 2024) + interval
+                    nextDate = calendar.date(from: components)
+                } else {
+                    nextDate = calendar.date(from: components)
+                }
+            } else {
+                nextDate = calendar.date(byAdding: .year, value: interval, to: date)
             }
         }
         
-        guard var resultDate = nextDate else { return nil }
-        
-        if weekendHandling != .none {
-            let weekday = calendar.component(.weekday, from: resultDate)
-            if weekday == 1 {
-                let offset = weekendHandling == .prepone ? -2 : 1
-                resultDate = calendar.date(byAdding: .day, value: offset, to: resultDate) ?? resultDate
-            } else if weekday == 7 {
-                let offset = weekendHandling == .prepone ? -1 : 2
-                resultDate = calendar.date(byAdding: .day, value: offset, to: resultDate) ?? resultDate
-            }
+        // Apply weekend adjustment
+        if let next = nextDate {
+            nextDate = applyWeekendAdjustment(to: next)
         }
         
-        if let endDate = endDate, resultDate > endDate {
+        // Check end date
+        if let end = endDate, let next = nextDate, next > end {
             return nil
         }
         
-        return resultDate
+        return nextDate
     }
     
-    func shouldExecute(on date: Date = Date()) -> Bool {
-        guard isActive else { return false }
-        
-        if date < startDate { return false }
-        if let endDate = endDate, date > endDate { return false }
-        
+    private func daysInMonth(for date: Date) -> Int {
         let calendar = Calendar.current
-        
-        if let lastExecuted = lastExecutedDate {
-            if calendar.isDate(lastExecuted, inSameDayAs: date) {
-                return false
-            }
-        }
-        
-        var targetDate = date
-        
-        if weekendHandling != .none {
-            let weekday = calendar.component(.weekday, from: date)
-            if weekday == 1 || weekday == 7 {
-                return false
-            }
-        }
-        
-        switch frequency {
-        case .daily:
-            return true
-            
-        case .weekly:
-            if let weekDay = weekDay {
-                let currentWeekday = calendar.component(.weekday, from: targetDate)
-                return currentWeekday == weekDay.rawValue
-            }
-            return false
-            
-        case .monthly:
-            if let day = dayOfMonth {
-                let currentDay = calendar.component(.day, from: targetDate)
-                let daysInMonth = calendar.range(of: .day, in: .month, for: targetDate)?.count ?? 31
-                let targetDay = min(day, daysInMonth)
-                return currentDay == targetDay
-            }
-            return false
-        }
+        let range = calendar.range(of: .day, in: .month, for: date)
+        return range?.count ?? 31
     }
     
-    func createTransaction() -> Transaction {
-        Transaction(
-            date: Date(),
-            descriptionText: descriptionText,
-            category: category,
-            amount: amount,
-            transactionType: transactionType,
-            account: account
-        )
+    private func applyWeekendAdjustment(to date: Date) -> Date {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        
+        // 1 = Sunday, 7 = Saturday
+        let isSaturday = weekday == 7
+        let isSunday = weekday == 1
+        
+        guard isSaturday || isSunday else { return date }
+        
+        switch weekendAdjustment {
+        case .none:
+            return date
+        case .previousFriday:
+            let daysToSubtract = isSaturday ? 1 : 2
+            return calendar.date(byAdding: .day, value: -daysToSubtract, to: date) ?? date
+        case .nextMonday:
+            let daysToAdd = isSaturday ? 2 : 1
+            return calendar.date(byAdding: .day, value: daysToAdd, to: date) ?? date
+        }
     }
 }

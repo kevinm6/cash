@@ -8,214 +8,331 @@
 import SwiftUI
 import SwiftData
 
+/// Transaction type for user-friendly selection
+enum SimpleTransactionType: String, CaseIterable, Identifiable {
+    case expense = "expense"
+    case income = "income"
+    case transfer = "transfer"
+    
+    var id: String { rawValue }
+    
+    var localizedName: LocalizedStringKey {
+        switch self {
+        case .expense: return "Expense"
+        case .income: return "Income"
+        case .transfer: return "Transfer"
+        }
+    }
+    
+    var iconName: String {
+        switch self {
+        case .expense: return "arrow.up.circle.fill"
+        case .income: return "arrow.down.circle.fill"
+        case .transfer: return "arrow.left.arrow.right.circle.fill"
+        }
+    }
+}
+
 struct AddTransactionView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @Query(sort: \Account.name) private var accounts: [Account]
+    @Environment(AppSettings.self) private var settings
+    @Query(sort: \Account.accountNumber) private var accounts: [Account]
     
     var preselectedAccount: Account?
     
-    @State private var transactionType: TransactionType = .expense
+    @State private var transactionType: SimpleTransactionType = .expense
     @State private var date: Date = Date()
     @State private var descriptionText: String = ""
-    @State private var selectedCategory: String = ""
-    @State private var categorySearchText: String = ""
     @State private var amountText: String = ""
-    @State private var selectedAccount: Account?
+    @State private var attachments: [AttachmentData] = []
     
+    // Recurrence settings
     @State private var isRecurring: Bool = false
-    @State private var frequency: RecurrenceFrequency = .monthly
-    @State private var dayOfMonth: Int = 1
-    @State private var selectedWeekDay: WeekDay = .monday
-    @State private var weekendHandling: WeekendHandling = .none
-    @State private var startDate: Date = Date()
-    @State private var hasEndDate: Bool = false
-    @State private var endDate: Date = Date().addingTimeInterval(365 * 24 * 60 * 60)
+    @State private var recurrenceFrequency: RecurrenceFrequency = .monthly
+    @State private var recurrenceInterval: Int = 1
+    @State private var recurrenceDayOfMonth: Int = 1
+    @State private var recurrenceDayOfWeek: Int = 2 // Monday
+    @State private var recurrenceWeekendAdjustment: WeekendAdjustment = .none
+    @State private var recurrenceEndDate: Date? = nil
+    
+    @State private var selectedExpenseAccount: Account?
+    @State private var selectedPaymentAccount: Account?
+    @State private var selectedDepositAccount: Account?
+    @State private var selectedIncomeAccount: Account?
+    @State private var selectedFromAccount: Account?
+    @State private var selectedToAccount: Account?
     
     @State private var showingValidationError = false
-    @State private var validationMessage = ""
+    @State private var validationMessage: LocalizedStringKey = ""
     
-    private var filteredCategories: [CategoryInfo] {
-        let categories = CategoryList.categories(for: transactionType)
-        if categorySearchText.isEmpty {
-            return categories
+    private var assetAndLiabilityAccounts: [Account] {
+        accounts.filter { ($0.accountClass == .asset || $0.accountClass == .liability) && $0.isActive }
+    }
+    
+    private var expenseAccounts: [Account] {
+        accounts.filter { $0.accountClass == .expense && $0.isActive }
+    }
+    
+    private var incomeAccounts: [Account] {
+        accounts.filter { $0.accountClass == .income && $0.isActive }
+    }
+    
+    private var amount: Decimal {
+        CurrencyFormatter.parse(amountText)
+    }
+    
+    private var currentCurrency: String {
+        switch transactionType {
+        case .expense:
+            return selectedPaymentAccount?.currency ?? "EUR"
+        case .income:
+            return selectedDepositAccount?.currency ?? "EUR"
+        case .transfer:
+            return selectedFromAccount?.currency ?? "EUR"
         }
-        return categories.filter { $0.name.localizedCaseInsensitiveContains(categorySearchText) }
+    }
+    
+    private var isValid: Bool {
+        guard !amountText.isEmpty, amount > 0 else { return false }
+        
+        switch transactionType {
+        case .expense:
+            return selectedExpenseAccount != nil && selectedPaymentAccount != nil
+        case .income:
+            return selectedIncomeAccount != nil && selectedDepositAccount != nil
+        case .transfer:
+            return selectedFromAccount != nil && selectedToAccount != nil && selectedFromAccount?.id != selectedToAccount?.id
+        }
     }
     
     var body: some View {
         NavigationStack {
             Form {
-                Section(String(localized: "Transaction Type")) {
-                    Picker(String(localized: "Type"), selection: $transactionType) {
-                        ForEach(TransactionType.allCases) { type in
+                Section("Transaction type") {
+                    Picker("Type", selection: $transactionType) {
+                        ForEach(SimpleTransactionType.allCases) { type in
                             Label(type.localizedName, systemImage: type.iconName)
                                 .tag(type)
                         }
                     }
                     .pickerStyle(.segmented)
-                    .onChange(of: transactionType) {
-                        selectedCategory = ""
-                        categorySearchText = ""
-                    }
                 }
                 
-                Section(String(localized: "Account")) {
-                    if accounts.isEmpty {
-                        Text("No accounts available. Please create an account first.")
+                Section("Recurrence") {
+                    RecurrenceConfigView(
+                        isRecurring: $isRecurring,
+                        frequency: $recurrenceFrequency,
+                        interval: $recurrenceInterval,
+                        dayOfMonth: $recurrenceDayOfMonth,
+                        dayOfWeek: $recurrenceDayOfWeek,
+                        weekendAdjustment: $recurrenceWeekendAdjustment,
+                        endDate: $recurrenceEndDate
+                    )
+                }
+                
+                Section("Details") {
+                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                    HStack {
+                        Text(CurrencyList.symbol(forCode: currentCurrency))
                             .foregroundStyle(.secondary)
-                    } else {
-                        Picker(String(localized: "Account"), selection: $selectedAccount) {
-                            Text(String(localized: "Select Account")).tag(nil as Account?)
-                            ForEach(accounts) { account in
-                                Label(account.name, systemImage: account.accountType.iconName)
-                                    .tag(account as Account?)
-                            }
-                        }
+                        TextField("Amount", text: $amountText)
                     }
                 }
                 
-                Section(String(localized: "Details")) {
-                    if !isRecurring {
-                        DatePicker(String(localized: "Date"), selection: $date, displayedComponents: .date)
-                    }
-                    
-                    TextField(String(localized: "Description"), text: $descriptionText)
-                    
-                    TextField(String(localized: "Amount"), text: $amountText)
-                        .help(String(localized: "Enter the transaction amount"))
+                accountsSection
+                
+                Section("Description") {
+                    TextEditor(text: $descriptionText)
+                        .frame(minHeight: 80)
                 }
                 
-                Section(String(localized: "Category")) {
-                    TextField(String(localized: "Search or select category"), text: $categorySearchText)
-                    
-                    List(filteredCategories) { category in
-                        Button {
-                            selectedCategory = category.name
-                            categorySearchText = category.name
-                        } label: {
-                            HStack {
-                                Image(systemName: category.icon)
-                                    .foregroundStyle(transactionType == .income ? .green : .red)
-                                    .frame(width: 24)
-                                Text(category.name)
-                                Spacer()
-                                if selectedCategory == category.name {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(.tint)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .frame(minHeight: 150)
+                Section("Attachments") {
+                    AttachmentPickerView(attachments: $attachments)
                 }
                 
                 Section {
-                    Toggle(String(localized: "Make this recurring"), isOn: $isRecurring)
-                        .onChange(of: isRecurring) {
-                            if isRecurring {
-                                startDate = date
-                            }
-                        }
-                }
-                
-                if isRecurring {
-                    RecurringFieldsView(
-                        frequency: $frequency,
-                        dayOfMonth: $dayOfMonth,
-                        selectedWeekDay: $selectedWeekDay,
-                        weekendHandling: $weekendHandling,
-                        startDate: $startDate,
-                        hasEndDate: $hasEndDate,
-                        endDate: $endDate
-                    )
+                    journalPreview
+                } header: {
+                    Label("Journal entry preview", systemImage: "doc.text")
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle(String(localized: "New Transaction"))
+            .navigationTitle("New transaction")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(String(localized: "Cancel")) {
-                        dismiss()
-                    }
+                    Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(String(localized: "Save")) {
-                        saveTransaction()
-                    }
-                    .disabled(selectedAccount == nil || amountText.isEmpty)
+                    Button("Save") { saveTransaction() }
+                        .disabled(!isValid)
                 }
             }
-            .alert(String(localized: "Validation Error"), isPresented: $showingValidationError) {
-                Button(String(localized: "OK"), role: .cancel) { }
+            .alert("Validation error", isPresented: $showingValidationError) {
+                Button("OK", role: .cancel) { }
             } message: {
                 Text(validationMessage)
             }
-            .onAppear {
-                if let preselectedAccount {
-                    selectedAccount = preselectedAccount
-                }
+            .onAppear { setupPreselectedAccount() }
+            .id(settings.refreshID)
+        }
+        .frame(minWidth: 450, minHeight: 550)
+    }
+    
+    @ViewBuilder
+    private var accountsSection: some View {
+        Section("Accounts") {
+            switch transactionType {
+            case .expense:
+                AccountPicker(title: "Expense category", accounts: expenseAccounts, selection: $selectedExpenseAccount)
+                AccountPicker(title: "Pay from", accounts: assetAndLiabilityAccounts, selection: $selectedPaymentAccount)
+            case .income:
+                AccountPicker(title: "Income category", accounts: incomeAccounts, selection: $selectedIncomeAccount)
+                AccountPicker(title: "Deposit to", accounts: assetAndLiabilityAccounts, selection: $selectedDepositAccount)
+            case .transfer:
+                AccountPicker(title: "From account", accounts: assetAndLiabilityAccounts, selection: $selectedFromAccount)
+                AccountPicker(title: "To account", accounts: assetAndLiabilityAccounts.filter { $0.id != selectedFromAccount?.id }, selection: $selectedToAccount)
             }
         }
-        .frame(minWidth: 450, minHeight: 600)
+    }
+    
+    @ViewBuilder
+    private var journalPreview: some View {
+        let (debitName, creditName) = previewAccounts
+        JournalEntryPreview(
+            debitAccountName: debitName,
+            creditAccountName: creditName,
+            amount: amount,
+            currency: currentCurrency
+        )
+    }
+    
+    private var previewAccounts: (String?, String?) {
+        switch transactionType {
+        case .expense:
+            return (selectedExpenseAccount?.displayName, selectedPaymentAccount?.displayName)
+        case .income:
+            return (selectedDepositAccount?.displayName, selectedIncomeAccount?.displayName)
+        case .transfer:
+            return (selectedToAccount?.displayName, selectedFromAccount?.displayName)
+        }
+    }
+    
+    private func setupPreselectedAccount() {
+        guard let account = preselectedAccount else { return }
+        switch account.accountClass {
+        case .asset, .liability:
+            selectedPaymentAccount = account
+            selectedDepositAccount = account
+            selectedFromAccount = account
+        case .expense:
+            selectedExpenseAccount = account
+        case .income:
+            selectedIncomeAccount = account
+        case .equity:
+            break
+        }
     }
     
     private func saveTransaction() {
-        guard let account = selectedAccount else {
-            validationMessage = String(localized: "Please select an account.")
+        guard amount > 0 else {
+            validationMessage = "Please enter a valid positive amount."
             showingValidationError = true
             return
         }
         
-        let cleanedAmount = amountText.replacingOccurrences(of: ",", with: ".")
-        guard let amount = Decimal(string: cleanedAmount), amount > 0 else {
-            validationMessage = String(localized: "Please enter a valid positive amount.")
-            showingValidationError = true
-            return
-        }
+        let description = descriptionText.trimmingCharacters(in: .whitespacesAndNewlines)
+        var transaction: Transaction?
         
-        let category = selectedCategory.isEmpty ? 
-            (transactionType == .expense ? String(localized: "Other Expense") : String(localized: "Other Income")) : 
-            selectedCategory
-        
-        if isRecurring {
-            let recurring = RecurringTransaction(
-                descriptionText: descriptionText.trimmingCharacters(in: .whitespacesAndNewlines),
-                category: category,
-                amount: amount,
-                transactionType: transactionType,
-                frequency: frequency,
-                dayOfMonth: frequency == .monthly ? dayOfMonth : nil,
-                weekDay: frequency == .weekly ? selectedWeekDay : nil,
-                weekendHandling: weekendHandling,
-                startDate: startDate,
-                endDate: hasEndDate ? endDate : nil,
-                account: account
-            )
-            
-            modelContext.insert(recurring)
-        } else {
-            let transaction = Transaction(
+        switch transactionType {
+        case .expense:
+            guard let expenseAccount = selectedExpenseAccount, let paymentAccount = selectedPaymentAccount else {
+                showValidationError()
+                return
+            }
+            transaction = TransactionBuilder.createExpense(
                 date: date,
-                descriptionText: descriptionText.trimmingCharacters(in: .whitespacesAndNewlines),
-                category: category,
+                description: description.isEmpty ? expenseAccount.name : description,
                 amount: amount,
-                transactionType: transactionType,
-                account: account
+                expenseAccount: expenseAccount,
+                paymentAccount: paymentAccount,
+                reference: "",
+                context: modelContext
             )
             
-            modelContext.insert(transaction)
+        case .income:
+            guard let depositAccount = selectedDepositAccount, let incomeAccount = selectedIncomeAccount else {
+                showValidationError()
+                return
+            }
+            transaction = TransactionBuilder.createIncome(
+                date: date,
+                description: description.isEmpty ? incomeAccount.name : description,
+                amount: amount,
+                depositAccount: depositAccount,
+                incomeAccount: incomeAccount,
+                reference: "",
+                context: modelContext
+            )
             
-            // Update account balance
-            account.balance += transaction.signedAmount
+        case .transfer:
+            guard let fromAccount = selectedFromAccount, let toAccount = selectedToAccount else {
+                showValidationError()
+                return
+            }
+            transaction = TransactionBuilder.createTransfer(
+                date: date,
+                description: description.isEmpty ? "Transfer" : description,
+                amount: amount,
+                fromAccount: fromAccount,
+                toAccount: toAccount,
+                reference: "",
+                context: modelContext
+            )
+        }
+        
+        // Save attachments and recurrence
+        if let transaction = transaction {
+            transaction.isRecurring = isRecurring
+            
+            for attachmentData in attachments {
+                let attachment = Attachment(
+                    filename: attachmentData.filename,
+                    mimeType: attachmentData.mimeType,
+                    data: attachmentData.data
+                )
+                attachment.transaction = transaction
+                modelContext.insert(attachment)
+            }
+            
+            // Create recurrence rule if recurring
+            if isRecurring {
+                let rule = RecurrenceRule(
+                    frequency: recurrenceFrequency,
+                    interval: recurrenceInterval,
+                    dayOfMonth: recurrenceDayOfMonth,
+                    dayOfWeek: recurrenceDayOfWeek,
+                    weekendAdjustment: recurrenceWeekendAdjustment,
+                    startDate: date,
+                    endDate: recurrenceEndDate
+                )
+                rule.nextOccurrence = rule.calculateNextOccurrence(from: date)
+                rule.transaction = transaction
+                modelContext.insert(rule)
+            }
         }
         
         dismiss()
+    }
+    
+    private func showValidationError() {
+        validationMessage = "Please select both accounts."
+        showingValidationError = true
     }
 }
 
 #Preview {
     AddTransactionView()
         .modelContainer(for: Account.self, inMemory: true)
+        .environment(AppSettings.shared)
 }
