@@ -8,6 +8,66 @@
 import SwiftUI
 import SwiftData
 
+enum TransactionDateFilter: String, CaseIterable, Identifiable {
+    case today = "today"
+    case thisWeek = "thisWeek"
+    case last15Days = "last15Days"
+    case thisMonth = "thisMonth"
+    case lastMonth = "lastMonth"
+    case last3Months = "last3Months"
+    case last6Months = "last6Months"
+    case last12Months = "last12Months"
+    
+    var id: String { rawValue }
+    
+    var localizedName: LocalizedStringKey {
+        switch self {
+        case .today: return "Today"
+        case .thisWeek: return "This week"
+        case .last15Days: return "Last 15 days"
+        case .thisMonth: return "This month"
+        case .lastMonth: return "Last month"
+        case .last3Months: return "Last 3 months"
+        case .last6Months: return "Last 6 months"
+        case .last12Months: return "Last 12 months"
+        }
+    }
+    
+    var dateRange: (start: Date, end: Date) {
+        let calendar = Calendar.current
+        let now = Date()
+        let startOfToday = calendar.startOfDay(for: now)
+        
+        switch self {
+        case .today:
+            return (startOfToday, now)
+        case .thisWeek:
+            let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? startOfToday
+            return (startOfWeek, now)
+        case .last15Days:
+            let start = calendar.date(byAdding: .day, value: -14, to: startOfToday) ?? startOfToday
+            return (start, now)
+        case .thisMonth:
+            let startOfMonth = calendar.dateInterval(of: .month, for: now)?.start ?? startOfToday
+            return (startOfMonth, now)
+        case .lastMonth:
+            let startOfThisMonth = calendar.dateInterval(of: .month, for: now)?.start ?? startOfToday
+            let startOfLastMonth = calendar.date(byAdding: .month, value: -1, to: startOfThisMonth) ?? startOfToday
+            let endOfLastMonth = calendar.date(byAdding: .second, value: -1, to: startOfThisMonth) ?? startOfToday
+            return (startOfLastMonth, endOfLastMonth)
+        case .last3Months:
+            let start = calendar.date(byAdding: .month, value: -3, to: startOfToday) ?? startOfToday
+            return (start, now)
+        case .last6Months:
+            let start = calendar.date(byAdding: .month, value: -6, to: startOfToday) ?? startOfToday
+            return (start, now)
+        case .last12Months:
+            let start = calendar.date(byAdding: .month, value: -12, to: startOfToday) ?? startOfToday
+            return (start, now)
+        }
+    }
+}
+
 struct TransactionListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppSettings.self) private var settings
@@ -15,16 +75,30 @@ struct TransactionListView: View {
     @State private var showingAddTransaction = false
     @State private var transactionToEdit: Transaction?
     @State private var transactionToDelete: Transaction?
+    @State private var dateFilter: TransactionDateFilter = .thisMonth
+    @State private var searchText: String = ""
     
     var account: Account?
     
     private var filteredTransactions: [Transaction] {
+        var result: [Transaction]
+        
+        // If searching, always use last 12 months
+        if !searchText.isEmpty {
+            let range = TransactionDateFilter.last12Months.dateRange
+            result = transactions.filter { $0.date >= range.start && $0.date <= range.end }
+            result = result.filter { $0.descriptionText.localizedCaseInsensitiveContains(searchText) }
+        } else {
+            let range = dateFilter.dateRange
+            result = transactions.filter { $0.date >= range.start && $0.date <= range.end }
+        }
+        
         if let account {
-            return transactions.filter { transaction in
+            result = result.filter { transaction in
                 (transaction.entries ?? []).contains { $0.account?.id == account.id }
             }
         }
-        return transactions
+        return result
     }
     
     private var groupedTransactions: [(String, [Transaction])] {
@@ -35,46 +109,54 @@ struct TransactionListView: View {
     }
     
     var body: some View {
-        Group {
-            if filteredTransactions.isEmpty {
-                VStack {
-                    ContentUnavailableView {
-                        Label("No transactions", systemImage: "arrow.left.arrow.right")
-                    } description: {
-                        Text("Add your first transaction to track your finances.")
-                    } actions: {
-                        Button("Add transaction") {
-                            showingAddTransaction = true
-                        }
-                    }
-                    Spacer()
-                }
-            } else {
-                List {
-                    ForEach(groupedTransactions, id: \.0) { dateString, dayTransactions in
-                        Section(dateString) {
-                            ForEach(dayTransactions) { transaction in
-                                TransactionRowView(transaction: transaction, highlightAccount: account)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        transactionToEdit = transaction
-                                    }
-                                    .contextMenu {
-                                        Button {
-                                            transactionToEdit = transaction
-                                        } label: {
-                                            Label("Edit", systemImage: "pencil")
-                                        }
-                                        
-                                        Button(role: .destructive) {
-                                            transactionToDelete = transaction
-                                        } label: {
-                                            Label("Delete", systemImage: "trash")
-                                        }
-                                    }
+        VStack(spacing: 0) {
+            TransactionFilterBar(
+                dateFilter: $dateFilter,
+                searchText: $searchText,
+                onAddTransaction: { showingAddTransaction = true }
+            )
+            
+            Group {
+                if filteredTransactions.isEmpty {
+                    VStack {
+                        ContentUnavailableView {
+                            Label("No transactions", systemImage: "arrow.left.arrow.right")
+                        } description: {
+                            Text("No transactions found for the selected period.")
+                        } actions: {
+                            Button("Add transaction") {
+                                showingAddTransaction = true
                             }
-                            .onDelete { indexSet in
-                                deleteTransactions(from: dayTransactions, at: indexSet)
+                        }
+                        Spacer()
+                    }
+                } else {
+                    List {
+                        ForEach(groupedTransactions, id: \.0) { dateString, dayTransactions in
+                            Section(dateString) {
+                                ForEach(dayTransactions) { transaction in
+                                    TransactionRowView(transaction: transaction, highlightAccount: account)
+                                        .contentShape(Rectangle())
+                                        .onTapGesture {
+                                            transactionToEdit = transaction
+                                        }
+                                        .contextMenu {
+                                            Button {
+                                                transactionToEdit = transaction
+                                            } label: {
+                                                Label("Edit", systemImage: "pencil")
+                                            }
+                                            
+                                            Button(role: .destructive) {
+                                                transactionToDelete = transaction
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                        }
+                                }
+                                .onDelete { indexSet in
+                                    deleteTransactions(from: dayTransactions, at: indexSet)
+                                }
                             }
                         }
                     }
@@ -82,15 +164,6 @@ struct TransactionListView: View {
             }
         }
         .navigationTitle(account?.name ?? String(localized: "All transactions"))
-        .toolbar {
-            if account == nil {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingAddTransaction = true }) {
-                        Label("Add transaction", systemImage: "plus")
-                    }
-                }
-            }
-        }
         .sheet(isPresented: $showingAddTransaction) {
             AddTransactionView(preselectedAccount: account)
         }
@@ -132,6 +205,52 @@ struct TransactionListView: View {
         withAnimation {
             modelContext.delete(transaction)
         }
+    }
+}
+
+struct TransactionFilterBar: View {
+    @Binding var dateFilter: TransactionDateFilter
+    @Binding var searchText: String
+    var onAddTransaction: (() -> Void)?
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField("Search", text: $searchText)
+                    .textFieldStyle(.plain)
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(8)
+            .background(Color(nsColor: .controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            
+            Picker("Period", selection: $dateFilter) {
+                ForEach(TransactionDateFilter.allCases) { filter in
+                    Text(filter.localizedName).tag(filter)
+                }
+            }
+            .labelsHidden()
+            .fixedSize()
+            
+            if let onAdd = onAddTransaction {
+                Button(action: onAdd) {
+                    Label("Add", systemImage: "plus")
+                }
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(nsColor: .windowBackgroundColor))
     }
 }
 

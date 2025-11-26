@@ -21,14 +21,6 @@ struct ContentView: View {
     
     var body: some View {
         AccountListView()
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button(action: { showingSettings = true }) {
-                        Label("Settings", systemImage: "gear")
-                    }
-                    .keyboardShortcut(",", modifiers: .command)
-                }
-            }
             .sheet(isPresented: $showingSettings) {
                 NavigationStack {
                     SettingsView()
