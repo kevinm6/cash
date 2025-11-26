@@ -101,11 +101,11 @@ struct EditTransactionView: View {
                     }
                 }
                 
-                Section("Debit Account (receives value)") {
+                Section("Debit account (receives value)") {
                     AccountPicker(title: "Debit", accounts: activeAccounts, selection: $selectedDebitAccount, showClass: true)
                 }
                 
-                Section("Credit Account (gives value)") {
+                Section("Credit account (gives value)") {
                     AccountPicker(title: "Credit", accounts: activeAccounts.filter { $0.id != selectedDebitAccount?.id }, selection: $selectedCreditAccount, showClass: true)
                 }
                 
@@ -142,11 +142,11 @@ struct EditTransactionView: View {
                         currency: currentCurrency
                     )
                 } header: {
-                    Label("Journal Entry Preview", systemImage: "doc.text")
+                    Label("Journal entry preview", systemImage: "doc.text")
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle("Edit Transaction")
+            .navigationTitle("Edit transaction")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -156,7 +156,7 @@ struct EditTransactionView: View {
                         .disabled(!isValid)
                 }
             }
-            .alert("Validation Error", isPresented: $showingValidationError) {
+            .alert("Validation error", isPresented: $showingValidationError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(validationMessage)

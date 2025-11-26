@@ -172,26 +172,26 @@ enum AccountType: String, Codable, CaseIterable, Identifiable {
         switch self {
         // Asset types
         case .cash: return String(localized: "Cash")
-        case .bank: return String(localized: "Bank Account")
+        case .bank: return String(localized: "Bank account")
         case .investment: return String(localized: "Investment")
         case .receivable: return String(localized: "Receivable")
-        case .prepaidExpense: return String(localized: "Prepaid Expense")
+        case .prepaidExpense: return String(localized: "Prepaid expense")
         // Liability types
-        case .creditCard: return String(localized: "Credit Card")
+        case .creditCard: return String(localized: "Credit card")
         case .loan: return String(localized: "Loan")
         case .payable: return String(localized: "Payable")
         // Equity types
-        case .retainedEarnings: return String(localized: "Retained Earnings")
-        case .openingBalance: return String(localized: "Opening Balance")
+        case .retainedEarnings: return String(localized: "Retained earnings")
+        case .openingBalance: return String(localized: "Opening balance")
         // Income types
         case .salary: return String(localized: "Salary")
         case .freelance: return String(localized: "Freelance")
-        case .interestIncome: return String(localized: "Interest Income")
-        case .dividendIncome: return String(localized: "Dividend Income")
-        case .rentalIncome: return String(localized: "Rental Income")
-        case .otherIncome: return String(localized: "Other Income")
+        case .interestIncome: return String(localized: "Interest income")
+        case .dividendIncome: return String(localized: "Dividend income")
+        case .rentalIncome: return String(localized: "Rental income")
+        case .otherIncome: return String(localized: "Other income")
         // Expense types
-        case .food: return String(localized: "Food & Dining")
+        case .food: return String(localized: "Food & dining")
         case .transportation: return String(localized: "Transportation")
         case .utilities: return String(localized: "Utilities")
         case .housing: return String(localized: "Housing")
@@ -201,9 +201,9 @@ enum AccountType: String, Codable, CaseIterable, Identifiable {
         case .education: return String(localized: "Education")
         case .travel: return String(localized: "Travel")
         case .insurance: return String(localized: "Insurance")
-        case .personalCare: return String(localized: "Personal Care")
+        case .personalCare: return String(localized: "Personal care")
         case .subscriptions: return String(localized: "Subscriptions")
-        case .otherExpense: return String(localized: "Other Expense")
+        case .otherExpense: return String(localized: "Other expense")
         }
     }
     

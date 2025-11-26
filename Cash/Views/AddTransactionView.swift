@@ -109,7 +109,7 @@ struct AddTransactionView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Transaction Type") {
+                Section("Transaction type") {
                     Picker("Type", selection: $transactionType) {
                         ForEach(SimpleTransactionType.allCases) { type in
                             Label(type.localizedName, systemImage: type.iconName)
@@ -154,11 +154,11 @@ struct AddTransactionView: View {
                 Section {
                     journalPreview
                 } header: {
-                    Label("Journal Entry Preview", systemImage: "doc.text")
+                    Label("Journal entry preview", systemImage: "doc.text")
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle("New Transaction")
+            .navigationTitle("New transaction")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -168,7 +168,7 @@ struct AddTransactionView: View {
                         .disabled(!isValid)
                 }
             }
-            .alert("Validation Error", isPresented: $showingValidationError) {
+            .alert("Validation error", isPresented: $showingValidationError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(validationMessage)
@@ -184,14 +184,14 @@ struct AddTransactionView: View {
         Section("Accounts") {
             switch transactionType {
             case .expense:
-                AccountPicker(title: "Expense Category", accounts: expenseAccounts, selection: $selectedExpenseAccount)
-                AccountPicker(title: "Pay From", accounts: assetAndLiabilityAccounts, selection: $selectedPaymentAccount)
+                AccountPicker(title: "Expense category", accounts: expenseAccounts, selection: $selectedExpenseAccount)
+                AccountPicker(title: "Pay from", accounts: assetAndLiabilityAccounts, selection: $selectedPaymentAccount)
             case .income:
-                AccountPicker(title: "Income Category", accounts: incomeAccounts, selection: $selectedIncomeAccount)
-                AccountPicker(title: "Deposit To", accounts: assetAndLiabilityAccounts, selection: $selectedDepositAccount)
+                AccountPicker(title: "Income category", accounts: incomeAccounts, selection: $selectedIncomeAccount)
+                AccountPicker(title: "Deposit to", accounts: assetAndLiabilityAccounts, selection: $selectedDepositAccount)
             case .transfer:
-                AccountPicker(title: "From Account", accounts: assetAndLiabilityAccounts, selection: $selectedFromAccount)
-                AccountPicker(title: "To Account", accounts: assetAndLiabilityAccounts.filter { $0.id != selectedFromAccount?.id }, selection: $selectedToAccount)
+                AccountPicker(title: "From account", accounts: assetAndLiabilityAccounts, selection: $selectedFromAccount)
+                AccountPicker(title: "To account", accounts: assetAndLiabilityAccounts.filter { $0.id != selectedFromAccount?.id }, selection: $selectedToAccount)
             }
         }
     }

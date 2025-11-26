@@ -49,7 +49,7 @@ struct SettingsView: View {
                 Button(role: .destructive) {
                     showingFirstResetAlert = true
                 } label: {
-                    Label("Reset All Data", systemImage: "trash.fill")
+                    Label("Reset all data", systemImage: "trash.fill")
                 }
             } header: {
                 Label("Data", systemImage: "externaldrive.fill")
@@ -71,7 +71,7 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .navigationTitle("Settings")
         .id(settings.refreshID)
-        .alert("Reset All Data?", isPresented: $showingFirstResetAlert) {
+        .alert("Reset all data?", isPresented: $showingFirstResetAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Continue", role: .destructive) {
                 showingSecondResetAlert = true
@@ -81,7 +81,7 @@ struct SettingsView: View {
         }
         .alert("Are you absolutely sure?", isPresented: $showingSecondResetAlert) {
             Button("Cancel", role: .cancel) { }
-            Button("Delete Everything", role: .destructive) {
+            Button("Delete everything", role: .destructive) {
                 resetAllData()
             }
         } message: {

@@ -81,7 +81,7 @@ struct AccountPicker: View {
     
     var body: some View {
         Picker(title, selection: $selection) {
-            Text("Select Account").tag(nil as Account?)
+            Text("Select account").tag(nil as Account?)
             ForEach(accounts) { account in
                 if showClass {
                     HStack {

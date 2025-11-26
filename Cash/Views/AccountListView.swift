@@ -20,7 +20,7 @@ struct AccountListView: View {
             List(selection: $selectedAccount) {
                 if accounts.isEmpty {
                     ContentUnavailableView {
-                        Label("No Accounts", systemImage: "building.columns")
+                        Label("No accounts", systemImage: "building.columns")
                     } description: {
                         Text("Create your first account to get started.")
                     }
@@ -41,12 +41,12 @@ struct AccountListView: View {
                     }
                 }
             }
-            .navigationTitle("Chart of Accounts")
+            .navigationTitle("Chart of accounts")
             .navigationSplitViewColumnWidth(min: 280, ideal: 320)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddAccount = true }) {
-                        Label("Add Account", systemImage: "plus")
+                        Label("Add account", systemImage: "plus")
                     }
                 }
             }
@@ -59,7 +59,7 @@ struct AccountListView: View {
                 AccountDetailView(account: account)
             } else {
                 ContentUnavailableView {
-                    Label("Select an Account", systemImage: "building.columns")
+                    Label("Select an account", systemImage: "building.columns")
                 } description: {
                     Text("Choose an account from the sidebar to view details.")
                 }

@@ -30,13 +30,13 @@ struct EditAccountView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Account Information") {
-                    TextField("Account Name", text: $name)
-                    TextField("Account Number", text: $accountNumber)
+                Section(String(localized: "Account information")) {
+                    TextField(String(localized: "Account name"), text: $name)
+                    TextField(String(localized: "Account number"), text: $accountNumber)
                 }
                 
-                Section("Account Class") {
-                    Picker("Class", selection: $selectedClass) {
+                Section(String(localized: "Account class")) {
+                    Picker(String(localized: "Class"), selection: $selectedClass) {
                         ForEach(AccountClass.allCases) { accountClass in
                             Label(accountClass.localizedName, systemImage: accountClass.iconName)
                                 .tag(accountClass)
@@ -51,8 +51,8 @@ struct EditAccountView: View {
                     }
                 }
                 
-                Section("Account Type") {
-                    Picker("Type", selection: $selectedType) {
+                Section(String(localized: "Account type")) {
+                    Picker(String(localized: "Type"), selection: $selectedType) {
                         ForEach(availableTypes) { type in
                             Label(type.localizedName, systemImage: type.iconName)
                                 .tag(type)
@@ -78,7 +78,7 @@ struct EditAccountView: View {
                 
                 Section {
                     HStack {
-                        Text("Current Balance")
+                        Text("Current balance")
                         Spacer()
                         Text(CurrencyFormatter.format(account.balance, currency: account.currency))
                             .fontWeight(.medium)
@@ -90,7 +90,7 @@ struct EditAccountView: View {
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle("Edit Account")
+            .navigationTitle("Edit account")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -104,7 +104,7 @@ struct EditAccountView: View {
                     .disabled(name.isEmpty)
                 }
             }
-            .alert("Validation Error", isPresented: $showingValidationError) {
+            .alert("Validation error", isPresented: $showingValidationError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(validationMessage)

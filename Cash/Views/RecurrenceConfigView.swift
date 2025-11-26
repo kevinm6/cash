@@ -28,7 +28,7 @@ struct RecurrenceConfigView: View {
     ]
     
     var body: some View {
-        Toggle("Recurring Transaction", isOn: $isRecurring)
+        Toggle("Recurring transaction", isOn: $isRecurring)
         
         if isRecurring {
             Picker("Frequency", selection: $frequency) {
@@ -48,7 +48,7 @@ struct RecurrenceConfigView: View {
             }
             
             if frequency == .weekly {
-                Picker("Day of Week", selection: $dayOfWeek) {
+                Picker("Day of week", selection: $dayOfWeek) {
                     ForEach(weekdays, id: \.0) { day in
                         Text(day.1).tag(day.0)
                     }
@@ -58,20 +58,20 @@ struct RecurrenceConfigView: View {
             if frequency == .monthly || frequency == .yearly {
                 Stepper(value: $dayOfMonth, in: 1...31) {
                     HStack {
-                        Text("On Day")
+                        Text("On day")
                         Text("\(dayOfMonth)")
                             .fontWeight(.semibold)
                     }
                 }
                 
-                Picker("Weekend Adjustment", selection: $weekendAdjustment) {
+                Picker("Weekend adjustment", selection: $weekendAdjustment) {
                     ForEach(WeekendAdjustment.allCases) { adjustment in
                         Text(adjustment.localizedName).tag(adjustment)
                     }
                 }
             }
             
-            Toggle("End Date", isOn: $hasEndDate)
+            Toggle("End date", isOn: $hasEndDate)
                 .onChange(of: hasEndDate) { _, newValue in
                     if newValue {
                         endDate = Calendar.current.date(byAdding: .year, value: 1, to: Date())

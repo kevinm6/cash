@@ -91,7 +91,7 @@ struct SetupWizardView: View {
                 Spacer()
                 
                 if currentStep == .accounts {
-                    Button(String(localized: "Get Started")) {
+                    Button(String(localized: "Get started")) {
                         completeSetup()
                     }
                     .buttonStyle(.borderedProminent)
@@ -130,14 +130,14 @@ struct SetupWizardView: View {
         accountSetupList = [
             // Assets
             AccountSetupInfo(name: String(localized: "Cash"), accountNumber: "1000", accountClass: .asset, accountType: .cash),
-            AccountSetupInfo(name: String(localized: "Bank Account"), accountNumber: "1010", accountClass: .asset, accountType: .bank),
+            AccountSetupInfo(name: String(localized: "Bank account"), accountNumber: "1010", accountClass: .asset, accountType: .bank),
             // Liabilities
-            AccountSetupInfo(name: String(localized: "Credit Card"), accountNumber: "2000", accountClass: .liability, accountType: .creditCard),
+            AccountSetupInfo(name: String(localized: "Credit card"), accountNumber: "2000", accountClass: .liability, accountType: .creditCard),
             // Income
             AccountSetupInfo(name: String(localized: "Salary"), accountNumber: "4000", accountClass: .income, accountType: .salary),
-            AccountSetupInfo(name: String(localized: "Other Income"), accountNumber: "4900", accountClass: .income, accountType: .otherIncome),
+            AccountSetupInfo(name: String(localized: "Other income"), accountNumber: "4900", accountClass: .income, accountType: .otherIncome),
             // Expenses
-            AccountSetupInfo(name: String(localized: "Food & Dining"), accountNumber: "5000", accountClass: .expense, accountType: .food),
+            AccountSetupInfo(name: String(localized: "Food & dining"), accountNumber: "5000", accountClass: .expense, accountType: .food),
             AccountSetupInfo(name: String(localized: "Transportation"), accountNumber: "5100", accountClass: .expense, accountType: .transportation),
             AccountSetupInfo(name: String(localized: "Utilities"), accountNumber: "5200", accountClass: .expense, accountType: .utilities),
             AccountSetupInfo(name: String(localized: "Housing"), accountNumber: "5300", accountClass: .expense, accountType: .housing),
@@ -145,7 +145,7 @@ struct SetupWizardView: View {
             AccountSetupInfo(name: String(localized: "Entertainment"), accountNumber: "5500", accountClass: .expense, accountType: .entertainment),
             AccountSetupInfo(name: String(localized: "Shopping"), accountNumber: "5600", accountClass: .expense, accountType: .shopping),
             AccountSetupInfo(name: String(localized: "Subscriptions"), accountNumber: "5700", accountClass: .expense, accountType: .subscriptions),
-            AccountSetupInfo(name: String(localized: "Other Expense"), accountNumber: "5900", accountClass: .expense, accountType: .otherExpense),
+            AccountSetupInfo(name: String(localized: "Other expense"), accountNumber: "5900", accountClass: .expense, accountType: .otherExpense),
         ]
         
         // Re-add user accounts
@@ -197,7 +197,7 @@ struct SetupWizardView: View {
     @ViewBuilder
     private func preferencesStep(settings: Bindable<AppSettings>) -> some View {
         VStack(spacing: 20) {
-            Text("Choose Your Preferences")
+            Text("Choose your preferences")
                 .font(.title)
                 .fontWeight(.bold)
                 .padding(.top, 20)
@@ -218,7 +218,7 @@ struct SetupWizardView: View {
                     .labelsHidden()
                 }
                 
-                Section(String(localized: "Default Currency")) {
+                Section(String(localized: "Default currency")) {
                     Picker(String(localized: "Currency"), selection: $selectedCurrency) {
                         ForEach(CurrencyList.currencies) { currency in
                             Text(currency.displayName)
@@ -248,7 +248,7 @@ struct SetupWizardView: View {
     
     private var accountsStep: some View {
         VStack(spacing: 12) {
-            Text("Default Accounts")
+            Text("Default accounts")
                 .font(.title)
                 .fontWeight(.bold)
                 .padding(.top, 20)
@@ -324,7 +324,7 @@ struct SetupWizardView: View {
             newAccountType = AccountType.types(for: accountClass).first ?? .bank
             showingAddAccount = true
         } label: {
-            Label(String(localized: "Add Account"), systemImage: "plus.circle")
+            Label(String(localized: "Add account"), systemImage: "plus.circle")
                 .foregroundStyle(Color.accentColor)
         }
         .buttonStyle(.plain)
@@ -371,11 +371,11 @@ struct SetupWizardView: View {
     
     private var addAccountSheet: some View {
         VStack(spacing: 20) {
-            Text(String(localized: "New Account"))
+            Text(String(localized: "New account"))
                 .font(.headline)
             
             Form {
-                TextField(String(localized: "Account Name"), text: $newAccountName)
+                TextField(String(localized: "Account name"), text: $newAccountName)
                 
                 Picker(String(localized: "Type"), selection: $newAccountType) {
                     ForEach(AccountType.types(for: addAccountForClass)) { type in

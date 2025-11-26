@@ -39,11 +39,11 @@ struct TransactionListView: View {
             if filteredTransactions.isEmpty {
                 VStack {
                     ContentUnavailableView {
-                        Label("No Transactions", systemImage: "arrow.left.arrow.right")
+                        Label("No transactions", systemImage: "arrow.left.arrow.right")
                     } description: {
                         Text("Add your first transaction to track your finances.")
                     } actions: {
-                        Button("Add Transaction") {
+                        Button("Add transaction") {
                             showingAddTransaction = true
                         }
                     }
@@ -81,12 +81,12 @@ struct TransactionListView: View {
                 }
             }
         }
-        .navigationTitle(account?.name ?? String(localized: "All Transactions"))
+        .navigationTitle(account?.name ?? String(localized: "All transactions"))
         .toolbar {
             if account == nil {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddTransaction = true }) {
-                        Label("Add Transaction", systemImage: "plus")
+                        Label("Add transaction", systemImage: "plus")
                     }
                 }
             }
@@ -98,7 +98,7 @@ struct TransactionListView: View {
             EditTransactionView(transaction: transaction)
         }
         .confirmationDialog(
-            "Delete Transaction",
+            "Delete transaction",
             isPresented: Binding(
                 get: { transactionToDelete != nil },
                 set: { if !$0 { transactionToDelete = nil } }

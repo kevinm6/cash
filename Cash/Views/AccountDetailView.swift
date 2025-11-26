@@ -51,7 +51,7 @@ struct AccountDetailView: View {
                             .font(.title)
                             .fontWeight(.semibold)
                             .foregroundColor(balanceColor)
-                        Text(account.accountClass.normalBalance == .debit ? "Normal: Debit" : "Normal: Credit")
+                        Text(account.accountClass.normalBalance == .debit ? "Normal: debit" : "Normal: credit")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -77,12 +77,12 @@ struct AccountDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: { showingAddTransaction = true }) {
-                    Label("Add Transaction", systemImage: "plus")
+                    Label("Add transaction", systemImage: "plus")
                 }
             }
             ToolbarItem(placement: .secondaryAction) {
                 Button(action: { showingEditSheet = true }) {
-                    Label("Edit Account", systemImage: "pencil")
+                    Label("Edit account", systemImage: "pencil")
                 }
                 .disabled(account.isSystem)
             }
@@ -100,7 +100,7 @@ struct AccountDetailView: View {
             AddTransactionView(preselectedAccount: account)
         }
         .confirmationDialog(
-            "Delete Account",
+            "Delete account",
             isPresented: $showingDeleteConfirmation,
             titleVisibility: .visible
         ) {

@@ -36,14 +36,14 @@ struct AddAccountView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Account Information") {
-                    TextField("Account Name", text: $name)
-                    TextField("Account Number", text: $accountNumber)
+                Section(String(localized: "Account information")) {
+                    TextField(String(localized: "Account name"), text: $name)
+                    TextField(String(localized: "Account number"), text: $accountNumber)
                         .help("Optional number for organizing accounts (e.g., 1000, 2000)")
                 }
                 
-                Section("Account Class") {
-                    Picker("Class", selection: $selectedClass) {
+                Section(String(localized: "Account class")) {
+                    Picker(String(localized: "Class"), selection: $selectedClass) {
                         ForEach(AccountClass.allCases) { accountClass in
                             Label(accountClass.localizedName, systemImage: accountClass.iconName)
                                 .tag(accountClass)
@@ -58,8 +58,8 @@ struct AddAccountView: View {
                     }
                 }
                 
-                Section("Account Type") {
-                    Picker("Type", selection: $selectedType) {
+                Section(String(localized: "Account type")) {
+                    Picker(String(localized: "Type"), selection: $selectedType) {
                         ForEach(availableTypes) { type in
                             Label(type.localizedName, systemImage: type.iconName)
                                 .tag(type)
@@ -79,8 +79,8 @@ struct AddAccountView: View {
                 }
                 
                 if selectedClass == .asset || selectedClass == .liability {
-                    Section("Opening Balance") {
-                        Toggle("Set Opening Balance", isOn: $createOpeningBalance)
+                    Section("Opening balance") {
+                        Toggle("Set opening balance", isOn: $createOpeningBalance)
                         
                         if createOpeningBalance {
                             TextField("Amount", text: $initialBalance)
@@ -90,7 +90,7 @@ struct AddAccountView: View {
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle("New Account")
+            .navigationTitle("New account")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -104,7 +104,7 @@ struct AddAccountView: View {
                     .disabled(name.isEmpty)
                 }
             }
-            .alert("Validation Error", isPresented: $showingValidationError) {
+            .alert("Validation error", isPresented: $showingValidationError) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(validationMessage)

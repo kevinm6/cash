@@ -245,7 +245,7 @@ struct TransactionBuilder {
     ) -> Transaction {
         let transaction = Transaction(
             date: date,
-            descriptionText: String(localized: "Opening Balance"),
+            descriptionText: String(localized: "Opening balance"),
             reference: ""
         )
         

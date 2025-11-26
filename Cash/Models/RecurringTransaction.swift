@@ -48,7 +48,7 @@ enum WeekendAdjustment: String, CaseIterable, Identifiable, Codable {
     
     var localizedName: String {
         switch self {
-        case .none: return String(localized: "No Adjustment")
+        case .none: return String(localized: "No adjustment")
         case .previousFriday: return String(localized: "Previous Friday")
         case .nextMonday: return String(localized: "Next Monday")
         }

@@ -32,7 +32,7 @@ struct AttachmentPickerView: View {
             Button {
                 showingFilePicker = true
             } label: {
-                Label("Add Attachment", systemImage: "paperclip")
+                Label("Add attachment", systemImage: "paperclip")
             }
             .buttonStyle(.bordered)
         }
@@ -182,7 +182,7 @@ struct AttachmentPreviewView: View {
                     }
                 } else {
                     ContentUnavailableView {
-                        Label("Preview Unavailable", systemImage: "doc")
+                        Label("Preview unavailable", systemImage: "doc")
                     }
                 }
             }
@@ -301,7 +301,7 @@ struct ExistingAttachmentPreviewView: View {
                     }
                 } else {
                     ContentUnavailableView {
-                        Label("Preview Unavailable", systemImage: "doc")
+                        Label("Preview unavailable", systemImage: "doc")
                     }
                 }
             }

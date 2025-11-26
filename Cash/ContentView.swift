@@ -45,11 +45,11 @@ struct ContentView: View {
                 .environment(\.locale, settings.language.locale)
             }
             .alert("Welcome to Cash", isPresented: $showingWelcome) {
-                Button("Create Example Accounts") {
+                Button("Create example accounts") {
                     createDefaultAccounts()
                     markAsLaunched()
                 }
-                Button("Start Empty", role: .cancel) {
+                Button("Start empty", role: .cancel) {
                     markAsLaunched()
                 }
             } message: {
