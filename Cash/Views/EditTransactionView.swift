@@ -23,6 +23,15 @@ struct EditTransactionView: View {
     @State private var newAttachments: [AttachmentData] = []
     @State private var attachmentsToDelete: Set<UUID> = []
     
+    // Recurrence settings
+    @State private var isRecurring: Bool = false
+    @State private var recurrenceFrequency: RecurrenceFrequency = .monthly
+    @State private var recurrenceInterval: Int = 1
+    @State private var recurrenceDayOfMonth: Int = 1
+    @State private var recurrenceDayOfWeek: Int = 2
+    @State private var recurrenceWeekendAdjustment: WeekendAdjustment = .none
+    @State private var recurrenceEndDate: Date? = nil
+    
     @State private var showingValidationError = false
     @State private var validationMessage: LocalizedStringKey = ""
     
@@ -56,11 +65,33 @@ struct EditTransactionView: View {
         _amountText = State(initialValue: "\(transaction.amount)")
         _selectedDebitAccount = State(initialValue: transaction.debitEntry?.account)
         _selectedCreditAccount = State(initialValue: transaction.creditEntry?.account)
+        _isRecurring = State(initialValue: transaction.isRecurring)
+        
+        if let rule = transaction.recurrenceRule {
+            _recurrenceFrequency = State(initialValue: rule.frequency)
+            _recurrenceInterval = State(initialValue: rule.interval)
+            _recurrenceDayOfMonth = State(initialValue: rule.dayOfMonth ?? 1)
+            _recurrenceDayOfWeek = State(initialValue: rule.dayOfWeek ?? 2)
+            _recurrenceWeekendAdjustment = State(initialValue: rule.weekendAdjustment)
+            _recurrenceEndDate = State(initialValue: rule.endDate)
+        }
     }
     
     var body: some View {
         NavigationStack {
             Form {
+                Section("Recurrence") {
+                    RecurrenceConfigView(
+                        isRecurring: $isRecurring,
+                        frequency: $recurrenceFrequency,
+                        interval: $recurrenceInterval,
+                        dayOfMonth: $recurrenceDayOfMonth,
+                        dayOfWeek: $recurrenceDayOfWeek,
+                        weekendAdjustment: $recurrenceWeekendAdjustment,
+                        endDate: $recurrenceEndDate
+                    )
+                }
+                
                 Section("Details") {
                     DatePicker("Date", selection: $date, displayedComponents: .date)
                     HStack {
@@ -177,6 +208,41 @@ struct EditTransactionView: View {
             )
             attachment.transaction = transaction
             modelContext.insert(attachment)
+        }
+        
+        // Update recurrence
+        transaction.isRecurring = isRecurring
+        
+        if isRecurring {
+            if let existingRule = transaction.recurrenceRule {
+                // Update existing rule
+                existingRule.frequency = recurrenceFrequency
+                existingRule.interval = recurrenceInterval
+                existingRule.dayOfMonth = recurrenceDayOfMonth
+                existingRule.dayOfWeek = recurrenceDayOfWeek
+                existingRule.weekendAdjustment = recurrenceWeekendAdjustment
+                existingRule.endDate = recurrenceEndDate
+                existingRule.nextOccurrence = existingRule.calculateNextOccurrence(from: date)
+            } else {
+                // Create new rule
+                let rule = RecurrenceRule(
+                    frequency: recurrenceFrequency,
+                    interval: recurrenceInterval,
+                    dayOfMonth: recurrenceDayOfMonth,
+                    dayOfWeek: recurrenceDayOfWeek,
+                    weekendAdjustment: recurrenceWeekendAdjustment,
+                    startDate: date,
+                    endDate: recurrenceEndDate
+                )
+                rule.nextOccurrence = rule.calculateNextOccurrence(from: date)
+                rule.transaction = transaction
+                modelContext.insert(rule)
+            }
+        } else {
+            // Remove recurrence rule if exists
+            if let existingRule = transaction.recurrenceRule {
+                modelContext.delete(existingRule)
+            }
         }
         
         dismiss()

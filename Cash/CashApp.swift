@@ -18,6 +18,7 @@ struct CashApp: App {
             Transaction.self,
             Entry.self,
             Attachment.self,
+            RecurrenceRule.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

@@ -93,6 +93,7 @@ struct SettingsView: View {
         // Delete all data
         do {
             try modelContext.delete(model: Attachment.self)
+            try modelContext.delete(model: RecurrenceRule.self)
             try modelContext.delete(model: Entry.self)
             try modelContext.delete(model: Transaction.self)
             try modelContext.delete(model: Account.self)

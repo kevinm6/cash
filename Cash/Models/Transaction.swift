@@ -50,12 +50,16 @@ final class Transaction {
     var descriptionText: String
     var reference: String
     var createdAt: Date
+    var isRecurring: Bool
     
     @Relationship(deleteRule: .cascade, inverse: \Entry.transaction)
     var entries: [Entry]? = []
     
     @Relationship(deleteRule: .cascade, inverse: \Attachment.transaction)
     var attachments: [Attachment]? = []
+    
+    @Relationship(deleteRule: .cascade, inverse: \RecurrenceRule.transaction)
+    var recurrenceRule: RecurrenceRule?
     
     /// Total amount of debit entries
     var totalDebits: Decimal {
@@ -104,13 +108,15 @@ final class Transaction {
     init(
         date: Date = Date(),
         descriptionText: String = "",
-        reference: String = ""
+        reference: String = "",
+        isRecurring: Bool = false
     ) {
         self.id = UUID()
         self.date = date
         self.descriptionText = descriptionText
         self.reference = reference
         self.createdAt = Date()
+        self.isRecurring = isRecurring
     }
     
     /// Add a balanced pair of entries (debit and credit)

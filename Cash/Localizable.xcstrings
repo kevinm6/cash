@@ -13,6 +13,9 @@
     "#%@" : {
 
     },
+    "%lld" : {
+
+    },
     "•" : {
 
     },
@@ -185,16 +188,6 @@
         }
       }
     },
-    "Attachments" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Allegati"
-          }
-        }
-      }
-    },
     "Appearance" : {
       "localizations" : {
         "it" : {
@@ -251,6 +244,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Attività"
+          }
+        }
+      }
+    },
+    "Attachments" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allegati"
           }
         }
       }
@@ -465,6 +468,16 @@
         }
       }
     },
+    "Daily" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giornaliero"
+          }
+        }
+      }
+    },
     "Dark" : {
       "localizations" : {
         "it" : {
@@ -491,6 +504,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Data"
+          }
+        }
+      }
+    },
+    "day" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "giorno"
+          }
+        }
+      }
+    },
+    "Day of Week" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giorno della Settimana"
+          }
+        }
+      }
+    },
+    "days" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "giorni"
           }
         }
       }
@@ -675,6 +718,16 @@
         }
       }
     },
+    "End Date" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data Fine"
+          }
+        }
+      }
+    },
     "Enter the starting balance for this account" : {
       "localizations" : {
         "it" : {
@@ -701,6 +754,59 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Patrimonio Netto"
+          }
+        }
+      }
+    },
+    "Every" : {
+
+    },
+    "Every" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni"
+          }
+        }
+      }
+    },
+    "Every %lld days" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni %lld giorni"
+          }
+        }
+      }
+    },
+    "Every %lld months" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni %lld mesi"
+          }
+        }
+      }
+    },
+    "Every %lld weeks" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni %lld settimane"
+          }
+        }
+      }
+    },
+    "Every %lld years" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni %lld anni"
           }
         }
       }
@@ -751,6 +857,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lavoro Freelance"
+          }
+        }
+      }
+    },
+    "Frequency" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequenza"
+          }
+        }
+      }
+    },
+    "Friday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Venerdì"
           }
         }
       }
@@ -915,6 +1041,46 @@
         }
       }
     },
+    "Monday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunedì"
+          }
+        }
+      }
+    },
+    "month" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mese"
+          }
+        }
+      }
+    },
+    "Monthly" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mensile"
+          }
+        }
+      }
+    },
+    "months" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mesi"
+          }
+        }
+      }
+    },
     "New Account" : {
       "localizations" : {
         "it" : {
@@ -945,12 +1111,32 @@
         }
       }
     },
+    "Next Monday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunedì Successivo"
+          }
+        }
+      }
+    },
     "No Accounts" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nessun Conto"
+          }
+        }
+      }
+    },
+    "No Adjustment" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun Aggiustamento"
           }
         }
       }
@@ -991,6 +1177,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
+          }
+        }
+      }
+    },
+    "On Day" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Giorno"
+          }
+        }
+      }
+    },
+    "on day %lld" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il giorno %lld"
           }
         }
       }
@@ -1115,16 +1321,6 @@
         }
       }
     },
-    "Preview Unavailable" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anteprima Non Disponibile"
-          }
-        }
-      }
-    },
     "Press ESC to quit" : {
       "localizations" : {
         "it" : {
@@ -1135,12 +1331,52 @@
         }
       }
     },
+    "Preview Unavailable" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anteprima Non Disponibile"
+          }
+        }
+      }
+    },
+    "Previous Friday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Venerdì Precedente"
+          }
+        }
+      }
+    },
     "Receivable" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Credito"
+          }
+        }
+      }
+    },
+    "Recurrence" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricorrenza"
+          }
+        }
+      }
+    },
+    "Recurring Transaction" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transazione Ricorrente"
           }
         }
       }
@@ -1191,6 +1427,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stipendio"
+          }
+        }
+      }
+    },
+    "Saturday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sabato"
           }
         }
       }
@@ -1305,6 +1551,16 @@
         }
       }
     },
+    "Sunday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Domenica"
+          }
+        }
+      }
+    },
     "System" : {
       "localizations" : {
         "it" : {
@@ -1351,6 +1607,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questo eliminerà permanentemente tutti i tuoi conti e transazioni. Questa azione non può essere annullata."
+          }
+        }
+      }
+    },
+    "Thursday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giovedì"
           }
         }
       }
@@ -1415,12 +1681,32 @@
         }
       }
     },
+    "Tuesday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Martedì"
+          }
+        }
+      }
+    },
     "Type" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tipo"
+          }
+        }
+      }
+    },
+    "Until" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fino a"
           }
         }
       }
@@ -1455,6 +1741,56 @@
         }
       }
     },
+    "Wednesday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mercoledì"
+          }
+        }
+      }
+    },
+    "week" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "settimana"
+          }
+        }
+      }
+    },
+    "Weekend Adjustment" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiustamento Weekend"
+          }
+        }
+      }
+    },
+    "Weekly" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settimanale"
+          }
+        }
+      }
+    },
+    "weeks" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "settimane"
+          }
+        }
+      }
+    },
     "Welcome to Cash" : {
       "localizations" : {
         "it" : {
@@ -1464,6 +1800,15 @@
           }
         }
       }
+    },
+    "year" : {
+
+    },
+    "Yearly" : {
+
+    },
+    "years" : {
+
     }
   },
   "version" : "1.0"

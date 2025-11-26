@@ -146,8 +146,14 @@ struct TransactionRowView: View {
                 .frame(width: 32)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(transaction.descriptionText.isEmpty ? transactionSummary : transaction.descriptionText)
-                    .font(.headline)
+                HStack(spacing: 4) {
+                    Text(transaction.descriptionText.isEmpty ? transactionSummary : transaction.descriptionText)
+                        .font(.headline)
+                    
+                    if transaction.isRecurring {
+                        RecurringIcon()
+                    }
+                }
                 
                 HStack(spacing: 4) {
                     Text(accountsSummary)

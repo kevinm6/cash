@@ -47,6 +47,15 @@ struct AddTransactionView: View {
     @State private var amountText: String = ""
     @State private var attachments: [AttachmentData] = []
     
+    // Recurrence settings
+    @State private var isRecurring: Bool = false
+    @State private var recurrenceFrequency: RecurrenceFrequency = .monthly
+    @State private var recurrenceInterval: Int = 1
+    @State private var recurrenceDayOfMonth: Int = 1
+    @State private var recurrenceDayOfWeek: Int = 2 // Monday
+    @State private var recurrenceWeekendAdjustment: WeekendAdjustment = .none
+    @State private var recurrenceEndDate: Date? = nil
+    
     @State private var selectedExpenseAccount: Account?
     @State private var selectedPaymentAccount: Account?
     @State private var selectedDepositAccount: Account?
@@ -108,6 +117,18 @@ struct AddTransactionView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                }
+                
+                Section("Recurrence") {
+                    RecurrenceConfigView(
+                        isRecurring: $isRecurring,
+                        frequency: $recurrenceFrequency,
+                        interval: $recurrenceInterval,
+                        dayOfMonth: $recurrenceDayOfMonth,
+                        dayOfWeek: $recurrenceDayOfWeek,
+                        weekendAdjustment: $recurrenceWeekendAdjustment,
+                        endDate: $recurrenceEndDate
+                    )
                 }
                 
                 Section("Details") {
@@ -270,8 +291,10 @@ struct AddTransactionView: View {
             )
         }
         
-        // Save attachments
+        // Save attachments and recurrence
         if let transaction = transaction {
+            transaction.isRecurring = isRecurring
+            
             for attachmentData in attachments {
                 let attachment = Attachment(
                     filename: attachmentData.filename,
@@ -280,6 +303,22 @@ struct AddTransactionView: View {
                 )
                 attachment.transaction = transaction
                 modelContext.insert(attachment)
+            }
+            
+            // Create recurrence rule if recurring
+            if isRecurring {
+                let rule = RecurrenceRule(
+                    frequency: recurrenceFrequency,
+                    interval: recurrenceInterval,
+                    dayOfMonth: recurrenceDayOfMonth,
+                    dayOfWeek: recurrenceDayOfWeek,
+                    weekendAdjustment: recurrenceWeekendAdjustment,
+                    startDate: date,
+                    endDate: recurrenceEndDate
+                )
+                rule.nextOccurrence = rule.calculateNextOccurrence(from: date)
+                rule.transaction = transaction
+                modelContext.insert(rule)
             }
         }
         
