@@ -38,17 +38,9 @@ struct AccountTests {
             accountType: .bank
         )
         
-        #expect(account.displayName == "1010 - Checking")
-        
-        let accountNoNumber = Account(
-            name: "Cash",
-            accountNumber: "",
-            currency: "EUR",
-            accountClass: .asset,
-            accountType: .cash
-        )
-        
-        #expect(accountNoNumber.displayName == "Cash")
+        // displayName returns just the name
+        #expect(account.displayName == "Checking")
+        #expect(account.accountNumber == "1010")
     }
     
     @Test func accountClassNormalBalance() async throws {
@@ -78,24 +70,44 @@ struct TransactionTests {
             descriptionText: "Purchase"
         )
         
-        let debitEntry = JournalEntry(amount: 100, entryType: .debit)
-        let creditEntry = JournalEntry(amount: 100, entryType: .credit)
+        let debitEntry = Entry(entryType: .debit, amount: 100)
+        let creditEntry = Entry(entryType: .credit, amount: 100)
         
         transaction.entries = [debitEntry, creditEntry]
         
         #expect(transaction.amount == 100)
     }
+    
+    @Test func transactionIsBalanced() async throws {
+        let transaction = Transaction(
+            date: Date(),
+            descriptionText: "Balanced"
+        )
+        
+        let debitEntry = Entry(entryType: .debit, amount: 50)
+        let creditEntry = Entry(entryType: .credit, amount: 50)
+        
+        transaction.entries = [debitEntry, creditEntry]
+        
+        #expect(transaction.isBalanced == true)
+        #expect(transaction.totalDebits == transaction.totalCredits)
+    }
 }
 
-struct JournalEntryTests {
+struct EntryTests {
     
-    @Test func entryTypeShortNames() async throws {
-        #expect(EntryType.debit.shortName == "Dr")
-        #expect(EntryType.credit.shortName == "Cr")
+    @Test func entryTypeRawValues() async throws {
+        #expect(EntryType.debit.rawValue == "debit")
+        #expect(EntryType.credit.rawValue == "credit")
     }
     
-    @Test func journalEntryCreation() async throws {
-        let entry = JournalEntry(amount: 50.25, entryType: .debit)
+    @Test func entryTypeOpposite() async throws {
+        #expect(EntryType.debit.opposite == .credit)
+        #expect(EntryType.credit.opposite == .debit)
+    }
+    
+    @Test func entryCreation() async throws {
+        let entry = Entry(entryType: .debit, amount: 50.25)
         
         #expect(entry.amount == 50.25)
         #expect(entry.entryType == .debit)
@@ -112,7 +124,14 @@ struct CurrencyTests {
     }
     
     @Test func currencyListNotEmpty() async throws {
-        #expect(CurrencyList.all.count > 0)
+        #expect(CurrencyList.currencies.count > 0)
+    }
+    
+    @Test func currencyLookup() async throws {
+        let eur = CurrencyList.currency(forCode: "EUR")
+        #expect(eur != nil)
+        #expect(eur?.symbol == "€")
+        #expect(eur?.name == "Euro")
     }
 }
 
@@ -132,5 +151,12 @@ struct TransactionDateFilterTests {
         
         let startComponents = calendar.dateComponents([.day], from: range.start)
         #expect(startComponents.day == 1)
+    }
+    
+    @Test func allFiltersHaveValidRanges() async throws {
+        for filter in TransactionDateFilter.allCases {
+            let range = filter.dateRange
+            #expect(range.start <= range.end)
+        }
     }
 }
