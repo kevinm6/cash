@@ -115,20 +115,9 @@ struct EditTransactionView: View {
                 }
                 
                 Section("Attachments") {
-                    if !existingAttachments.isEmpty || !newAttachments.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(existingAttachments) { attachment in
-                                    ExistingAttachmentView(attachment: attachment) {
-                                        attachmentsToDelete.insert(attachment.id)
-                                    }
-                                }
-                                ForEach(newAttachments) { attachment in
-                                    AttachmentThumbnail(attachment: attachment, onTap: {}, onDelete: {
-                                        newAttachments.removeAll { $0.id == attachment.id }
-                                    })
-                                }
-                            }
+                    ForEach(existingAttachments) { attachment in
+                        ExistingAttachmentRow(attachment: attachment) {
+                            attachmentsToDelete.insert(attachment.id)
                         }
                     }
                     AttachmentPickerView(attachments: $newAttachments)

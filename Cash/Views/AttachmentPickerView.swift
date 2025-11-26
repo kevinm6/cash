@@ -10,21 +10,18 @@ import UniformTypeIdentifiers
 
 struct AttachmentPickerView: View {
     @Binding var attachments: [AttachmentData]
+    var showAttachmentList: Bool = true
     @State private var showingFilePicker = false
     @State private var selectedAttachment: AttachmentData?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if !attachments.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(attachments) { attachment in
-                            AttachmentThumbnail(attachment: attachment) {
-                                selectedAttachment = attachment
-                            } onDelete: {
-                                attachments.removeAll { $0.id == attachment.id }
-                            }
-                        }
+        VStack(alignment: .leading, spacing: 8) {
+            if showAttachmentList && !attachments.isEmpty {
+                ForEach(attachments) { attachment in
+                    AttachmentRow(attachment: attachment) {
+                        selectedAttachment = attachment
+                    } onDelete: {
+                        attachments.removeAll { $0.id == attachment.id }
                     }
                 }
             }
@@ -114,6 +111,28 @@ struct AttachmentData: Identifiable {
             return "doc.richtext"
         } else {
             return "doc.text"
+        }
+    }
+}
+
+struct AttachmentRow: View {
+    let attachment: AttachmentData
+    let onTap: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack {
+            Button(action: onTap) {
+                Text(attachment.filename)
+                    .lineLimit(1)
+            }
+            .buttonStyle(.plain)
+            
+            Spacer()
+            
+            Button("Remove", action: onDelete)
+                .foregroundStyle(.red)
+                .buttonStyle(.plain)
         }
     }
 }
@@ -232,6 +251,33 @@ class PDFViewWrapper: NSView {
 }
 
 // View for existing attachments from database
+struct ExistingAttachmentRow: View {
+    let attachment: Attachment
+    let onDelete: () -> Void
+    @State private var showingPreview = false
+    
+    var body: some View {
+        HStack {
+            Button {
+                showingPreview = true
+            } label: {
+                Text(attachment.filename)
+                    .lineLimit(1)
+            }
+            .buttonStyle(.plain)
+            
+            Spacer()
+            
+            Button("Remove", action: onDelete)
+                .foregroundStyle(.red)
+                .buttonStyle(.plain)
+        }
+        .sheet(isPresented: $showingPreview) {
+            ExistingAttachmentPreviewView(attachment: attachment)
+        }
+    }
+}
+
 struct ExistingAttachmentView: View {
     let attachment: Attachment
     let onDelete: () -> Void
