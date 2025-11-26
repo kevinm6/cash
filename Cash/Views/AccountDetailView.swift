@@ -75,18 +75,12 @@ struct AccountDetailView: View {
         }
         .navigationTitle(account.displayName)
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button(action: { showingAddTransaction = true }) {
-                    Label("Add transaction", systemImage: "plus")
-                }
-            }
-            ToolbarItem(placement: .secondaryAction) {
+            ToolbarItemGroup(placement: .primaryAction) {
                 Button(action: { showingEditSheet = true }) {
                     Label("Edit account", systemImage: "pencil")
                 }
                 .disabled(account.isSystem)
-            }
-            ToolbarItem(placement: .destructiveAction) {
+                
                 Button(role: .destructive, action: { showingDeleteConfirmation = true }) {
                     Label("Delete", systemImage: "trash")
                 }

@@ -128,6 +128,7 @@
 
     },
     "Add your first transaction to track your finances." : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -865,6 +866,21 @@
         }
       }
     },
+    "Last 3 months" : {
+
+    },
+    "Last 6 months" : {
+
+    },
+    "Last 12 months" : {
+
+    },
+    "Last 15 days" : {
+
+    },
+    "Last month" : {
+
+    },
     "Liabilities" : {
       "localizations" : {
         "it" : {
@@ -987,6 +1003,9 @@
     "No transactions" : {
 
     },
+    "No transactions found for the selected period." : {
+
+    },
     "Normal: credit" : {
 
     },
@@ -1061,6 +1080,9 @@
           }
         }
       }
+    },
+    "Period" : {
+
     },
     "Personal care" : {
       "localizations" : {
@@ -1227,6 +1249,9 @@
         }
       }
     },
+    "Search" : {
+
+    },
     "Select account" : {
 
     },
@@ -1339,6 +1364,12 @@
         }
       }
     },
+    "This month" : {
+
+    },
+    "This week" : {
+
+    },
     "This will delete all accounts and transactions and restart the app." : {
       "localizations" : {
         "it" : {
@@ -1370,6 +1401,9 @@
       }
     },
     "To account" : {
+
+    },
+    "Today" : {
 
     },
     "Track your personal finances with ease using double-entry bookkeeping." : {
