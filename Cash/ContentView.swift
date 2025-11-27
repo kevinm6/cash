@@ -54,6 +54,8 @@ struct ContentView: View {
             }
             .sheet(isPresented: $appState.showWelcomeSheet) {
                 WelcomeSheet(appState: appState)
+                    .environment(settings)
+                    .environment(\.locale, settings.language.locale)
                     .interactiveDismissDisabled()
             }
             .overlay {
@@ -115,8 +117,8 @@ struct WelcomeSheet: View {
             // Options
             VStack(spacing: 16) {
                 WelcomeOptionButton(
-                    title: "Start Fresh",
-                    subtitle: "Create a new empty account structure",
+                    title: String(localized: "Start Fresh"),
+                    subtitle: String(localized: "Create a new empty account structure"),
                     icon: "plus.circle.fill",
                     color: .blue
                 ) {
@@ -124,8 +126,8 @@ struct WelcomeSheet: View {
                 }
                 
                 WelcomeOptionButton(
-                    title: "Use Demo Data",
-                    subtitle: "Set up example accounts to explore the app",
+                    title: String(localized: "Use Demo Data"),
+                    subtitle: String(localized: "Set up example accounts to explore the app"),
                     icon: "sparkles",
                     color: .orange
                 ) {
@@ -133,8 +135,8 @@ struct WelcomeSheet: View {
                 }
                 
                 WelcomeOptionButton(
-                    title: "Import Backup",
-                    subtitle: "Restore from a previous JSON export",
+                    title: String(localized: "Import Backup"),
+                    subtitle: String(localized: "Restore from a previous JSON export"),
                     icon: "square.and.arrow.down.fill",
                     color: .green
                 ) {

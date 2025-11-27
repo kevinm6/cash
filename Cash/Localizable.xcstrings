@@ -128,22 +128,22 @@
         }
       }
     },
-    "Add account" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi conto"
-          }
-        }
-      }
-    },
     "Add a recurring transaction to see it here." : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aggiungi una transazione ricorrente per vederla qui."
+          }
+        }
+      }
+    },
+    "Add account" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi conto"
           }
         }
       }
@@ -158,12 +158,12 @@
         }
       }
     },
-    "Add transaction" : {
+    "Add recurring transactions to see balance projections." : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi transazione"
+            "value" : "Aggiungi transazioni ricorrenti per vedere le proiezioni del saldo."
           }
         }
       }
@@ -174,6 +174,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aggiungi transazione programmata"
+          }
+        }
+      }
+    },
+    "Add transaction" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi transazione"
           }
         }
       }
@@ -208,6 +218,16 @@
         }
       }
     },
+    "And %lld more transactions..." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E altre %lld transazioni..."
+          }
+        }
+      }
+    },
     "Are you absolutely sure?" : {
       "localizations" : {
         "it" : {
@@ -228,22 +248,22 @@
         }
       }
     },
-    "Are you sure you want to delete this transaction?" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sei sicuro di voler eliminare questa transazione?"
-          }
-        }
-      }
-    },
     "Are you sure you want to delete this scheduled transaction?" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sei sicuro di voler eliminare questa transazione programmata?"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete this transaction?" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sei sicuro di voler eliminare questa transazione?"
           }
         }
       }
@@ -408,16 +428,6 @@
         }
       }
     },
-    "Current Balance" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saldo attuale"
-          }
-        }
-      }
-    },
     "Class" : {
       "localizations" : {
         "it" : {
@@ -454,6 +464,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Av"
+          }
+        }
+      }
+    },
+    "Create a new empty account structure" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crea una nuova struttura di conti vuota"
           }
         }
       }
@@ -509,6 +529,16 @@
       }
     },
     "Current balance" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saldo attuale"
+          }
+        }
+      }
+    },
+    "Current Balance" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -668,22 +698,22 @@
         }
       }
     },
-    "Delete transaction" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina transazione"
-          }
-        }
-      }
-    },
     "Delete scheduled transaction" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elimina transazione programmata"
+          }
+        }
+      }
+    },
+    "Delete transaction" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina transazione"
           }
         }
       }
@@ -768,22 +798,22 @@
         }
       }
     },
-    "Edit transaction" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifica transazione"
-          }
-        }
-      }
-    },
     "Edit scheduled transaction" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Modifica transazione programmata"
+          }
+        }
+      }
+    },
+    "Edit transaction" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica transazione"
           }
         }
       }
@@ -861,36 +891,6 @@
         }
       }
     },
-    "Execute" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esegui"
-          }
-        }
-      }
-    },
-    "Execute now" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esegui ora"
-          }
-        }
-      }
-    },
-    "Execute transaction" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esegui transazione"
-          }
-        }
-      }
-    },
     "Every" : {
       "localizations" : {
         "it" : {
@@ -937,6 +937,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ogni %lld anni"
+          }
+        }
+      }
+    },
+    "Execute" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui"
+          }
+        }
+      }
+    },
+    "Execute now" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui ora"
+          }
+        }
+      }
+    },
+    "Execute transaction" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui transazione"
           }
         }
       }
@@ -1143,6 +1173,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abitazione"
+          }
+        }
+      }
+    },
+    "Import Backup" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa backup"
           }
         }
       }
@@ -1516,16 +1556,6 @@
         }
       }
     },
-    "New transaction" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nuova transazione"
-          }
-        }
-      }
-    },
     "New scheduled transaction" : {
       "localizations" : {
         "it" : {
@@ -1536,52 +1566,22 @@
         }
       }
     },
+    "New transaction" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuova transazione"
+          }
+        }
+      }
+    },
     "Next" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avanti"
-          }
-        }
-      }
-    },
-    "Next Monday" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lunedì successivo"
-          }
-        }
-      }
-    },
-    "Next week" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prossima settimana"
-          }
-        }
-      }
-    },
-    "Next 15 days" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prossimi 15 giorni"
-          }
-        }
-      }
-    },
-    "Next month" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prossimo mese"
           }
         }
       }
@@ -1616,6 +1616,46 @@
         }
       }
     },
+    "Next 15 days" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossimi 15 giorni"
+          }
+        }
+      }
+    },
+    "Next Monday" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunedì successivo"
+          }
+        }
+      }
+    },
+    "Next month" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossimo mese"
+          }
+        }
+      }
+    },
+    "Next week" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossima settimana"
+          }
+        }
+      }
+    },
     "Next: %@" : {
       "localizations" : {
         "it" : {
@@ -1646,16 +1686,6 @@
         }
       }
     },
-    "No scheduled transactions" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessuna transazione programmata"
-          }
-        }
-      }
-    },
     "No data to export" : {
       "localizations" : {
         "it" : {
@@ -1676,22 +1706,12 @@
         }
       }
     },
-    "Add recurring transactions to see balance projections." : {
+    "No scheduled transactions" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi transazioni ricorrenti per vedere le proiezioni del saldo."
-          }
-        }
-      }
-    },
-    "And %lld more transactions..." : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E altre %lld transazioni..."
+            "value" : "Nessuna transazione programmata"
           }
         }
       }
@@ -1846,36 +1866,6 @@
         }
       }
     },
-    "Projected Balance" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saldo previsto"
-          }
-        }
-      }
-    },
-    "Projected Income" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entrate previste"
-          }
-        }
-      }
-    },
-    "Projected Expenses" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spese previste"
-          }
-        }
-      }
-    },
     "Please enter a valid number for the balance." : {
       "localizations" : {
         "it" : {
@@ -1956,6 +1946,46 @@
         }
       }
     },
+    "Projected Balance" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saldo previsto"
+          }
+        }
+      }
+    },
+    "Projected Expenses" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spese previste"
+          }
+        }
+      }
+    },
+    "Projected Income" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrate previste"
+          }
+        }
+      }
+    },
+    "Restore from a previous JSON export" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina da un'esportazione JSON precedente"
+          }
+        }
+      }
+    },
     "Receivable" : {
       "localizations" : {
         "it" : {
@@ -1976,22 +2006,22 @@
         }
       }
     },
-    "Recurring transactions that will be executed on their scheduled dates" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transazioni ricorrenti che verranno eseguite nelle date programmate"
-          }
-        }
-      }
-    },
     "Recurring transaction" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Transazione ricorrente"
+          }
+        }
+      }
+    },
+    "Recurring transactions that will be executed on their scheduled dates" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transazioni ricorrenti che verranno eseguite nelle date programmate"
           }
         }
       }
@@ -2036,6 +2066,9 @@
         }
       }
     },
+    "Restore from a previous JSON export" : {
+
+    },
     "Retained earnings" : {
       "localizations" : {
         "it" : {
@@ -2056,26 +2089,6 @@
         }
       }
     },
-    "Scheduled" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Programmati"
-          }
-        }
-      }
-    },
-    "Scheduled Transactions" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transazioni programmate"
-          }
-        }
-      }
-    },
     "Saturday" : {
       "localizations" : {
         "it" : {
@@ -2092,6 +2105,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Salva"
+          }
+        }
+      }
+    },
+    "Scheduled" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Programmati"
+          }
+        }
+      }
+    },
+    "Scheduled Transactions" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transazioni programmate"
           }
         }
       }
@@ -2156,6 +2189,16 @@
         }
       }
     },
+    "Set up example accounts to explore the app" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura conti di esempio per esplorare l'app"
+          }
+        }
+      }
+    },
     "Shopping" : {
       "localizations" : {
         "it" : {
@@ -2166,7 +2209,27 @@
         }
       }
     },
+    "Start date" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data inizio"
+          }
+        }
+      }
+    },
     "Start fresh" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizia da zero"
+          }
+        }
+      }
+    },
+    "Start Fresh" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -2216,16 +2279,6 @@
         }
       }
     },
-    "Start date" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data inizio"
-          }
-        }
-      }
-    },
     "Theme" : {
       "localizations" : {
         "it" : {
@@ -2266,6 +2319,16 @@
         }
       }
     },
+    "This will create an actual transaction and update your balances." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo creerà una transazione reale e aggiornerà i tuoi saldi."
+          }
+        }
+      }
+    },
     "This will delete all accounts and transactions." : {
       "localizations" : {
         "it" : {
@@ -2282,16 +2345,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questo eliminerà permanentemente tutti i tuoi conti e transazioni. Questa azione non può essere annullata."
-          }
-        }
-      }
-    },
-    "This will create an actual transaction and update your balances." : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questo creerà una transazione reale e aggiornerà i tuoi saldi."
           }
         }
       }
@@ -2386,16 +2439,6 @@
         }
       }
     },
-    "Upcoming Transactions" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transazioni future"
-          }
-        }
-      }
-    },
     "Tuesday" : {
       "localizations" : {
         "it" : {
@@ -2422,6 +2465,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fino a"
+          }
+        }
+      }
+    },
+    "Upcoming Transactions" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transazioni future"
+          }
+        }
+      }
+    },
+    "Use Demo Data" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa dati demo"
           }
         }
       }

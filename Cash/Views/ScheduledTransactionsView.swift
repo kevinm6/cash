@@ -40,14 +40,17 @@ struct ScheduledTransactionsView: View {
             Divider()
             
             if scheduledTransactions.isEmpty {
-                ContentUnavailableView {
-                    Label("No scheduled transactions", systemImage: "calendar.badge.clock")
-                } description: {
-                    Text("Add a recurring transaction to see it here.")
-                } actions: {
-                    Button("Add scheduled transaction") {
-                        showingAddScheduled = true
+                VStack {
+                    ContentUnavailableView {
+                        Label("No scheduled transactions", systemImage: "calendar.badge.clock")
+                    } description: {
+                        Text("Add a recurring transaction to see it here.")
+                    } actions: {
+                        Button("Add scheduled transaction") {
+                            showingAddScheduled = true
+                        }
                     }
+                    Spacer()
                 }
             } else {
                 List {
