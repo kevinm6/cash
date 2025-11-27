@@ -16,10 +16,83 @@
     "%lld" : {
 
     },
+    "%lld categorized" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld categorizzate"
+          }
+        }
+      }
+    },
+    "%lld of %lld" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld di %2$lld"
+          }
+        }
+      }
+    },
+    "%lld transactions found" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transazioni trovate"
+          }
+        }
+      }
+    },
+    "%lld transactions imported" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transazioni importate"
+          }
+        }
+      }
+    },
+    "%lld transactions skipped" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transazioni saltate"
+          }
+        }
+      }
+    },
+    "%lld transactions will be imported" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transazioni saranno importate"
+          }
+        }
+      }
+    },
+    "%lld uncategorized" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld non categorizzate"
+          }
+        }
+      }
+    },
     "•" : {
 
     },
     "© 2025 Michele Broggi" : {
+
+    },
+    "→" : {
 
     },
     "+%@" : {
@@ -348,6 +421,16 @@
         }
       }
     },
+    "Bank Account" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conto bancario"
+          }
+        }
+      }
+    },
     "Bank format" : {
       "localizations" : {
         "it" : {
@@ -378,12 +461,32 @@
         }
       }
     },
+    "Cannot access the selected file" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile accedere al file selezionato"
+          }
+        }
+      }
+    },
     "Cash" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Contanti"
+          }
+        }
+      }
+    },
+    "Categorize Transactions" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categorizza transazioni"
           }
         }
       }
@@ -444,6 +547,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chiudi"
+          }
+        }
+      }
+    },
+    "Complete" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completato"
           }
         }
       }
@@ -1177,12 +1290,32 @@
         }
       }
     },
+    "Import %lld Transactions" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa %lld transazioni"
+          }
+        }
+      }
+    },
     "Import Backup" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importa backup"
+          }
+        }
+      }
+    },
+    "Import Complete!" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importazione completata!"
           }
         }
       }
@@ -1247,6 +1380,26 @@
         }
       }
     },
+    "Import OFX" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa OFX"
+          }
+        }
+      }
+    },
+    "Import OFX..." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa OFX..."
+          }
+        }
+      }
+    },
     "Import successful" : {
       "localizations" : {
         "it" : {
@@ -1283,12 +1436,32 @@
         }
       }
     },
+    "Importing transactions..." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importazione transazioni..."
+          }
+        }
+      }
+    },
     "Importing will replace all existing data. Make sure to export your current data first if needed." : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "L'importazione sostituirà tutti i dati esistenti. Assicurati di esportare i dati attuali prima se necessario."
+          }
+        }
+      }
+    },
+    "Importing..." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importazione..."
           }
         }
       }
@@ -1349,6 +1522,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Formato file non valido"
+          }
+        }
+      }
+    },
+    "Invalid OFX file format" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Formato file OFX non valido"
           }
         }
       }
@@ -1686,6 +1869,16 @@
         }
       }
     },
+    "No category" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna categoria"
+          }
+        }
+      }
+    },
     "No data to export" : {
       "localizations" : {
         "it" : {
@@ -1732,6 +1925,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nessuna transazione trovata per il periodo selezionato."
+          }
+        }
+      }
+    },
+    "No transactions found in the file" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna transazione trovata nel file"
           }
         }
       }
@@ -1825,6 +2028,9 @@
           }
         }
       }
+    },
+    "Parse error: %@" : {
+
     },
     "Pay from" : {
       "localizations" : {
@@ -1936,6 +2142,16 @@
         }
       }
     },
+    "Previous" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precedente"
+          }
+        }
+      }
+    },
     "Previous Friday" : {
       "localizations" : {
         "it" : {
@@ -1976,12 +2192,12 @@
         }
       }
     },
-    "Restore from a previous JSON export" : {
+    "Ready to import" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ripristina da un'esportazione JSON precedente"
+            "value" : "Pronto per importare"
           }
         }
       }
@@ -2067,7 +2283,14 @@
       }
     },
     "Restore from a previous JSON export" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina da un'esportazione JSON precedente"
+          }
+        }
+      }
     },
     "Retained earnings" : {
       "localizations" : {
@@ -2075,6 +2298,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utili non distribuiti"
+          }
+        }
+      }
+    },
+    "Review" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisione"
+          }
+        }
+      }
+    },
+    "Review All" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vedi tutti"
           }
         }
       }
@@ -2149,6 +2392,16 @@
         }
       }
     },
+    "Select Account" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona conto"
+          }
+        }
+      }
+    },
     "Select accounts to see preview" : {
       "localizations" : {
         "it" : {
@@ -2165,6 +2418,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seleziona un conto"
+          }
+        }
+      }
+    },
+    "Select expense category" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona categoria spesa"
+          }
+        }
+      }
+    },
+    "Select income category" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona categoria entrata"
+          }
+        }
+      }
+    },
+    "Select the bank account for these transactions" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona il conto bancario per queste transazioni"
           }
         }
       }
@@ -2205,6 +2488,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Shopping"
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta"
           }
         }
       }
@@ -2395,6 +2688,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gestisci le tue finanze personali con facilità usando la partita doppia."
+          }
+        }
+      }
+    },
+    "Transaction %lld of %lld" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transazione %1$lld di %2$lld"
           }
         }
       }

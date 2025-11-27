@@ -535,3 +535,248 @@ struct NavigationStateTests {
         #expect(state.currentAccount?.name == "Test")
     }
 }
+
+// MARK: - OFX Parser Tests
+
+struct OFXParserTests {
+    
+    // Sample OFX content in XML style
+    let sampleOFXXML = """
+    <OFX>
+    <BANKMSGSRSV1>
+    <STMTTRNRS>
+    <STMTRS>
+    <BANKTRANLIST>
+    <STMTTRN>
+    <TRNTYPE>DEBIT</TRNTYPE>
+    <DTPOSTED>20231115</DTPOSTED>
+    <TRNAMT>-50.00</TRNAMT>
+    <FITID>202311150001</FITID>
+    <NAME>Grocery Store</NAME>
+    <MEMO>Weekly shopping</MEMO>
+    </STMTTRN>
+    <STMTTRN>
+    <TRNTYPE>CREDIT</TRNTYPE>
+    <DTPOSTED>20231101</DTPOSTED>
+    <TRNAMT>1500.00</TRNAMT>
+    <FITID>202311010001</FITID>
+    <NAME>Salary</NAME>
+    </STMTTRN>
+    </BANKTRANLIST>
+    </STMTRS>
+    </STMTTRNRS>
+    </BANKMSGSRSV1>
+    </OFX>
+    """
+    
+    // Sample OFX content in SGML style (no closing tags)
+    let sampleOFXSGML = """
+    OFXHEADER:100
+    DATA:OFXSGML
+    <OFX>
+    <BANKMSGSRSV1>
+    <STMTTRNRS>
+    <STMTRS>
+    <BANKTRANLIST>
+    <STMTTRN>
+    <TRNTYPE>DEBIT
+    <DTPOSTED>20231120
+    <TRNAMT>-25.50
+    <FITID>TXN001
+    <NAME>Coffee Shop
+    <STMTTRN>
+    <TRNTYPE>CREDIT
+    <DTPOSTED>20231115
+    <TRNAMT>200.00
+    <FITID>TXN002
+    <NAME>Refund
+    </BANKTRANLIST>
+    </STMTRS>
+    </STMTTRNRS>
+    </BANKMSGSRSV1>
+    </OFX>
+    """
+    
+    @Test func parseXMLStyleOFX() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXXML)
+        
+        #expect(transactions.count == 2)
+    }
+    
+    @Test func parseTransactionDetails() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXXML)
+        
+        // Transactions are sorted by date descending, so the newer one (Nov 15) comes first
+        let debitTransaction = transactions.first { $0.amount < 0 }
+        let creditTransaction = transactions.first { $0.amount > 0 }
+        
+        #expect(debitTransaction != nil)
+        #expect(creditTransaction != nil)
+        
+        #expect(debitTransaction?.name == "Grocery Store")
+        #expect(debitTransaction?.memo == "Weekly shopping")
+        #expect(debitTransaction?.amount == -50.00)
+        #expect(debitTransaction?.fitId == "202311150001")
+        
+        #expect(creditTransaction?.name == "Salary")
+        #expect(creditTransaction?.amount == 1500.00)
+    }
+    
+    @Test func parseSGMLStyleOFX() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXSGML)
+        
+        #expect(transactions.count == 2)
+        
+        let debitTransaction = transactions.first { $0.amount < 0 }
+        #expect(debitTransaction?.name == "Coffee Shop")
+        #expect(debitTransaction?.amount == -25.50)
+    }
+    
+    @Test func transactionIsExpenseProperty() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXXML)
+        
+        let debit = transactions.first { $0.amount < 0 }
+        let credit = transactions.first { $0.amount > 0 }
+        
+        #expect(debit?.isExpense == true)
+        #expect(credit?.isExpense == false)
+    }
+    
+    @Test func transactionAbsoluteAmount() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXXML)
+        
+        let debit = transactions.first { $0.amount < 0 }
+        
+        #expect(debit?.absoluteAmount == 50.00)
+    }
+    
+    @Test func parseOFXDate() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXXML)
+        
+        let transaction = transactions.first { $0.fitId == "202311150001" }
+        #expect(transaction != nil)
+        
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: transaction!.datePosted)
+        
+        #expect(components.year == 2023)
+        #expect(components.month == 11)
+        #expect(components.day == 15)
+    }
+    
+    @Test func parseEmptyOFXThrowsError() async throws {
+        let emptyOFX = "<OFX></OFX>"
+        
+        do {
+            _ = try OFXParser.parse(content: emptyOFX)
+            #expect(Bool(false), "Should have thrown an error")
+        } catch {
+            // Expected error - no transactions found
+            #expect(true)
+        }
+    }
+    
+    @Test func transactionTypesParsedCorrectly() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXXML)
+        
+        let debit = transactions.first { $0.amount < 0 }
+        let credit = transactions.first { $0.amount > 0 }
+        
+        #expect(debit?.type == .debit)
+        #expect(credit?.type == .credit)
+    }
+    
+    @Test func allTransactionTypesRecognized() async throws {
+        #expect(OFXTransactionType(rawValue: "DEBIT") == .debit)
+        #expect(OFXTransactionType(rawValue: "CREDIT") == .credit)
+        #expect(OFXTransactionType(rawValue: "ATM") == .atm)
+        #expect(OFXTransactionType(rawValue: "POS") == .pos)
+        #expect(OFXTransactionType(rawValue: "XFER") == .transfer)
+        #expect(OFXTransactionType(rawValue: "FEE") == .fee)
+        #expect(OFXTransactionType(rawValue: "UNKNOWN") == .other)
+    }
+    
+    @Test func parseDataFromBytes() async throws {
+        let data = sampleOFXXML.data(using: .utf8)!
+        let transactions = try OFXParser.parse(data: data)
+        
+        #expect(transactions.count == 2)
+    }
+    
+    @Test func transactionsSortedByDateDescending() async throws {
+        let transactions = try OFXParser.parse(content: sampleOFXXML)
+        
+        // Check that transactions are sorted newest first
+        for i in 0..<(transactions.count - 1) {
+            #expect(transactions[i].datePosted >= transactions[i + 1].datePosted)
+        }
+    }
+    
+    @Test func handleDecimalWithComma() async throws {
+        let ofxWithComma = """
+        <OFX>
+        <BANKTRANLIST>
+        <STMTTRN>
+        <TRNTYPE>DEBIT</TRNTYPE>
+        <DTPOSTED>20231115</DTPOSTED>
+        <TRNAMT>-1234,56</TRNAMT>
+        <FITID>TEST001</FITID>
+        <NAME>Test</NAME>
+        </STMTTRN>
+        </BANKTRANLIST>
+        </OFX>
+        """
+        
+        let transactions = try OFXParser.parse(content: ofxWithComma)
+        #expect(transactions.count == 1)
+        #expect(transactions[0].amount < 0)
+        #expect(transactions[0].absoluteAmount == Decimal(string: "1234.56"))
+    }
+}
+
+// MARK: - OFX Import Item Tests
+
+struct OFXImportItemTests {
+    
+    @Test func importItemCreation() async throws {
+        let ofxTransaction = OFXTransaction(
+            fitId: "TEST001",
+            type: .debit,
+            datePosted: Date(),
+            amount: -100.00,
+            name: "Test Transaction",
+            memo: "Test memo"
+        )
+        
+        var item = OFXImportItem(ofxTransaction: ofxTransaction)
+        
+        #expect(item.shouldImport == true)
+        #expect(item.selectedCategory == nil)
+        #expect(item.ofxTransaction.name == "Test Transaction")
+    }
+    
+    @Test func importItemCategorySelection() async throws {
+        let ofxTransaction = OFXTransaction(
+            fitId: "TEST001",
+            type: .debit,
+            datePosted: Date(),
+            amount: -50.00,
+            name: "Grocery",
+            memo: nil
+        )
+        
+        var item = OFXImportItem(ofxTransaction: ofxTransaction)
+        
+        let category = Account(
+            name: "Food",
+            currency: "EUR",
+            accountClass: .expense,
+            accountType: .food
+        )
+        
+        item.selectedCategory = category
+        
+        #expect(item.selectedCategory != nil)
+        #expect(item.selectedCategory?.name == "Food")
+    }
+}

@@ -37,6 +37,11 @@ struct ContentView: View {
     @State private var appState = AppState()
     @State private var showingSettings = false
     @State private var hasCheckedSetup = false
+    @State private var showingOFXImportPicker = false
+    @State private var showingOFXImportWizard = false
+    @State private var parsedOFXTransactions: [OFXTransaction] = []
+    @State private var showingOFXError = false
+    @State private var ofxErrorMessage = ""
     
     var body: some View {
         AccountListView()
@@ -57,6 +62,23 @@ struct ContentView: View {
                     .environment(settings)
                     .environment(\.locale, settings.language.locale)
                     .interactiveDismissDisabled()
+            }
+            .sheet(isPresented: $showingOFXImportWizard) {
+                OFXImportWizard(ofxTransactions: parsedOFXTransactions)
+                    .environment(settings)
+                    .environment(\.locale, settings.language.locale)
+            }
+            .fileImporter(
+                isPresented: $showingOFXImportPicker,
+                allowedContentTypes: [.data],
+                allowsMultipleSelection: false
+            ) { result in
+                handleOFXImport(result: result)
+            }
+            .alert("Error", isPresented: $showingOFXError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(ofxErrorMessage)
             }
             .overlay {
                 if appState.isLoading {
@@ -79,6 +101,38 @@ struct ContentView: View {
                     appState.showWelcomeSheet = true
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: .importOFX)) { _ in
+                showingOFXImportPicker = true
+            }
+    }
+    
+    private func handleOFXImport(result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            
+            guard url.startAccessingSecurityScopedResource() else {
+                ofxErrorMessage = String(localized: "Cannot access the selected file")
+                showingOFXError = true
+                return
+            }
+            
+            defer { url.stopAccessingSecurityScopedResource() }
+            
+            do {
+                let data = try Data(contentsOf: url)
+                let transactions = try OFXParser.parse(data: data)
+                parsedOFXTransactions = transactions
+                showingOFXImportWizard = true
+            } catch {
+                ofxErrorMessage = error.localizedDescription
+                showingOFXError = true
+            }
+            
+        case .failure(let error):
+            ofxErrorMessage = error.localizedDescription
+            showingOFXError = true
+        }
     }
 }
 

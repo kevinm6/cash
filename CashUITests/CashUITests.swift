@@ -106,6 +106,23 @@ final class CashUITests: XCTestCase {
         XCTAssertTrue(fileMenu.exists)
     }
     
+    @MainActor
+    func testImportOFXMenuExists() throws {
+        let menuBar = app.menuBars.firstMatch
+        XCTAssertTrue(menuBar.exists)
+        
+        let fileMenu = menuBar.menuBarItems["File"]
+        XCTAssertTrue(fileMenu.exists)
+        fileMenu.click()
+        
+        // Look for Import OFX menu item
+        let importOFXItem = app.menuItems["Import OFX..."]
+        XCTAssertTrue(importOFXItem.waitForExistence(timeout: 2))
+        
+        // Close menu
+        app.typeKey(.escape, modifierFlags: [])
+    }
+    
     // MARK: - Forecast View Tests
     
     @MainActor
@@ -241,6 +258,74 @@ final class AccountUITests: XCTestCase {
         let cancelButton = sheet.buttons["Cancel"]
         if cancelButton.exists {
             cancelButton.click()
+        }
+    }
+    
+    @MainActor
+    func testAddAccountDialogHasTypeGroups() throws {
+        let netWorthLabel = app.staticTexts["Net Worth"]
+        if netWorthLabel.waitForExistence(timeout: 5) {
+            netWorthLabel.click()
+        }
+        
+        app.typeKey("n", modifierFlags: .command)
+        
+        let sheet = app.sheets.firstMatch
+        XCTAssertTrue(sheet.waitForExistence(timeout: 3))
+        
+        // Check for category picker (the new simplified UI)
+        let categoryPicker = sheet.popUpButtons["Category"]
+        XCTAssertTrue(categoryPicker.waitForExistence(timeout: 2))
+        
+        let cancelButton = sheet.buttons["Cancel"]
+        if cancelButton.exists {
+            cancelButton.click()
+        }
+    }
+}
+
+// MARK: - Import OFX UI Tests
+
+final class ImportOFXUITests: XCTestCase {
+    
+    var app: XCUIApplication!
+    
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.launch()
+    }
+    
+    override func tearDownWithError() throws {
+        app = nil
+    }
+    
+    @MainActor
+    func testImportOFXMenuOpensFilePicker() throws {
+        let menuBar = app.menuBars.firstMatch
+        XCTAssertTrue(menuBar.exists)
+        
+        let fileMenu = menuBar.menuBarItems["File"]
+        XCTAssertTrue(fileMenu.exists)
+        fileMenu.click()
+        
+        let importOFXItem = app.menuItems["Import OFX..."]
+        guard importOFXItem.waitForExistence(timeout: 2) else {
+            XCTFail("Import OFX menu item not found")
+            return
+        }
+        importOFXItem.click()
+        
+        // File picker should open
+        let openPanel = app.dialogs.firstMatch
+        XCTAssertTrue(openPanel.waitForExistence(timeout: 3))
+        
+        // Cancel the file picker
+        let cancelButton = openPanel.buttons["Cancel"]
+        if cancelButton.exists {
+            cancelButton.click()
+        } else {
+            app.typeKey(.escape, modifierFlags: [])
         }
     }
 }

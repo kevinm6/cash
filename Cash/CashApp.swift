@@ -21,6 +21,7 @@ class NavigationState {
 extension Notification.Name {
     static let addNewAccount = Notification.Name("addNewAccount")
     static let addNewTransaction = Notification.Name("addNewTransaction")
+    static let importOFX = Notification.Name("importOFX")
 }
 
 @main
@@ -68,6 +69,15 @@ struct CashApp: App {
                     Text(navigationState.isViewingAccount ? "New transaction" : "New account")
                 }
                 .keyboardShortcut("n", modifiers: .command)
+            }
+            
+            // Import menu
+            CommandGroup(replacing: .importExport) {
+                Button {
+                    NotificationCenter.default.post(name: .importOFX, object: nil)
+                } label: {
+                    Label("Import OFX...", systemImage: "doc.badge.arrow.up")
+                }
             }
         }
         
