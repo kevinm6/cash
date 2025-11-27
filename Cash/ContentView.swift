@@ -291,6 +291,7 @@ struct LoadingOverlayView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Account.self, inMemory: true)
+        .modelContainer(for: [Account.self, Transaction.self], inMemory: true)
         .environment(AppSettings.shared)
+        .environment(NavigationState())
 }

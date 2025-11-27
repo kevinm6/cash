@@ -10,6 +10,7 @@ import SwiftData
 
 enum SidebarSelection: Hashable {
     case patrimony
+    case scheduled
     case account(Account)
 }
 
@@ -18,6 +19,7 @@ struct AccountListView: View {
     @Environment(AppSettings.self) private var settings
     @Environment(NavigationState.self) private var navigationState
     @Query(sort: \Account.accountNumber) private var accounts: [Account]
+    @Query(filter: #Predicate<Transaction> { $0.isRecurring == true }) private var scheduledTransactions: [Transaction]
     @State private var showingAddAccount = false
     @State private var showingAddTransaction = false
     @State private var selection: SidebarSelection? = .patrimony
@@ -40,6 +42,20 @@ struct AccountListView: View {
                         Section {
                             Label("Net Worth", systemImage: "chart.pie.fill")
                                 .tag(SidebarSelection.patrimony)
+                            
+                            HStack {
+                                Label("Scheduled", systemImage: "calendar.badge.clock")
+                                Spacer()
+                                if !scheduledTransactions.isEmpty {
+                                    Text("\(scheduledTransactions.count)")
+                                        .font(.caption)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 2)
+                                        .background(.quaternary)
+                                        .clipShape(Capsule())
+                                }
+                            }
+                            .tag(SidebarSelection.scheduled)
                         }
                     }
                     
@@ -76,6 +92,8 @@ struct AccountListView: View {
             switch selection {
             case .patrimony:
                 NetWorthView()
+            case .scheduled:
+                ScheduledTransactionsView()
             case .account(let account):
                 AccountDetailView(account: account, showingAddTransaction: $showingAddTransaction)
             case nil:
@@ -177,6 +195,7 @@ struct AccountRowView: View {
 
 #Preview {
     AccountListView()
-        .modelContainer(for: Account.self, inMemory: true)
+        .modelContainer(for: [Account.self, Transaction.self], inMemory: true)
         .environment(AppSettings.shared)
+        .environment(NavigationState())
 }

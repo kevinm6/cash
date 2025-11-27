@@ -300,11 +300,17 @@ final class Account {
     /// Following double-entry rules:
     /// - Assets/Expenses: Debits increase, Credits decrease
     /// - Liabilities/Equity/Income: Credits increase, Debits decrease
+    /// Note: Recurring transactions (scheduled) are excluded from balance
     var balance: Decimal {
         let allEntries = entries ?? []
         var total: Decimal = 0
         
         for entry in allEntries {
+            // Skip entries from recurring transactions (they are templates)
+            if entry.transaction?.isRecurring == true {
+                continue
+            }
+            
             if accountClass.normalBalance == .debit {
                 // For assets and expenses: debits add, credits subtract
                 total += entry.entryType == .debit ? entry.amount : -entry.amount
