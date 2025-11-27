@@ -160,6 +160,7 @@
       }
     },
     "All data will be permanently deleted and the app will restart." : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -168,6 +169,9 @@
           }
         }
       }
+    },
+    "All data will be permanently deleted." : {
+
     },
     "All transactions" : {
       "localizations" : {
@@ -320,6 +324,7 @@
       }
     },
     "Cash helps you manage your personal finances using double-entry bookkeeping.\n\nEvery transaction has two sides: money comes from somewhere and goes somewhere else. For example, when you receive your salary, money enters your bank account (Asset) from your Salary (Income).\n\nWould you like to create a set of example accounts to get started?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -348,6 +353,9 @@
           }
         }
       }
+    },
+    "Choose export format" : {
+
     },
     "Choose how Cash looks. System follows your macOS appearance settings." : {
       "localizations" : {
@@ -400,6 +408,7 @@
       }
     },
     "Create example accounts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -759,6 +768,12 @@
         }
       }
     },
+    "Erasing data..." : {
+
+    },
+    "Error" : {
+
+    },
     "Every" : {
       "localizations" : {
         "it" : {
@@ -839,6 +854,24 @@
         }
       }
     },
+    "Export / Import" : {
+
+    },
+    "Export data" : {
+
+    },
+    "Export successful" : {
+
+    },
+    "Export your data as JSON (full backup) or CSV (for spreadsheets). Import will replace all existing data." : {
+
+    },
+    "Failed to decode data" : {
+
+    },
+    "Failed to encode data" : {
+
+    },
     "Food & dining" : {
       "localizations" : {
         "it" : {
@@ -889,6 +922,9 @@
         }
       }
     },
+    "Full backup" : {
+
+    },
     "Get started" : {
       "localizations" : {
         "it" : {
@@ -918,6 +954,43 @@
           }
         }
       }
+    },
+    "Import data" : {
+
+    },
+    "Import data?" : {
+
+    },
+    "Import error" : {
+
+    },
+    "Import Error" : {
+
+    },
+    "Import existing data" : {
+
+    },
+    "Import failed: %@" : {
+
+    },
+    "Import successful" : {
+
+    },
+    "Imported %lld accounts and %lld transactions." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Imported %1$lld accounts and %2$lld transactions."
+          }
+        }
+      }
+    },
+    "Importing data..." : {
+
+    },
+    "Importing will replace all existing data. Make sure to export your current data first if needed." : {
+
     },
     "Inactive accounts are hidden from selection lists" : {
       "localizations" : {
@@ -969,6 +1042,9 @@
         }
       }
     },
+    "Invalid file format" : {
+
+    },
     "Investment" : {
       "localizations" : {
         "it" : {
@@ -988,6 +1064,9 @@
           }
         }
       }
+    },
+    "JSON is recommended for full backup and restore. CSV is useful for viewing in spreadsheets." : {
+
     },
     "Language" : {
       "localizations" : {
@@ -1198,6 +1277,9 @@
           }
         }
       }
+    },
+    "No data to export" : {
+
     },
     "No transactions" : {
       "localizations" : {
@@ -1630,7 +1712,11 @@
         }
       }
     },
+    "Spreadsheet" : {
+
+    },
     "Start empty" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -1639,6 +1725,9 @@
           }
         }
       }
+    },
+    "Start fresh" : {
+
     },
     "Status" : {
       "localizations" : {
@@ -1721,6 +1810,7 @@
       }
     },
     "This will delete all accounts and transactions and restart the app." : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -1729,6 +1819,9 @@
           }
         }
       }
+    },
+    "This will delete all accounts and transactions." : {
+
     },
     "This will permanently delete all your accounts and transactions. This action cannot be undone." : {
       "localizations" : {
@@ -1769,6 +1862,9 @@
           }
         }
       }
+    },
+    "Track your personal finances with double-entry bookkeeping" : {
+
     },
     "Track your personal finances with ease using double-entry bookkeeping." : {
       "localizations" : {
@@ -1969,6 +2065,9 @@
           }
         }
       }
+    },
+    "Your data has been exported successfully." : {
+
     }
   },
   "version" : "1.0"

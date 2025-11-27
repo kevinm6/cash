@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 enum WizardStep: Int, CaseIterable {
     case welcome = 0
@@ -44,6 +45,9 @@ struct SetupWizardView: View {
     @State private var addAccountForClass: AccountClass = .asset
     @State private var newAccountName: String = ""
     @State private var newAccountType: AccountType = .bank
+    @State private var showingImportFilePicker = false
+    @State private var showingImportError = false
+    @State private var importErrorMessage = ""
     
     var body: some View {
         @Bindable var settings = settings
@@ -95,7 +99,7 @@ struct SetupWizardView: View {
                         completeSetup()
                     }
                     .buttonStyle(.borderedProminent)
-                } else {
+                } else if currentStep != .welcome {
                     Button(String(localized: "Next")) {
                         withAnimation {
                             if let next = WizardStep(rawValue: currentStep.rawValue + 1) {
@@ -107,6 +111,7 @@ struct SetupWizardView: View {
                 }
             }
             .padding()
+            .opacity(currentStep == .welcome ? 0 : 1)
         }
         .frame(width: 650, height: 580)
         .environment(\.locale, settings.language.locale)
@@ -183,6 +188,38 @@ struct SetupWizardView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
             
+            // Options
+            VStack(spacing: 12) {
+                Button {
+                    withAnimation {
+                        if let next = WizardStep(rawValue: currentStep.rawValue + 1) {
+                            currentStep = next
+                        }
+                    }
+                } label: {
+                    Label("Start fresh", systemImage: "sparkles")
+                        .frame(width: 200)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                
+                Button {
+                    showingImportFilePicker = true
+                } label: {
+                    Label("Import existing data", systemImage: "square.and.arrow.down")
+                        .frame(width: 200)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+            }
+            .fileImporter(
+                isPresented: $showingImportFilePicker,
+                allowedContentTypes: [.json],
+                allowsMultipleSelection: false
+            ) { result in
+                handleImport(result: result)
+            }
+            
             Text("Press ESC to quit")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
@@ -190,6 +227,42 @@ struct SetupWizardView: View {
             Spacer()
         }
         .padding()
+        .alert("Import error", isPresented: $showingImportError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(importErrorMessage)
+        }
+    }
+    
+    private func handleImport(result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            
+            do {
+                guard url.startAccessingSecurityScopedResource() else {
+                    throw DataExporterError.importFailed("Cannot access file")
+                }
+                defer { url.stopAccessingSecurityScopedResource() }
+                
+                let data = try Data(contentsOf: url)
+                
+                // Import data
+                _ = try DataExporter.importJSON(from: data, into: modelContext)
+                
+                // Mark setup as complete and close wizard
+                UserDefaults.standard.set(true, forKey: "hasCompletedSetup")
+                isPresented = false
+                
+            } catch {
+                importErrorMessage = error.localizedDescription
+                showingImportError = true
+            }
+            
+        case .failure(let error):
+            importErrorMessage = error.localizedDescription
+            showingImportError = true
+        }
     }
     
     // MARK: - Preferences Step

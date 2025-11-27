@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct CashApp: App {
     @State private var settings = AppSettings.shared
+    @State private var menuAppState = AppState()
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -19,6 +20,7 @@ struct CashApp: App {
             Entry.self,
             Attachment.self,
             RecurrenceRule.self,
+            AppConfiguration.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -39,9 +41,20 @@ struct CashApp: App {
         .environment(settings)
         
         Settings {
-            SettingsView()
+            SettingsView(appState: menuAppState, dismissSettings: {})
                 .environment(settings)
                 .environment(\.locale, settings.language.locale)
+                .modelContainer(sharedModelContainer)
+                .overlay {
+                    if menuAppState.isLoading {
+                        LoadingOverlayView(message: menuAppState.loadingMessage)
+                    }
+                }
+                .sheet(isPresented: $menuAppState.showWelcomeSheet) {
+                    WelcomeSheet(appState: menuAppState)
+                        .modelContainer(sharedModelContainer)
+                        .interactiveDismissDisabled()
+                }
         }
     }
 }
