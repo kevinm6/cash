@@ -19,14 +19,24 @@
     "•" : {
 
     },
+    "© 2025 Michele Broggi" : {
+
+    },
     "+%@" : {
 
     },
     "0" : {
 
     },
-    "1.0.0" : {
-
+    "A simplified macOS financial management application inspired by Gnucash, built with SwiftUI and SwiftData." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un'applicazione macOS semplificata per la gestione finanziaria ispirata a Gnucash, sviluppata con SwiftUI e SwiftData."
+          }
+        }
+      }
     },
     "About" : {
       "localizations" : {
@@ -148,28 +158,6 @@
         }
       }
     },
-    "Add your first transaction to track your finances." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiungi la tua prima transazione per tracciare le tue finanze."
-          }
-        }
-      }
-    },
-    "All data will be permanently deleted and the app will restart." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tutti i dati verranno eliminati permanentemente e l'app verrà riavviata."
-          }
-        }
-      }
-    },
     "All data will be permanently deleted." : {
       "localizations" : {
         "it" : {
@@ -196,16 +184,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Importo"
-          }
-        }
-      }
-    },
-    "Appearance" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aspetto"
           }
         }
       }
@@ -320,6 +298,16 @@
         }
       }
     },
+    "Build %@" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Build %@"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "it" : {
@@ -336,17 +324,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Contanti"
-          }
-        }
-      }
-    },
-    "Cash helps you manage your personal finances using double-entry bookkeeping.\n\nEvery transaction has two sides: money comes from somewhere and goes somewhere else. For example, when you receive your salary, money enters your bank account (Asset) from your Salary (Income).\n\nWould you like to create a set of example accounts to get started?" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cash ti aiuta a gestire le tue finanze personali usando la contabilità in partita doppia.\n\nOgni transazione ha due lati: i soldi arrivano da qualche parte e vanno da qualche altra parte. Per esempio, quando ricevi lo stipendio, i soldi entrano nel tuo conto bancario (Attività) dallo Stipendio (Entrata).\n\nVuoi creare un insieme di conti di esempio per iniziare?"
           }
         }
       }
@@ -381,16 +358,6 @@
         }
       }
     },
-    "Choose how Cash looks. System follows your macOS appearance settings." : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scegli l'aspetto di Cash. Sistema segue le impostazioni di aspetto di macOS."
-          }
-        }
-      }
-    },
     "Choose your preferences" : {
       "localizations" : {
         "it" : {
@@ -411,6 +378,16 @@
         }
       }
     },
+    "Close" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiudi"
+          }
+        }
+      }
+    },
     "Continue" : {
       "localizations" : {
         "it" : {
@@ -427,17 +404,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Av"
-          }
-        }
-      }
-    },
-    "Create example accounts" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Crea conti di esempio"
           }
         }
       }
@@ -508,6 +474,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Giornaliero"
+          }
+        }
+      }
+    },
+    "Danger zone" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona pericolosa"
           }
         }
       }
@@ -782,6 +758,9 @@
         }
       }
     },
+    "English" : {
+
+    },
     "Equity" : {
       "localizations" : {
         "it" : {
@@ -1012,6 +991,16 @@
         }
       }
     },
+    "General" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generali"
+          }
+        }
+      }
+    },
     "Get started" : {
       "localizations" : {
         "it" : {
@@ -1116,7 +1105,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Imported %1$lld accounts and %2$lld transactions."
           }
         },
@@ -1207,6 +1196,9 @@
           }
         }
       }
+    },
+    "Italiano" : {
+
     },
     "Investment" : {
       "localizations" : {
@@ -1334,6 +1326,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prestito"
+          }
+        }
+      }
+    },
+    "MIT License" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Licenza MIT"
           }
         }
       }
@@ -1808,17 +1810,6 @@
         }
       }
     },
-    "Search transactions" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cerca transazioni"
-          }
-        }
-      }
-    },
     "Select account" : {
       "localizations" : {
         "it" : {
@@ -1869,33 +1860,12 @@
         }
       }
     },
-    "Settings" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impostazioni"
-          }
-        }
-      }
-    },
     "Shopping" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Shopping"
-          }
-        }
-      }
-    },
-    "Start empty" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inizia vuoto"
           }
         }
       }
@@ -1986,17 +1956,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questa settimana"
-          }
-        }
-      }
-    },
-    "This will delete all accounts and transactions and restart the app." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questo eliminerà tutti i conti e le transazioni e riavvierà l'app."
           }
         }
       }
@@ -2161,12 +2120,12 @@
         }
       }
     },
-    "Version" : {
+    "Version %@" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Versione"
+            "value" : "Versione %@"
           }
         }
       }

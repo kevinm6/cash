@@ -41,17 +41,14 @@ struct ContentView: View {
     var body: some View {
         AccountListView()
             .sheet(isPresented: $showingSettings) {
-                NavigationStack {
-                    SettingsView(appState: appState, dismissSettings: { showingSettings = false })
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Done") {
-                                    showingSettings = false
-                                }
+                SettingsView(appState: appState, dismissSettings: { showingSettings = false })
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                showingSettings = false
                             }
                         }
-                }
-                .frame(minWidth: 450, minHeight: 400)
+                    }
                 .environment(settings)
                 .environment(\.locale, settings.language.locale)
             }
