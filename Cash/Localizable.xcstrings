@@ -323,9 +323,6 @@
         }
       }
     },
-    "Cash helps you manage your personal finances using double-entry bookkeeping.\n\nEvery transaction has two sides: money comes from somewhere and goes somewhere else." : {
-
-    },
     "Cash helps you manage your personal finances using double-entry bookkeeping.\n\nEvery transaction has two sides: money comes from somewhere and goes somewhere else. For example, when you receive your salary, money enters your bank account (Asset) from your Salary (Income).\n\nWould you like to create a set of example accounts to get started?" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -370,9 +367,6 @@
         }
       }
     },
-    "Choose how to start:" : {
-
-    },
     "Choose your preferences" : {
       "localizations" : {
         "it" : {
@@ -414,6 +408,7 @@
       }
     },
     "Create example accounts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -967,6 +962,9 @@
 
     },
     "Import error" : {
+
+    },
+    "Import Error" : {
 
     },
     "Import existing data" : {
@@ -1718,6 +1716,7 @@
 
     },
     "Start empty" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -1863,6 +1862,9 @@
           }
         }
       }
+    },
+    "Track your personal finances with double-entry bookkeeping" : {
+
     },
     "Track your personal finances with ease using double-entry bookkeeping." : {
       "localizations" : {

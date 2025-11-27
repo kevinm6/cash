@@ -9,31 +9,40 @@ import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
 
+// MARK: - App Notifications
+
+extension Notification.Name {
+    static let showWelcomeSheet = Notification.Name("showWelcomeSheet")
+}
+
+// MARK: - App State
+
+@Observable
+class AppState {
+    var isLoading = false
+    var loadingMessage = ""
+    var showWelcomeSheet = false
+    
+    // Post notification to show welcome sheet globally
+    static func requestShowWelcome() {
+        NotificationCenter.default.post(name: .showWelcomeSheet, object: nil)
+    }
+}
+
+// MARK: - Content View
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppSettings.self) private var settings
-    @Query private var accounts: [Account]
+    @State private var appState = AppState()
     @State private var showingSettings = false
-    @State private var showingWelcome = false
-    @State private var showingImportFilePicker = false
-    @State private var showingImportError = false
-    @State private var importErrorMessage = ""
-    @State private var isImporting = false
-    @State private var isErasing = false
-    
-    private var isFirstLaunch: Bool {
-        !UserDefaults.standard.bool(forKey: "hasCompletedSetup")
-    }
+    @State private var hasCheckedSetup = false
     
     var body: some View {
         AccountListView()
             .sheet(isPresented: $showingSettings) {
                 NavigationStack {
-                    SettingsView(
-                        showWelcome: $showingWelcome,
-                        isErasing: $isErasing,
-                        dismissSettings: $showingSettings
-                    )
+                    SettingsView(appState: appState, dismissSettings: { showingSettings = false })
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Done") {
@@ -46,57 +55,127 @@ struct ContentView: View {
                 .environment(settings)
                 .environment(\.locale, settings.language.locale)
             }
-            .alert("Welcome to Cash", isPresented: $showingWelcome) {
-                Button("Import existing data") {
-                    showingImportFilePicker = true
-                }
-                Button("Create example accounts") {
-                    createDefaultAccounts()
-                    markAsCompleted()
-                }
-                Button("Start empty", role: .cancel) {
-                    markAsCompleted()
-                }
-            } message: {
-                Text("Cash helps you manage your personal finances using double-entry bookkeeping.\n\nEvery transaction has two sides: money comes from somewhere and goes somewhere else.")
-            }
-            .fileImporter(
-                isPresented: $showingImportFilePicker,
-                allowedContentTypes: [.json],
-                allowsMultipleSelection: false
-            ) { result in
-                handleImport(result: result)
-            }
-            .alert("Import error", isPresented: $showingImportError) {
-                Button("OK", role: .cancel) {
-                    showingWelcome = true
-                }
-            } message: {
-                Text(importErrorMessage)
+            .sheet(isPresented: $appState.showWelcomeSheet) {
+                WelcomeSheet(appState: appState)
+                    .interactiveDismissDisabled()
             }
             .overlay {
-                if isImporting {
-                    LoadingOverlayView(message: String(localized: "Importing data..."))
-                } else if isErasing {
-                    LoadingOverlayView(message: String(localized: "Erasing data..."))
+                if appState.isLoading {
+                    LoadingOverlayView(message: appState.loadingMessage)
                 }
             }
+            .environment(appState)
             .task {
-                if isFirstLaunch {
-                    showingWelcome = true
+                // Check setup status from database only once
+                if !hasCheckedSetup {
+                    hasCheckedSetup = true
+                    if AppConfiguration.isSetupNeeded(in: modelContext) {
+                        appState.showWelcomeSheet = true
+                    }
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .showWelcomeSheet)) { _ in
+                // Small delay to ensure any windows are closed
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    appState.showWelcomeSheet = true
                 }
             }
     }
+}
+
+// MARK: - Welcome Sheet
+
+struct WelcomeSheet: View {
+    let appState: AppState
+    @Environment(\.modelContext) private var modelContext
+    @State private var showingImportPicker = false
+    @State private var showingError = false
+    @State private var errorMessage = ""
     
-    private func createDefaultAccounts() {
+    var body: some View {
+        VStack(spacing: 32) {
+            Spacer()
+            
+            // Icon
+            Image(systemName: "building.columns.fill")
+                .font(.system(size: 72))
+                .foregroundStyle(.tint)
+            
+            // Title
+            VStack(spacing: 8) {
+                Text("Welcome to Cash")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Text("Track your personal finances with double-entry bookkeeping")
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            Spacer()
+            
+            // Options
+            VStack(spacing: 16) {
+                WelcomeOptionButton(
+                    title: "Start Fresh",
+                    subtitle: "Create a new empty account structure",
+                    icon: "plus.circle.fill",
+                    color: .blue
+                ) {
+                    startFresh()
+                }
+                
+                WelcomeOptionButton(
+                    title: "Use Demo Data",
+                    subtitle: "Set up example accounts to explore the app",
+                    icon: "sparkles",
+                    color: .orange
+                ) {
+                    setupDemoAccounts()
+                }
+                
+                WelcomeOptionButton(
+                    title: "Import Backup",
+                    subtitle: "Restore from a previous JSON export",
+                    icon: "square.and.arrow.down.fill",
+                    color: .green
+                ) {
+                    showingImportPicker = true
+                }
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
+        }
+        .padding(40)
+        .frame(width: 450, height: 500)
+        .fileImporter(
+            isPresented: $showingImportPicker,
+            allowedContentTypes: [.json],
+            allowsMultipleSelection: false
+        ) { result in
+            handleImport(result: result)
+        }
+        .alert("Import Error", isPresented: $showingError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
+    }
+    
+    private func startFresh() {
+        AppConfiguration.markSetupCompleted(in: modelContext)
+        appState.showWelcomeSheet = false
+    }
+    
+    private func setupDemoAccounts() {
         let defaultAccounts = ChartOfAccounts.createDefaultAccounts(currency: "EUR")
         for account in defaultAccounts {
             modelContext.insert(account)
         }
-    }
-    
-    private func markAsCompleted() {
-        UserDefaults.standard.set(true, forKey: "hasCompletedSetup")
+        AppConfiguration.markSetupCompleted(in: modelContext)
+        appState.showWelcomeSheet = false
     }
     
     private func handleImport(result: Result<[URL], Error>) {
@@ -105,45 +184,86 @@ struct ContentView: View {
             guard let url = urls.first else { return }
             
             guard url.startAccessingSecurityScopedResource() else {
-                importErrorMessage = DataExporterError.importFailed("Cannot access file").localizedDescription
-                showingImportError = true
+                errorMessage = "Cannot access the selected file"
+                showingError = true
                 return
             }
             
-            isImporting = true
+            appState.isLoading = true
+            appState.loadingMessage = String(localized: "Importing data...")
             
-            // Read data on background thread
             Task.detached(priority: .userInitiated) {
                 do {
                     let data = try Data(contentsOf: url)
                     url.stopAccessingSecurityScopedResource()
                     
-                    // Import on main thread (SwiftData requires main context)
                     await MainActor.run {
                         do {
                             _ = try DataExporter.importJSON(from: data, into: modelContext)
-                            markAsCompleted()
-                            isImporting = false
+                            AppConfiguration.markSetupCompleted(in: modelContext)
+                            appState.isLoading = false
+                            appState.showWelcomeSheet = false
                         } catch {
-                            importErrorMessage = error.localizedDescription
-                            isImporting = false
-                            showingImportError = true
+                            appState.isLoading = false
+                            errorMessage = error.localizedDescription
+                            showingError = true
                         }
                     }
                 } catch {
                     url.stopAccessingSecurityScopedResource()
                     await MainActor.run {
-                        importErrorMessage = error.localizedDescription
-                        isImporting = false
-                        showingImportError = true
+                        appState.isLoading = false
+                        errorMessage = error.localizedDescription
+                        showingError = true
                     }
                 }
             }
             
         case .failure(let error):
-            importErrorMessage = error.localizedDescription
-            showingImportError = true
+            errorMessage = error.localizedDescription
+            showingError = true
         }
+    }
+}
+
+// MARK: - Welcome Option Button
+
+struct WelcomeOptionButton: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(color)
+                    .frame(width: 32)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
     }
 }
 

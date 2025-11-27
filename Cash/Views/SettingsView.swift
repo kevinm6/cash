@@ -13,10 +13,9 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     @Environment(AppSettings.self) private var settings
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
-    var showWelcome: Binding<Bool>?
-    var isErasing: Binding<Bool>?
-    var dismissSettings: Binding<Bool>?
+    let appState: AppState
+    let dismissSettings: () -> Void
+    
     @State private var showingFirstResetAlert = false
     @State private var showingSecondResetAlert = false
     @State private var showingExportFormatPicker = false
@@ -27,7 +26,6 @@ struct SettingsView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var importResult: (accountsCount: Int, transactionsCount: Int) = (0, 0)
-    @State private var showingLocalWelcome = false
     
     @Query private var accounts: [Account]
     @Query private var transactions: [Transaction]
@@ -122,13 +120,6 @@ struct SettingsView: View {
         } message: {
             Text("All data will be permanently deleted.")
         }
-        .sheet(isPresented: $showingLocalWelcome) {
-            LocalWelcomeView(
-                modelContext: modelContext,
-                isPresented: $showingLocalWelcome
-            )
-            .environment(settings)
-        }
         .sheet(isPresented: $showingExportFormatPicker) {
             ExportFormatPickerView { format in
                 exportData(format: format)
@@ -210,26 +201,43 @@ struct SettingsView: View {
         case .success(let urls):
             guard let url = urls.first else { return }
             
-            do {
-                // Start accessing security-scoped resource
-                guard url.startAccessingSecurityScopedResource() else {
-                    throw DataExporterError.importFailed("Cannot access file")
-                }
-                defer { url.stopAccessingSecurityScopedResource() }
-                
-                let data = try Data(contentsOf: url)
-                
-                // Delete existing data first (safely)
-                deleteAllData()
-                
-                // Import new data
-                let result = try DataExporter.importJSON(from: data, into: modelContext)
-                importResult = result
-                showingImportSuccess = true
-                
-            } catch {
-                errorMessage = error.localizedDescription
+            guard url.startAccessingSecurityScopedResource() else {
+                errorMessage = "Cannot access the selected file"
                 showingError = true
+                return
+            }
+            
+            appState.isLoading = true
+            appState.loadingMessage = String(localized: "Importing data...")
+            
+            Task.detached(priority: .userInitiated) {
+                do {
+                    let data = try Data(contentsOf: url)
+                    url.stopAccessingSecurityScopedResource()
+                    
+                    await MainActor.run {
+                        // Delete existing data first
+                        deleteAllData()
+                        
+                        do {
+                            let result = try DataExporter.importJSON(from: data, into: modelContext)
+                            importResult = result
+                            appState.isLoading = false
+                            showingImportSuccess = true
+                        } catch {
+                            appState.isLoading = false
+                            errorMessage = error.localizedDescription
+                            showingError = true
+                        }
+                    }
+                } catch {
+                    url.stopAccessingSecurityScopedResource()
+                    await MainActor.run {
+                        appState.isLoading = false
+                        errorMessage = error.localizedDescription
+                        showingError = true
+                    }
+                }
             }
             
         case .failure(let error):
@@ -239,7 +247,6 @@ struct SettingsView: View {
     }
     
     private func deleteAllData() {
-        // Fetch and delete each type individually to avoid crashes on empty stores
         let attachments = (try? modelContext.fetch(FetchDescriptor<Attachment>())) ?? []
         for attachment in attachments { modelContext.delete(attachment) }
         
@@ -249,80 +256,51 @@ struct SettingsView: View {
         let entries = (try? modelContext.fetch(FetchDescriptor<Entry>())) ?? []
         for entry in entries { modelContext.delete(entry) }
         
-        let transactions = (try? modelContext.fetch(FetchDescriptor<Transaction>())) ?? []
-        for transaction in transactions { modelContext.delete(transaction) }
+        let txns = (try? modelContext.fetch(FetchDescriptor<Transaction>())) ?? []
+        for txn in txns { modelContext.delete(txn) }
         
-        let accounts = (try? modelContext.fetch(FetchDescriptor<Account>())) ?? []
-        for account in accounts { modelContext.delete(account) }
+        let accts = (try? modelContext.fetch(FetchDescriptor<Account>())) ?? []
+        for acct in accts { modelContext.delete(acct) }
+        
+        // Note: We don't delete AppConfiguration - we update it instead
     }
     
     // MARK: - Reset
     
     private func resetAllData() {
-        // Close settings sheet immediately
-        dismissSettings?.wrappedValue = false
+        // Close settings sheet immediately (for sheet presentation)
+        dismissSettings()
         
-        // Use external binding if available
-        if let isErasing = isErasing {
-            isErasing.wrappedValue = true
+        // Show loading overlay
+        appState.isLoading = true
+        appState.loadingMessage = String(localized: "Erasing data...")
+        
+        Task {
+            // Small delay to let sheet dismiss
+            try? await Task.sleep(nanoseconds: 300_000_000)
             
-            Task.detached(priority: .userInitiated) {
-                // Small delay to let the sheet dismiss
-                try? await Task.sleep(nanoseconds: 300_000_000)
+            await MainActor.run {
+                // Delete all data (except AppConfiguration)
+                deleteAllData()
                 
-                await MainActor.run {
-                    // Delete all data using the safe method
-                    deleteAllData()
-                    
-                    do {
-                        try modelContext.save()
-                    } catch {
-                        print("Error saving after delete: \(error)")
-                    }
-                    
-                    // Also delete the SwiftData store file to ensure complete reset
-                    deleteSwiftDataStore()
-                    
-                    // Reset first launch flag
-                    UserDefaults.standard.removeObject(forKey: "hasCompletedSetup")
-                    
-                    isErasing.wrappedValue = false
-                    
-                    // Show welcome dialog
-                    if let showWelcome = showWelcome {
-                        showWelcome.wrappedValue = true
-                    }
+                // Mark that setup is needed again
+                AppConfiguration.markSetupNeeded(in: modelContext)
+                
+                do {
+                    try modelContext.save()
+                } catch {
+                    print("Error saving after delete: \(error)")
                 }
+                
+                // Hide loading
+                appState.isLoading = false
+                
+                // Close Settings window (macOS menu)
+                NSApp.keyWindow?.close()
+                
+                // Notify to show welcome sheet via NotificationCenter
+                AppState.requestShowWelcome()
             }
-        } else {
-            // Fallback for when opened from Settings menu (no external bindings)
-            deleteAllData()
-            
-            do {
-                try modelContext.save()
-            } catch {
-                print("Error saving after delete: \(error)")
-            }
-            
-            deleteSwiftDataStore()
-            UserDefaults.standard.removeObject(forKey: "hasCompletedSetup")
-            showingLocalWelcome = true
-        }
-    }
-    
-    private func deleteSwiftDataStore() {
-        let fileManager = FileManager.default
-        guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            return
-        }
-        
-        // SwiftData default store location
-        let storeURL = appSupport.appendingPathComponent("default.store")
-        let storeShmURL = appSupport.appendingPathComponent("default.store-shm")
-        let storeWalURL = appSupport.appendingPathComponent("default.store-wal")
-        
-        for url in [storeURL, storeShmURL, storeWalURL] {
-            try? fileManager.removeItem(at: url)
         }
     }
 }
@@ -374,157 +352,9 @@ struct ExportFormatPickerView: View {
     }
 }
 
-// MARK: - Local Welcome View (for Settings menu)
-
-struct LocalWelcomeView: View {
-    let modelContext: ModelContext
-    @Binding var isPresented: Bool
-    @State private var showingImportFilePicker = false
-    @State private var showingImportError = false
-    @State private var importErrorMessage = ""
-    @State private var isImporting = false
-    
-    var body: some View {
-        ZStack {
-            VStack(spacing: 24) {
-                Image(systemName: "building.columns.fill")
-                    .font(.system(size: 60))
-                    .foregroundStyle(.tint)
-                
-                Text("Welcome to Cash")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                Text("Choose how to start:")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                
-                VStack(spacing: 12) {
-                    Button {
-                        showingImportFilePicker = true
-                    } label: {
-                        Label("Import existing data", systemImage: "square.and.arrow.down")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(isImporting)
-                    
-                    Button {
-                        createDefaultAccounts()
-                        markAsCompleted()
-                        isPresented = false
-                    } label: {
-                        Label("Create example accounts", systemImage: "sparkles")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(isImporting)
-                    
-                    Button {
-                        markAsCompleted()
-                        isPresented = false
-                    } label: {
-                        Label("Start empty", systemImage: "doc")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(isImporting)
-                }
-                .frame(width: 250)
-            }
-            .padding(40)
-            .disabled(isImporting)
-            
-            if isImporting {
-                Color.black.opacity(0.3)
-                VStack(spacing: 16) {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .progressViewStyle(.circular)
-                    
-                    Text("Importing data...")
-                        .font(.headline)
-                }
-                .padding(30)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-            }
-        }
-        .frame(width: 350)
-        .fileImporter(
-            isPresented: $showingImportFilePicker,
-            allowedContentTypes: [.json],
-            allowsMultipleSelection: false
-        ) { result in
-            handleImport(result: result)
-        }
-        .alert("Import error", isPresented: $showingImportError) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text(importErrorMessage)
-        }
-    }
-    
-    private func createDefaultAccounts() {
-        let defaultAccounts = ChartOfAccounts.createDefaultAccounts(currency: "EUR")
-        for account in defaultAccounts {
-            modelContext.insert(account)
-        }
-    }
-    
-    private func markAsCompleted() {
-        UserDefaults.standard.set(true, forKey: "hasCompletedSetup")
-    }
-    
-    private func handleImport(result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            
-            guard url.startAccessingSecurityScopedResource() else {
-                importErrorMessage = DataExporterError.importFailed("Cannot access file").localizedDescription
-                showingImportError = true
-                return
-            }
-            
-            isImporting = true
-            
-            Task.detached(priority: .userInitiated) {
-                do {
-                    let data = try Data(contentsOf: url)
-                    url.stopAccessingSecurityScopedResource()
-                    
-                    await MainActor.run {
-                        do {
-                            _ = try DataExporter.importJSON(from: data, into: modelContext)
-                            markAsCompleted()
-                            isImporting = false
-                            isPresented = false
-                        } catch {
-                            importErrorMessage = error.localizedDescription
-                            isImporting = false
-                            showingImportError = true
-                        }
-                    }
-                } catch {
-                    url.stopAccessingSecurityScopedResource()
-                    await MainActor.run {
-                        importErrorMessage = error.localizedDescription
-                        isImporting = false
-                        showingImportError = true
-                    }
-                }
-            }
-            
-        case .failure(let error):
-            importErrorMessage = error.localizedDescription
-            showingImportError = true
-        }
-    }
-}
-
 #Preview {
     NavigationStack {
-        SettingsView()
+        SettingsView(appState: AppState(), dismissSettings: {})
     }
     .environment(AppSettings.shared)
 }
