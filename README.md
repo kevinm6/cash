@@ -2,6 +2,11 @@
 
 A simplified macOS financial management application inspired by Gnucash, built with SwiftUI and SwiftData.
 
+## Screenshots
+
+![Screenshot 1](AppStore/Screenshots/001.png)
+![Screenshot 2](AppStore/Screenshots/002.png)
+
 ## Getting Started
 
 ### Prerequisites
