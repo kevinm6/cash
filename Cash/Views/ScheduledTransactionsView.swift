@@ -99,6 +99,9 @@ struct ScheduledTransactionsView: View {
         .sheet(item: $transactionToEdit) { transaction in
             EditScheduledTransactionView(transaction: transaction)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .addNewScheduledTransaction)) { _ in
+            showingAddScheduled = true
+        }
         .confirmationDialog(
             "Execute transaction",
             isPresented: Binding(
@@ -495,7 +498,7 @@ struct AddScheduledTransactionView: View {
             startDate: recurrenceStartDate,
             endDate: recurrenceEndDate
         )
-        rule.nextOccurrence = rule.calculateNextOccurrence(from: recurrenceStartDate)
+        rule.nextOccurrence = rule.calculateNextOccurrence(from: recurrenceStartDate, includeDate: true)
         rule.transaction = transaction
         modelContext.insert(rule)
         
@@ -593,7 +596,7 @@ struct EditScheduledTransactionView: View {
             rule.weekendAdjustment = recurrenceWeekendAdjustment
             rule.startDate = recurrenceStartDate
             rule.endDate = recurrenceEndDate
-            rule.nextOccurrence = rule.calculateNextOccurrence(from: Date())
+            rule.nextOccurrence = rule.calculateNextOccurrence(from: recurrenceStartDate, includeDate: true)
         }
         
         dismiss()

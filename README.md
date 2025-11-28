@@ -4,8 +4,9 @@ A simplified macOS financial management application inspired by Gnucash, built w
 
 ## Screenshots
 
-![Screenshot 1](AppStore/Screenshots/001.png)
-![Screenshot 2](AppStore/Screenshots/002.png)
+![Main Screenshot](AppStore/Screenshots/001.png)
+
+See all screenshots [here](SCREENSHOT.md).
 
 ## Getting Started
 

@@ -222,7 +222,6 @@ struct SettingsView: View {
             let filename = DataExporter.generateFilename(for: format)
             
             let savePanel = NSSavePanel()
-            savePanel.allowedContentTypes = [format.utType]
             savePanel.nameFieldStringValue = filename
             savePanel.canCreateDirectories = true
             

@@ -368,6 +368,9 @@
         }
       }
     },
+    "Calculating forecast..." : {
+
+    },
     "Cancel" : {
       "localizations" : {
         "it" : {

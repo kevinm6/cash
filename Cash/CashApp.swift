@@ -13,6 +13,7 @@ import SwiftData
 @Observable
 class NavigationState {
     var isViewingAccount: Bool = false
+    var isViewingScheduled: Bool = false
     var currentAccount: Account? = nil
 }
 
@@ -21,6 +22,7 @@ class NavigationState {
 extension Notification.Name {
     static let addNewAccount = Notification.Name("addNewAccount")
     static let addNewTransaction = Notification.Name("addNewTransaction")
+    static let addNewScheduledTransaction = Notification.Name("addNewScheduledTransaction")
     static let importOFX = Notification.Name("importOFX")
 }
 
@@ -81,11 +83,19 @@ struct CashApp: App {
                 Button {
                     if navigationState.isViewingAccount {
                         NotificationCenter.default.post(name: .addNewTransaction, object: nil)
+                    } else if navigationState.isViewingScheduled {
+                        NotificationCenter.default.post(name: .addNewScheduledTransaction, object: nil)
                     } else {
                         NotificationCenter.default.post(name: .addNewAccount, object: nil)
                     }
                 } label: {
-                    Text(navigationState.isViewingAccount ? "New transaction" : "New account")
+                    if navigationState.isViewingAccount {
+                        Text("New transaction")
+                    } else if navigationState.isViewingScheduled {
+                        Text("New scheduled transaction")
+                    } else {
+                        Text("New account")
+                    }
                 }
                 .keyboardShortcut("n", modifiers: .command)
             }

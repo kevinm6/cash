@@ -121,9 +121,15 @@ struct AccountListView: View {
             switch newValue {
             case .account(let account):
                 navigationState.isViewingAccount = true
+                navigationState.isViewingScheduled = false
                 navigationState.currentAccount = account
+            case .scheduled:
+                navigationState.isViewingAccount = false
+                navigationState.isViewingScheduled = true
+                navigationState.currentAccount = nil
             default:
                 navigationState.isViewingAccount = false
+                navigationState.isViewingScheduled = false
                 navigationState.currentAccount = nil
             }
         }
