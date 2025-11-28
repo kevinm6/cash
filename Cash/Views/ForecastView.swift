@@ -170,7 +170,6 @@ struct ForecastView: View {
                                 AxisValueLabel {
                                     if let doubleValue = value.as(Double.self) {
                                         Text(formatCurrencyCompact(Decimal(doubleValue)))
-                                            .privacyBlur(settings.privacyMode)
                                     }
                                 }
                             }
@@ -182,6 +181,7 @@ struct ForecastView: View {
                             }
                         }
                         .frame(height: 200)
+                        .privacyBlur(settings.privacyMode)
                     } else {
                         ContentUnavailableView {
                             Label("No forecast data", systemImage: "chart.line.uptrend.xyaxis")
