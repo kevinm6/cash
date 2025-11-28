@@ -39,10 +39,30 @@ struct CashApp: App {
             RecurrenceRule.self,
             AppConfiguration.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+        
+        #if ENABLE_ICLOUD
+        let cloudManager = CloudKitManager.shared
+        
+        // Try CloudKit if enabled and available
+        if cloudManager.isEnabled && cloudManager.isAvailable {
+            do {
+                let cloudConfig = ModelConfiguration(
+                    schema: schema,
+                    isStoredInMemoryOnly: false,
+                    cloudKitDatabase: .private(cloudManager.containerIdentifier)
+                )
+                return try ModelContainer(for: schema, configurations: [cloudConfig])
+            } catch {
+                // CloudKit failed, fall back to local storage
+                print("CloudKit initialization failed: \(error). Falling back to local storage.")
+            }
+        }
+        #endif
+        
+        // Local storage (default)
+        let localConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: schema, configurations: [localConfig])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

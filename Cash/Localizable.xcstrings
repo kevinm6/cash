@@ -441,17 +441,6 @@
         }
       }
     },
-    "Build %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Build %@"
-          }
-        }
-      }
-    },
     "Cancel" : {
       "localizations" : {
         "it" : {
@@ -1300,6 +1289,9 @@
           }
         }
       }
+    },
+    "iCloud not available in this build" : {
+
     },
     "Import %lld Transactions" : {
       "localizations" : {
