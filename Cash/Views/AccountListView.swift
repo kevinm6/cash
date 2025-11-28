@@ -44,9 +44,6 @@ struct AccountListView: View {
                             Label("Net Worth", systemImage: "chart.pie.fill")
                                 .tag(SidebarSelection.patrimony)
                             
-                            Label("Forecast", systemImage: "chart.line.uptrend.xyaxis")
-                                .tag(SidebarSelection.forecast)
-                            
                             HStack {
                                 Label("Scheduled", systemImage: "calendar.badge.clock")
                                 Spacer()
@@ -60,11 +57,16 @@ struct AccountListView: View {
                                 }
                             }
                             .tag(SidebarSelection.scheduled)
+                            
+                            Label("Forecast", systemImage: "chart.line.uptrend.xyaxis")
+                                .tag(SidebarSelection.forecast)
                         }
                     }
                     
                     ForEach(AccountClass.allCases.sorted(by: { $0.displayOrder < $1.displayOrder })) { accountClass in
-                        let filteredAccounts = accounts.filter { $0.accountClass == accountClass && $0.isActive && !$0.isSystem }
+                        let filteredAccounts = accounts
+                            .filter { $0.accountClass == accountClass && $0.isActive && !$0.isSystem }
+                            .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
                         if !filteredAccounts.isEmpty {
                             Section(accountClass.localizedPluralName) {
                                 ForEach(filteredAccounts) { account in
