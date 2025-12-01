@@ -484,22 +484,22 @@ struct CreateBudgetView: View {
                     }
                     
                     DatePicker("Start Date", selection: $startDate, displayedComponents: .date)
+                } header: {
+                    Text("Budget Period")
+                } footer: {
+                    Text("End Date: \(formattedEndDate)")
                 }
                 
                 Section {
                     Toggle("Enable Rollover", isOn: $rolloverEnabled)
+                } header: {
+                    Text("Options")
                 } footer: {
                     Text("When enabled, unused budget from envelopes will carry over to the next period.")
                 }
-                
-                Section {
-                    Text("End Date: \(formattedEndDate)")
-                        .foregroundStyle(.secondary)
-                } header: {
-                    Text("Budget Period")
-                }
             }
-            .navigationTitle("Create Budget")
+            .formStyle(.grouped)
+            .navigationTitle("New Budget")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -781,13 +781,8 @@ struct TransferBetweenEnvelopesView: View {
                     Picker("From", selection: $fromEnvelope) {
                         Text("Select envelope").tag(nil as Envelope?)
                         ForEach(envelopes) { envelope in
-                            HStack {
-                                Text(envelope.displayName)
-                                Spacer()
-                                Text("Available: \(CurrencyFormatter.format(envelope.availableAmount, currency: "EUR"))")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .tag(envelope as Envelope?)
+                            Text(envelope.displayName)
+                                .tag(envelope as Envelope?)
                         }
                     }
                     
@@ -798,6 +793,8 @@ struct TransferBetweenEnvelopesView: View {
                                 .tag(envelope as Envelope?)
                         }
                     }
+                } header: {
+                    Text("Envelopes")
                 }
                 
                 Section {
@@ -807,23 +804,24 @@ struct TransferBetweenEnvelopesView: View {
                                 amount = decimal
                             }
                         }
-                    
+                } header: {
+                    Text("Amount")
+                } footer: {
                     if let from = fromEnvelope {
                         Text("Available: \(CurrencyFormatter.format(from.availableAmount, currency: "EUR"))")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 }
                 
                 if !isValid && amount > 0 {
-                    Section {
-                        if let from = fromEnvelope, amount > from.availableAmount {
+                    if let from = fromEnvelope, amount > from.availableAmount {
+                        Section {
                             Label("Insufficient funds in source envelope", systemImage: "exclamationmark.triangle")
                                 .foregroundStyle(.red)
                         }
                     }
                 }
             }
+            .formStyle(.grouped)
             .navigationTitle("Transfer Funds")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

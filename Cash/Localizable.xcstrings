@@ -159,7 +159,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "2 Anni"
+            "value" : "2 anni"
           }
         }
       }
@@ -179,7 +179,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "5 Anni"
+            "value" : "5 anni"
           }
         }
       }
@@ -280,7 +280,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi Busta"
+            "value" : "Aggiungi busta"
           }
         }
       }
@@ -569,7 +569,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Storico Saldo"
+            "value" : "Storico saldo"
           }
         }
       }
@@ -582,7 +582,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Proiezione Saldo"
+            "value" : "Proiezione saldo"
           }
         }
       }
@@ -632,7 +632,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Periodo Budget"
+            "value" : "Periodo budget"
           }
         }
       }
@@ -642,7 +642,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Importo Budget"
+            "value" : "Importo budget"
           }
         }
       }
@@ -652,7 +652,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Per Categoria"
+            "value" : "Per categoria"
           }
         }
       }
@@ -824,7 +824,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Crea Budget"
+            "value" : "Crea budget"
           }
         }
       }
@@ -890,7 +890,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saldo Attuale"
+            "value" : "Saldo attuale"
           }
         }
       }
@@ -900,7 +900,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nome Personalizzato (opzionale)"
+            "value" : "Nome personalizzato (opzionale)"
           }
         }
       }
@@ -1158,7 +1158,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Abilita Riporto"
+            "value" : "Abilita riporto"
           }
         }
       }
@@ -1188,7 +1188,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Data Fine: %@"
+            "value" : "Data fine: %@"
           }
         }
       }
@@ -1208,6 +1208,9 @@
           }
         }
       }
+    },
+    "Envelopes" : {
+
     },
     "Equity" : {
       "localizations" : {
@@ -1429,7 +1432,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Spese Fisse"
+            "value" : "Spese fisse"
           }
         }
       }
@@ -1439,7 +1442,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entrate Fisse"
+            "value" : "Entrate fisse"
           }
         }
       }
@@ -1449,7 +1452,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entrate vs Spese Fisse"
+            "value" : "Entrate vs spese fisse"
           }
         }
       }
@@ -1780,7 +1783,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Includi nel Budget"
+            "value" : "Includi nel budget"
           }
         }
       }
@@ -1906,7 +1909,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ultimi 3 Mesi"
+            "value" : "Ultimi 3 mesi"
           }
         }
       }
@@ -1926,7 +1929,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ultimi 6 Mesi"
+            "value" : "Ultimi 6 mesi"
           }
         }
       }
@@ -1966,7 +1969,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ultimo Anno"
+            "value" : "Ultimo anno"
           }
         }
       }
@@ -2019,7 +2022,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Proiezione Lungo Termine"
+            "value" : "Proiezione lungo termine"
           }
         }
       }
@@ -2109,7 +2112,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deficit Mensile"
+            "value" : "Deficit mensile"
           }
         }
       }
@@ -2119,7 +2122,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Surplus Mensile"
+            "value" : "Surplus mensile"
           }
         }
       }
@@ -2129,7 +2132,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trend Mensile"
+            "value" : "Trend mensile"
           }
         }
       }
@@ -2159,7 +2162,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Patrimonio Netto nel Tempo"
+            "value" : "Patrimonio netto nel tempo"
           }
         }
       }
@@ -2179,7 +2182,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nuovo Budget"
+            "value" : "Nuovo budget"
           }
         }
       }
@@ -2332,7 +2335,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nessuna categoria disponibile. Abilita 'Includi nel Budget' per le categorie di spesa nelle impostazioni del conto."
+            "value" : "Nessuna categoria disponibile. Abilita 'Includi nel budget' per le categorie di spesa nelle impostazioni del conto."
           }
         }
       }
@@ -2352,7 +2355,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nessun Dato"
+            "value" : "Nessun dato"
           }
         }
       }
@@ -2549,6 +2552,9 @@
     "Optional number for organizing accounts (e.g., 1000, 2000)" : {
 
     },
+    "Options" : {
+
+    },
     "Other expense" : {
       "localizations" : {
         "it" : {
@@ -2597,7 +2603,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tipo Periodo"
+            "value" : "Tipo periodo"
           }
         }
       }
@@ -2697,7 +2703,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Budget Precedenti"
+            "value" : "Budget precedenti"
           }
         }
       }
@@ -2717,7 +2723,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anno Precedente"
+            "value" : "Anno precedente"
           }
         }
       }
@@ -2747,7 +2753,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saldo Proiettato"
+            "value" : "Saldo proiettato"
           }
         }
       }
@@ -2757,7 +2763,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Variazione Proiettata"
+            "value" : "Variazione proiettata"
           }
         }
       }
@@ -3145,7 +3151,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Data Inizio"
+            "value" : "Data inizio"
           }
         }
       }
@@ -3299,23 +3305,12 @@
         }
       }
     },
-    "Total" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Totale"
-          }
-        }
-      }
-    },
     "Total Expenses Variation" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Variazione Spese Totali"
+            "value" : "Variazione spese totali"
           }
         }
       }
@@ -3375,7 +3370,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trasferisci Fondi"
+            "value" : "Trasferisci fondi"
           }
         }
       }
@@ -3405,7 +3400,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Analisi Trend"
+            "value" : "Analisi trend"
           }
         }
       }
@@ -3445,7 +3440,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Capire il Rapporto"
+            "value" : "Capire il rapporto"
           }
         }
       }
@@ -3455,7 +3450,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Busta Senza Nome"
+            "value" : "Busta senza nome"
           }
         }
       }
@@ -3485,7 +3480,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Usa Media"
+            "value" : "Usa media"
           }
         }
       }
@@ -3615,7 +3610,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Confronto Annuale"
+            "value" : "Confronto annuale"
           }
         }
       }
@@ -3646,46 +3641,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "I tuoi dati sono stati esportati con successo."
-          }
-        }
-      }
-    },
-    "Delete Envelope" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina Busta"
-          }
-        }
-      }
-    },
-    "Are you sure you want to delete \"%@\"?" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sei sicuro di voler eliminare \"%@\"?"
-          }
-        }
-      }
-    },
-    "Edit Envelope" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifica Busta"
-          }
-        }
-      }
-    },
-    "Edit" : {
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifica"
           }
         }
       }

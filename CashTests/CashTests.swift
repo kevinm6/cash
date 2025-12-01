@@ -1357,4 +1357,91 @@ struct EnvelopeTransferTests {
         let negativeTransfer = EnvelopeTransfer(fromEnvelope: from, toEnvelope: to, amount: -10)
         #expect(negativeTransfer.isValid == false)
     }
+    
+    @Test func transferExecution() async throws {
+        let from = Envelope(budgetedAmount: 100)
+        let to = Envelope(budgetedAmount: 50)
+        
+        let transfer = EnvelopeTransfer(fromEnvelope: from, toEnvelope: to, amount: 30)
+        transfer.execute()
+        
+        #expect(from.budgetedAmount == 70)
+        #expect(to.budgetedAmount == 80)
+    }
+}
+
+// MARK: - Envelope Status Tests
+
+struct EnvelopeStatusTests {
+    
+    @Test func envelopeStatusThresholds() async throws {
+        // Healthy: percentage < 80%
+        #expect(EnvelopeStatus.healthy.color == "green")
+        
+        // Warning: 80% <= percentage < 100%
+        #expect(EnvelopeStatus.warning.color == "orange")
+        
+        // Exceeded: percentage >= 100%
+        #expect(EnvelopeStatus.exceeded.color == "red")
+    }
+    
+    @Test func allEnvelopeStatusesHaveColors() async throws {
+        for status in [EnvelopeStatus.healthy, .warning, .exceeded] {
+            #expect(!status.color.isEmpty)
+        }
+    }
+}
+
+// MARK: - Budget Period Tests
+
+struct BudgetPeriodTests {
+    
+    @Test func weeklyBudgetPeriod() async throws {
+        let periodType = BudgetPeriodType.weekly
+        #expect(periodType.rawValue == "weekly")
+        #expect(!periodType.localizedName.isEmpty)
+    }
+    
+    @Test func monthlyBudgetPeriod() async throws {
+        let periodType = BudgetPeriodType.monthly
+        #expect(periodType.rawValue == "monthly")
+        #expect(!periodType.localizedName.isEmpty)
+    }
+    
+    @Test func budgetPeriodTypeIcons() async throws {
+        for periodType in BudgetPeriodType.allCases {
+            #expect(!periodType.iconName.isEmpty)
+        }
+    }
+}
+
+// MARK: - Budget Current Period Tests
+
+struct BudgetCurrentPeriodTests {
+    
+    @Test func budgetIsCurrentPeriod() async throws {
+        let calendar = Calendar.current
+        let today = Date()
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
+        
+        let budget = Budget(
+            startDate: startOfMonth,
+            periodType: .monthly
+        )
+        
+        #expect(budget.isCurrentPeriod == true)
+    }
+    
+    @Test func budgetIsNotCurrentPeriod() async throws {
+        let calendar = Calendar.current
+        let lastYear = calendar.date(byAdding: .year, value: -1, to: Date())!
+        let startOfLastYear = calendar.date(from: calendar.dateComponents([.year, .month], from: lastYear))!
+        
+        let budget = Budget(
+            startDate: startOfLastYear,
+            periodType: .monthly
+        )
+        
+        #expect(budget.isCurrentPeriod == false)
+    }
 }
