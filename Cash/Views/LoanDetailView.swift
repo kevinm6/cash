@@ -27,7 +27,8 @@ struct LoanDetailView: View {
             annualRate: loan.currentInterestRate,
             totalPayments: loan.totalPayments,
             paymentsMade: loan.paymentsMade,
-            frequency: loan.paymentFrequency
+            frequency: loan.paymentFrequency,
+            amortizationType: loan.amortizationType
         )
     }
     
@@ -168,6 +169,7 @@ struct LoanDetailView: View {
                     annualRate: loan.currentInterestRate,
                     totalPayments: loan.totalPayments,
                     frequency: loan.paymentFrequency,
+                    amortizationType: loan.amortizationType,
                     startDate: loan.startDate,
                     currency: loan.currency
                 )
@@ -178,6 +180,7 @@ struct LoanDetailView: View {
                     baseRate: loan.currentInterestRate,
                     totalPayments: loan.remainingPayments,
                     frequency: loan.paymentFrequency,
+                    amortizationType: loan.amortizationType,
                     currency: loan.currency
                 )
             }
@@ -187,6 +190,7 @@ struct LoanDetailView: View {
                     remainingPayments: loan.remainingPayments,
                     annualRate: loan.currentInterestRate,
                     frequency: loan.paymentFrequency,
+                    amortizationType: loan.amortizationType,
                     currency: loan.currency
                 )
             }

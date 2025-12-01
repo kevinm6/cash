@@ -15,6 +15,7 @@ struct AmortizationScheduleView: View {
     let annualRate: Decimal
     let totalPayments: Int
     let frequency: PaymentFrequency
+    var amortizationType: AmortizationType = .french
     let startDate: Date
     let currency: String
     var startingPayment: Int = 1
@@ -34,11 +35,20 @@ struct AmortizationScheduleView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Summary header
-                HStack(spacing: 32) {
+                HStack(spacing: 24) {
                     SummaryItem(label: "Principal", value: principal, currency: currency)
                     SummaryItem(label: "Interest Rate", value: annualRate, suffix: "%", isPercentage: true)
                     SummaryItem(label: "Total Interest", value: totalInterestPaid, currency: currency)
                     SummaryItem(label: "Total Amount", value: principal + totalInterestPaid, currency: currency)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Method")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(amortizationType.shortName)
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                    }
                 }
                 .padding()
                 .background(.regularMaterial)
@@ -131,6 +141,7 @@ struct AmortizationScheduleView: View {
             annualRate: annualRate,
             totalPayments: totalPayments,
             frequency: frequency,
+            amortizationType: amortizationType,
             startDate: startDate,
             startingPayment: startingPayment
         )

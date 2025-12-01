@@ -113,6 +113,56 @@ enum PaymentFrequency: String, Codable, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Amortization Type
+
+enum AmortizationType: String, Codable, CaseIterable, Identifiable {
+    case french = "french"
+    case italian = "italian"
+    case german = "german"
+    case american = "american"
+    
+    var id: String { rawValue }
+    
+    var localizedName: String {
+        switch self {
+        case .french:
+            return String(localized: "French (Constant Payment)")
+        case .italian:
+            return String(localized: "Italian (Constant Principal)")
+        case .german:
+            return String(localized: "German (Prepaid Interest)")
+        case .american:
+            return String(localized: "American (Bullet)")
+        }
+    }
+    
+    var shortName: String {
+        switch self {
+        case .french:
+            return String(localized: "French")
+        case .italian:
+            return String(localized: "Italian")
+        case .german:
+            return String(localized: "German")
+        case .american:
+            return String(localized: "American")
+        }
+    }
+    
+    var descriptionText: String {
+        switch self {
+        case .french:
+            return String(localized: "Constant payments with increasing principal and decreasing interest over time. Most common type.")
+        case .italian:
+            return String(localized: "Constant principal payments with decreasing total payments over time.")
+        case .german:
+            return String(localized: "Similar to French but interest is paid at the beginning of each period.")
+        case .american:
+            return String(localized: "Interest-only payments with full principal due at maturity (bullet payment).")
+        }
+    }
+}
+
 // MARK: - Amortization Entry
 
 struct AmortizationEntry: Identifiable {
@@ -134,6 +184,7 @@ final class Loan {
     var loanTypeRawValue: String
     var interestRateTypeRawValue: String
     var paymentFrequencyRawValue: String
+    var amortizationTypeRawValue: String?
     
     // Financial details
     var principalAmount: Decimal
@@ -165,6 +216,11 @@ final class Loan {
     var interestRateType: InterestRateType {
         get { InterestRateType(rawValue: interestRateTypeRawValue) ?? .fixed }
         set { interestRateTypeRawValue = newValue.rawValue }
+    }
+    
+    var amortizationType: AmortizationType {
+        get { AmortizationType(rawValue: amortizationTypeRawValue ?? "french") ?? .french }
+        set { amortizationTypeRawValue = newValue.rawValue }
     }
     
     var paymentFrequency: PaymentFrequency {
@@ -211,6 +267,7 @@ final class Loan {
         loanType: LoanType,
         interestRateType: InterestRateType,
         paymentFrequency: PaymentFrequency = .monthly,
+        amortizationType: AmortizationType = .french,
         principalAmount: Decimal,
         currentInterestRate: Decimal,
         taeg: Decimal? = nil,
@@ -226,6 +283,7 @@ final class Loan {
         self.loanTypeRawValue = loanType.rawValue
         self.interestRateTypeRawValue = interestRateType.rawValue
         self.paymentFrequencyRawValue = paymentFrequency.rawValue
+        self.amortizationTypeRawValue = amortizationType.rawValue
         self.principalAmount = principalAmount
         self.currentInterestRate = currentInterestRate
         self.taeg = taeg
@@ -244,26 +302,43 @@ final class Loan {
 
 struct LoanCalculator {
     
-    /// Calculate monthly payment using French amortization (most common)
-    /// Formula: M = P * [r(1+r)^n] / [(1+r)^n - 1]
-    /// Where: M = monthly payment, P = principal, r = periodic interest rate, n = number of payments
+    // MARK: - Payment Calculation
+    
+    /// Calculate payment based on amortization type
     static func calculatePayment(
         principal: Decimal,
         annualRate: Decimal,
         totalPayments: Int,
-        frequency: PaymentFrequency = .monthly
+        frequency: PaymentFrequency = .monthly,
+        amortizationType: AmortizationType = .french
+    ) -> Decimal {
+        switch amortizationType {
+        case .french:
+            return calculateFrenchPayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
+        case .italian:
+            return calculateItalianFirstPayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
+        case .german:
+            return calculateGermanPayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
+        case .american:
+            return calculateAmericanPayment(principal: principal, annualRate: annualRate, frequency: frequency)
+        }
+    }
+    
+    /// French amortization: Constant payments
+    /// Formula: M = P * [r(1+r)^n] / [(1+r)^n - 1]
+    private static func calculateFrenchPayment(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency
     ) -> Decimal {
         guard principal > 0, annualRate >= 0, totalPayments > 0 else { return 0 }
         
-        // If rate is 0, simple division
         if annualRate == 0 {
             return principal / Decimal(totalPayments)
         }
         
-        // Convert annual rate to periodic rate
         let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
-        
-        // Calculate using Double for complex math, then convert back
         let r = NSDecimalNumber(decimal: periodicRate).doubleValue
         let p = NSDecimalNumber(decimal: principal).doubleValue
         let n = Double(totalPayments)
@@ -274,22 +349,84 @@ struct LoanCalculator {
         guard denominator != 0 else { return principal / Decimal(totalPayments) }
         
         let payment = p * (numerator / denominator)
-        
         return Decimal(payment).rounded(2)
     }
     
-    /// Generate full amortization schedule
+    /// Italian amortization: Constant principal, first payment (highest)
+    private static func calculateItalianFirstPayment(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency
+    ) -> Decimal {
+        guard principal > 0, totalPayments > 0 else { return 0 }
+        
+        let constantPrincipal = principal / Decimal(totalPayments)
+        let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
+        let firstInterest = principal * periodicRate
+        
+        return (constantPrincipal + firstInterest).rounded(2)
+    }
+    
+    /// German amortization: Similar to French but interest paid in advance
+    private static func calculateGermanPayment(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency
+    ) -> Decimal {
+        // German is similar to French for the payment amount
+        return calculateFrenchPayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
+    }
+    
+    /// American amortization: Interest-only payments
+    private static func calculateAmericanPayment(
+        principal: Decimal,
+        annualRate: Decimal,
+        frequency: PaymentFrequency
+    ) -> Decimal {
+        guard principal > 0, annualRate >= 0 else { return 0 }
+        
+        let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
+        return (principal * periodicRate).rounded(2)
+    }
+    
+    // MARK: - Amortization Schedule Generation
+    
+    /// Generate amortization schedule based on type
     static func generateAmortizationSchedule(
         principal: Decimal,
         annualRate: Decimal,
         totalPayments: Int,
         frequency: PaymentFrequency = .monthly,
+        amortizationType: AmortizationType = .french,
         startDate: Date,
         startingPayment: Int = 1
     ) -> [AmortizationEntry] {
+        switch amortizationType {
+        case .french:
+            return generateFrenchSchedule(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency, startDate: startDate, startingPayment: startingPayment)
+        case .italian:
+            return generateItalianSchedule(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency, startDate: startDate, startingPayment: startingPayment)
+        case .german:
+            return generateGermanSchedule(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency, startDate: startDate, startingPayment: startingPayment)
+        case .american:
+            return generateAmericanSchedule(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency, startDate: startDate, startingPayment: startingPayment)
+        }
+    }
+    
+    /// French: Constant payment, increasing principal, decreasing interest
+    private static func generateFrenchSchedule(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency,
+        startDate: Date,
+        startingPayment: Int
+    ) -> [AmortizationEntry] {
         var schedule: [AmortizationEntry] = []
         var remainingBalance = principal
-        let payment = calculatePayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
+        let payment = calculateFrenchPayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
         let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
         let calendar = Calendar.current
         
@@ -297,7 +434,6 @@ struct LoanCalculator {
             let interest = (remainingBalance * periodicRate).rounded(2)
             var principalPaid = payment - interest
             
-            // Adjust last payment
             if i == totalPayments {
                 principalPaid = remainingBalance
             }
@@ -308,19 +444,154 @@ struct LoanCalculator {
             let monthsFromStart = (i - 1) * frequency.monthsBetweenPayments
             let paymentDate = calendar.date(byAdding: .month, value: monthsFromStart, to: startDate) ?? startDate
             
-            let entry = AmortizationEntry(
+            schedule.append(AmortizationEntry(
                 paymentNumber: i,
                 date: paymentDate,
                 payment: i == totalPayments ? principalPaid + interest : payment,
                 principal: principalPaid,
                 interest: interest,
                 remainingBalance: remainingBalance
-            )
-            schedule.append(entry)
+            ))
         }
         
         return schedule
     }
+    
+    /// Italian: Constant principal, decreasing payment
+    private static func generateItalianSchedule(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency,
+        startDate: Date,
+        startingPayment: Int
+    ) -> [AmortizationEntry] {
+        var schedule: [AmortizationEntry] = []
+        var remainingBalance = principal
+        let constantPrincipal = (principal / Decimal(totalPayments)).rounded(2)
+        let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
+        let calendar = Calendar.current
+        
+        for i in startingPayment...totalPayments {
+            let interest = (remainingBalance * periodicRate).rounded(2)
+            var principalPaid = constantPrincipal
+            
+            // Adjust last payment for rounding
+            if i == totalPayments {
+                principalPaid = remainingBalance
+            }
+            
+            let payment = principalPaid + interest
+            remainingBalance -= principalPaid
+            if remainingBalance < 0 { remainingBalance = 0 }
+            
+            let monthsFromStart = (i - 1) * frequency.monthsBetweenPayments
+            let paymentDate = calendar.date(byAdding: .month, value: monthsFromStart, to: startDate) ?? startDate
+            
+            schedule.append(AmortizationEntry(
+                paymentNumber: i,
+                date: paymentDate,
+                payment: payment,
+                principal: principalPaid,
+                interest: interest,
+                remainingBalance: remainingBalance
+            ))
+        }
+        
+        return schedule
+    }
+    
+    /// German: Interest paid at beginning of period (prepaid)
+    private static func generateGermanSchedule(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency,
+        startDate: Date,
+        startingPayment: Int
+    ) -> [AmortizationEntry] {
+        var schedule: [AmortizationEntry] = []
+        var remainingBalance = principal
+        let payment = calculateFrenchPayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
+        let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
+        let calendar = Calendar.current
+        
+        for i in startingPayment...totalPayments {
+            // German: interest is calculated on remaining balance AFTER principal payment
+            // This means we pay interest "in advance" for the upcoming period
+            var principalPaid: Decimal
+            var interest: Decimal
+            
+            if i == 1 {
+                // First payment: full interest on principal
+                interest = (principal * periodicRate).rounded(2)
+                principalPaid = payment - interest
+            } else {
+                // Subsequent payments: interest on balance after previous principal
+                interest = (remainingBalance * periodicRate).rounded(2)
+                principalPaid = payment - interest
+            }
+            
+            if i == totalPayments {
+                principalPaid = remainingBalance
+            }
+            
+            remainingBalance -= principalPaid
+            if remainingBalance < 0 { remainingBalance = 0 }
+            
+            let monthsFromStart = (i - 1) * frequency.monthsBetweenPayments
+            let paymentDate = calendar.date(byAdding: .month, value: monthsFromStart, to: startDate) ?? startDate
+            
+            schedule.append(AmortizationEntry(
+                paymentNumber: i,
+                date: paymentDate,
+                payment: i == totalPayments ? principalPaid + interest : payment,
+                principal: principalPaid,
+                interest: interest,
+                remainingBalance: remainingBalance
+            ))
+        }
+        
+        return schedule
+    }
+    
+    /// American: Interest-only payments, bullet principal at end
+    private static func generateAmericanSchedule(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency,
+        startDate: Date,
+        startingPayment: Int
+    ) -> [AmortizationEntry] {
+        var schedule: [AmortizationEntry] = []
+        let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
+        let interestPayment = (principal * periodicRate).rounded(2)
+        let calendar = Calendar.current
+        
+        for i in startingPayment...totalPayments {
+            let isLastPayment = i == totalPayments
+            let principalPaid = isLastPayment ? principal : Decimal(0)
+            let payment = isLastPayment ? principal + interestPayment : interestPayment
+            let remainingBalance = isLastPayment ? Decimal(0) : principal
+            
+            let monthsFromStart = (i - 1) * frequency.monthsBetweenPayments
+            let paymentDate = calendar.date(byAdding: .month, value: monthsFromStart, to: startDate) ?? startDate
+            
+            schedule.append(AmortizationEntry(
+                paymentNumber: i,
+                date: paymentDate,
+                payment: payment,
+                principal: principalPaid,
+                interest: interestPayment,
+                remainingBalance: remainingBalance
+            ))
+        }
+        
+        return schedule
+    }
+    
+    // MARK: - Utility Methods
     
     /// Calculate remaining balance at a specific payment number
     static func remainingBalance(
@@ -328,27 +599,57 @@ struct LoanCalculator {
         annualRate: Decimal,
         totalPayments: Int,
         paymentsMade: Int,
-        frequency: PaymentFrequency = .monthly
+        frequency: PaymentFrequency = .monthly,
+        amortizationType: AmortizationType = .french
     ) -> Decimal {
         guard paymentsMade < totalPayments else { return 0 }
         guard paymentsMade >= 0 else { return principal }
         
-        if annualRate == 0 {
-            let paymentAmount = principal / Decimal(totalPayments)
-            return principal - (paymentAmount * Decimal(paymentsMade))
+        switch amortizationType {
+        case .american:
+            // American: principal remains until final payment
+            return principal
+        case .italian:
+            // Italian: constant principal reduction
+            let constantPrincipal = principal / Decimal(totalPayments)
+            return (principal - (constantPrincipal * Decimal(paymentsMade))).rounded(2)
+        case .french, .german:
+            if annualRate == 0 {
+                let paymentAmount = principal / Decimal(totalPayments)
+                return principal - (paymentAmount * Decimal(paymentsMade))
+            }
+            
+            let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
+            let payment = calculateFrenchPayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
+            
+            var balance = principal
+            for _ in 0..<paymentsMade {
+                let interest = balance * periodicRate
+                let principalPaid = payment - interest
+                balance -= principalPaid
+            }
+            
+            return max(0, balance).rounded(2)
         }
-        
-        let periodicRate = annualRate / 100 / Decimal(frequency.paymentsPerYear)
-        let payment = calculatePayment(principal: principal, annualRate: annualRate, totalPayments: totalPayments, frequency: frequency)
-        
-        var balance = principal
-        for _ in 0..<paymentsMade {
-            let interest = balance * periodicRate
-            let principalPaid = payment - interest
-            balance -= principalPaid
-        }
-        
-        return max(0, balance).rounded(2)
+    }
+    
+    /// Calculate total interest for a loan
+    static func calculateTotalInterest(
+        principal: Decimal,
+        annualRate: Decimal,
+        totalPayments: Int,
+        frequency: PaymentFrequency = .monthly,
+        amortizationType: AmortizationType = .french
+    ) -> Decimal {
+        let schedule = generateAmortizationSchedule(
+            principal: principal,
+            annualRate: annualRate,
+            totalPayments: totalPayments,
+            frequency: frequency,
+            amortizationType: amortizationType,
+            startDate: Date()
+        )
+        return schedule.reduce(Decimal.zero) { $0 + $1.interest }
     }
     
     /// Calculate early repayment savings
@@ -358,18 +659,26 @@ struct LoanCalculator {
         annualRate: Decimal,
         frequency: PaymentFrequency = .monthly,
         earlyRepaymentAmount: Decimal,
-        penaltyPercentage: Decimal = 0
+        penaltyPercentage: Decimal = 0,
+        amortizationType: AmortizationType = .french
     ) -> (savedInterest: Decimal, penaltyAmount: Decimal, netSavings: Decimal, newRemainingPayments: Int) {
         
         let currentPayment = calculatePayment(
             principal: remainingBalance,
             annualRate: annualRate,
             totalPayments: remainingPayments,
-            frequency: frequency
+            frequency: frequency,
+            amortizationType: amortizationType
         )
         
-        let totalWithoutEarlyRepayment = currentPayment * Decimal(remainingPayments)
-        let interestWithoutEarlyRepayment = totalWithoutEarlyRepayment - remainingBalance
+        // Calculate interest without early repayment
+        let interestWithoutEarlyRepayment = calculateTotalInterest(
+            principal: remainingBalance,
+            annualRate: annualRate,
+            totalPayments: remainingPayments,
+            frequency: frequency,
+            amortizationType: amortizationType
+        )
         
         // After early repayment
         let newBalance = remainingBalance - earlyRepaymentAmount
@@ -392,8 +701,13 @@ struct LoanCalculator {
             newPayments += 1
         }
         
-        let totalWithEarlyRepayment = currentPayment * Decimal(newPayments) + earlyRepaymentAmount
-        let interestWithEarlyRepayment = totalWithEarlyRepayment - remainingBalance
+        let interestWithEarlyRepayment = calculateTotalInterest(
+            principal: newBalance,
+            annualRate: annualRate,
+            totalPayments: newPayments,
+            frequency: frequency,
+            amortizationType: amortizationType
+        )
         
         let savedInterest = (interestWithoutEarlyRepayment - interestWithEarlyRepayment).rounded(2)
         let penaltyAmount = (earlyRepaymentAmount * penaltyPercentage / 100).rounded(2)
@@ -408,6 +722,7 @@ struct LoanCalculator {
         baseRate: Decimal,
         totalPayments: Int,
         frequency: PaymentFrequency = .monthly,
+        amortizationType: AmortizationType = .french,
         variations: [Decimal] = [-1, -0.5, 0, 0.5, 1, 1.5, 2]
     ) -> [(rateChange: Decimal, newRate: Decimal, payment: Decimal, totalInterest: Decimal)] {
         
@@ -415,9 +730,8 @@ struct LoanCalculator {
         
         for variation in variations {
             let newRate = max(0, baseRate + variation)
-            let payment = calculatePayment(principal: principal, annualRate: newRate, totalPayments: totalPayments, frequency: frequency)
-            let totalPaid = payment * Decimal(totalPayments)
-            let totalInterest = totalPaid - principal
+            let payment = calculatePayment(principal: principal, annualRate: newRate, totalPayments: totalPayments, frequency: frequency, amortizationType: amortizationType)
+            let totalInterest = calculateTotalInterest(principal: principal, annualRate: newRate, totalPayments: totalPayments, frequency: frequency, amortizationType: amortizationType)
             
             scenarios.append((variation, newRate, payment, totalInterest))
         }

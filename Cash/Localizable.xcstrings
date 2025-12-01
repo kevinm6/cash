@@ -1432,10 +1432,184 @@
 
     },
     "Enter a name for this loan simulation" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci un nome per questa simulazione"
+          }
+        }
+      }
     },
     "Enter the new interest rate. This will recalculate future payments." : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci il nuovo tasso d'interesse. Questo ricalcolerà i pagamenti futuri."
+          }
+        }
+      }
+    },
+    "French (Constant Payment)" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Francese (Rata Costante)"
+          }
+        }
+      }
+    },
+    "Italian (Constant Principal)" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italiano (Capitale Costante)"
+          }
+        }
+      }
+    },
+    "German (Prepaid Interest)" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tedesco (Interessi Anticipati)"
+          }
+        }
+      }
+    },
+    "American (Bullet)" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Americano (Bullet)"
+          }
+        }
+      }
+    },
+    "French" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Francese"
+          }
+        }
+      }
+    },
+    "Italian" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Italiano"
+          }
+        }
+      }
+    },
+    "German" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tedesco"
+          }
+        }
+      }
+    },
+    "American" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Americano"
+          }
+        }
+      }
+    },
+    "Constant payments with increasing principal and decreasing interest over time. Most common type." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate costanti con quota capitale crescente e interessi decrescenti nel tempo. Il tipo più comune."
+          }
+        }
+      }
+    },
+    "Constant principal payments with decreasing total payments over time." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quota capitale costante con rate decrescenti nel tempo."
+          }
+        }
+      }
+    },
+    "Similar to French but interest is paid at the beginning of each period." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simile al francese ma gli interessi sono pagati all'inizio di ogni periodo."
+          }
+        }
+      }
+    },
+    "Interest-only payments with full principal due at maturity (bullet payment)." : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagamento dei soli interessi con capitale interamente dovuto a scadenza (bullet)."
+          }
+        }
+      }
+    },
+    "Amortization Method" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metodo di Ammortamento"
+          }
+        }
+      }
+    },
+    "Amortization Type" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipo di Ammortamento"
+          }
+        }
+      }
+    },
+    "Amortization Types" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipi di Ammortamento"
+          }
+        }
+      }
+    },
+    "Method" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metodo"
+          }
+        }
+      }
     },
     "Enter the starting balance for this account" : {
 

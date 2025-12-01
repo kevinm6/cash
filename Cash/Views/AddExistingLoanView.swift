@@ -19,6 +19,7 @@ struct AddExistingLoanView: View {
     @State private var loanType: LoanType = .mortgage
     @State private var interestRateType: InterestRateType = .fixed
     @State private var paymentFrequency: PaymentFrequency = .monthly
+    @State private var amortizationType: AmortizationType = .french
     @State private var principalText: String = ""
     @State private var interestRateText: String = ""
     @State private var taegText: String = ""
@@ -100,6 +101,12 @@ struct AddExistingLoanView: View {
                     Picker("Payment Frequency", selection: $paymentFrequency) {
                         ForEach(PaymentFrequency.allCases) { freq in
                             Text(freq.localizedName).tag(freq)
+                        }
+                    }
+                    
+                    Picker("Amortization Type", selection: $amortizationType) {
+                        ForEach(AmortizationType.allCases) { type in
+                            Text(type.localizedName).tag(type)
                         }
                     }
                     
@@ -225,6 +232,7 @@ struct AddExistingLoanView: View {
             loanType: loanType,
             interestRateType: interestRateType,
             paymentFrequency: paymentFrequency,
+            amortizationType: amortizationType,
             principalAmount: principal,
             currentInterestRate: interestRate,
             taeg: taeg,

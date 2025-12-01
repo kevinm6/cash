@@ -15,6 +15,7 @@ struct EarlyRepaymentView: View {
     let remainingPayments: Int
     let annualRate: Decimal
     let frequency: PaymentFrequency
+    var amortizationType: AmortizationType = .french
     let currency: String
     
     @State private var repaymentAmountText: String = ""
@@ -33,7 +34,8 @@ struct EarlyRepaymentView: View {
             principal: remainingBalance,
             annualRate: annualRate,
             totalPayments: remainingPayments,
-            frequency: frequency
+            frequency: frequency,
+            amortizationType: amortizationType
         )
     }
     
@@ -48,7 +50,8 @@ struct EarlyRepaymentView: View {
             annualRate: annualRate,
             frequency: frequency,
             earlyRepaymentAmount: repaymentAmount,
-            penaltyPercentage: penaltyPercentage
+            penaltyPercentage: penaltyPercentage,
+            amortizationType: amortizationType
         )
     }
     

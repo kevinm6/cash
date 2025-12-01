@@ -23,6 +23,7 @@ struct LoanScenariosView: View {
     let baseRate: Decimal
     let totalPayments: Int
     let frequency: PaymentFrequency
+    var amortizationType: AmortizationType = .french
     let currency: String
     
     @State private var scenarios: [RateScenario] = []
@@ -30,11 +31,11 @@ struct LoanScenariosView: View {
     @State private var isLoading = true
     
     private var basePayment: Decimal {
-        LoanCalculator.calculatePayment(principal: principal, annualRate: baseRate, totalPayments: totalPayments, frequency: frequency)
+        LoanCalculator.calculatePayment(principal: principal, annualRate: baseRate, totalPayments: totalPayments, frequency: frequency, amortizationType: amortizationType)
     }
     
     private var baseTotalInterest: Decimal {
-        basePayment * Decimal(totalPayments) - principal
+        LoanCalculator.calculateTotalInterest(principal: principal, annualRate: baseRate, totalPayments: totalPayments, frequency: frequency, amortizationType: amortizationType)
     }
     
     var body: some View {
@@ -197,6 +198,7 @@ struct LoanScenariosView: View {
             baseRate: baseRate,
             totalPayments: totalPayments,
             frequency: frequency,
+            amortizationType: amortizationType,
             variations: customVariations
         )
         

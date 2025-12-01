@@ -19,6 +19,7 @@ struct LoanCalculatorView: View {
     @State private var loanType: LoanType = .mortgage
     @State private var interestRateType: InterestRateType = .fixed
     @State private var paymentFrequency: PaymentFrequency = .monthly
+    @State private var amortizationType: AmortizationType = .french
     @State private var principalText: String = ""
     @State private var interestRateText: String = ""
     @State private var taegText: String = ""
@@ -36,6 +37,7 @@ struct LoanCalculatorView: View {
     @State private var showingAmortization = false
     @State private var showingScenarios = false
     @State private var showingSaveDialog = false
+    @State private var showingAmortizationHelp = false
     
     private var principal: Decimal {
         Decimal(string: principalText.replacingOccurrences(of: ",", with: ".")) ?? 0
@@ -86,6 +88,30 @@ struct LoanCalculatorView: View {
                         ForEach(CurrencyList.currencies) { curr in
                             Text("\(curr.code) - \(curr.name)").tag(curr.code)
                         }
+                    }
+                }
+                
+                Section {
+                    Picker("Amortization Type", selection: $amortizationType) {
+                        ForEach(AmortizationType.allCases) { type in
+                            Text(type.localizedName).tag(type)
+                        }
+                    }
+                    .onChange(of: amortizationType) { _, _ in calculate() }
+                    
+                    Text(amortizationType.descriptionText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    HStack {
+                        Text("Amortization Method")
+                        Spacer()
+                        Button {
+                            showingAmortizationHelp = true
+                        } label: {
+                            Image(systemName: "questionmark.circle")
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 
@@ -175,6 +201,7 @@ struct LoanCalculatorView: View {
                     annualRate: interestRate,
                     totalPayments: totalPayments,
                     frequency: paymentFrequency,
+                    amortizationType: amortizationType,
                     startDate: startDate,
                     currency: currency
                 )
@@ -185,6 +212,7 @@ struct LoanCalculatorView: View {
                     baseRate: interestRate,
                     totalPayments: totalPayments,
                     frequency: paymentFrequency,
+                    amortizationType: amortizationType,
                     currency: currency
                 )
             }
@@ -197,8 +225,11 @@ struct LoanCalculatorView: View {
             } message: {
                 Text("Enter a name for this loan simulation")
             }
+            .sheet(isPresented: $showingAmortizationHelp) {
+                AmortizationHelpView()
+            }
         }
-        .frame(minWidth: 500, minHeight: 600)
+        .frame(minWidth: 500, minHeight: 650)
     }
     
     private func calculate() {
@@ -213,11 +244,19 @@ struct LoanCalculatorView: View {
             principal: principal,
             annualRate: interestRate,
             totalPayments: totalPayments,
-            frequency: paymentFrequency
+            frequency: paymentFrequency,
+            amortizationType: amortizationType
         )
         
-        totalAmount = calculatedPayment * Decimal(totalPayments)
-        totalInterest = totalAmount - principal
+        totalInterest = LoanCalculator.calculateTotalInterest(
+            principal: principal,
+            annualRate: interestRate,
+            totalPayments: totalPayments,
+            frequency: paymentFrequency,
+            amortizationType: amortizationType
+        )
+        
+        totalAmount = principal + totalInterest
     }
     
     private func saveLoan() {
@@ -228,6 +267,7 @@ struct LoanCalculatorView: View {
             loanType: loanType,
             interestRateType: interestRateType,
             paymentFrequency: paymentFrequency,
+            amortizationType: amortizationType,
             principalAmount: principal,
             currentInterestRate: interestRate,
             taeg: taeg,
@@ -241,6 +281,36 @@ struct LoanCalculatorView: View {
         
         modelContext.insert(loan)
         dismiss()
+    }
+}
+
+// MARK: - Amortization Help View
+
+struct AmortizationHelpView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(AmortizationType.allCases) { type in
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(type.localizedName)
+                            .font(.headline)
+                        Text(type.descriptionText)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            .navigationTitle("Amortization Types")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .frame(minWidth: 400, minHeight: 300)
     }
 }
 
