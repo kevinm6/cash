@@ -62,10 +62,10 @@ struct AccountListView: View {
                     }
                     
                     ForEach(AccountClass.allCases.sorted(by: { $0.displayOrder < $1.displayOrder })) { accountClass in
-                        let filteredAccounts = accounts
+                        let classAccounts = accounts
                             .filter { $0.accountClass == accountClass && $0.isActive && !$0.isSystem }
-                            .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
-                        if !filteredAccounts.isEmpty {
+                        
+                        if !classAccounts.isEmpty {
                             Section(accountClass.localizedPluralName) {
                                 // Add Scheduled as first item in Expenses section
                                 if accountClass == .expense {
@@ -84,18 +84,46 @@ struct AccountListView: View {
                                     .tag(SidebarSelection.scheduled)
                                 }
                                 
-                                ForEach(filteredAccounts) { account in
-                                    AccountRowView(account: account)
-                                        .tag(SidebarSelection.account(account))
-                                }
-                                .onDelete { indexSet in
-                                    deleteAccounts(from: filteredAccounts, at: indexSet)
+                                // Group accounts by type within each class
+                                let accountTypes = Array(Set(classAccounts.map { $0.accountType }))
+                                    .sorted { $0.localizedName.localizedCaseInsensitiveCompare($1.localizedName) == .orderedAscending }
+                                
+                                ForEach(accountTypes, id: \.self) { accountType in
+                                    let typeAccounts = classAccounts
+                                        .filter { $0.accountType == accountType }
+                                        .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
+                                    
+                                    if typeAccounts.count == 1 {
+                                        // Single account of this type - show directly
+                                        ForEach(typeAccounts) { account in
+                                            AccountRowView(account: account)
+                                                .tag(SidebarSelection.account(account))
+                                        }
+                                        .onDelete { indexSet in
+                                            deleteAccounts(from: typeAccounts, at: indexSet)
+                                        }
+                                    } else {
+                                        // Multiple accounts - show type header then accounts
+                                        AccountTypeHeaderView(
+                                            accountType: accountType,
+                                            accounts: typeAccounts
+                                        )
+                                        
+                                        ForEach(typeAccounts) { account in
+                                            AccountRowView(account: account, indented: true)
+                                                .tag(SidebarSelection.account(account))
+                                        }
+                                        .onDelete { indexSet in
+                                            deleteAccounts(from: typeAccounts, at: indexSet)
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            .listStyle(.sidebar)
             .navigationTitle("Chart of accounts")
             .navigationSplitViewColumnWidth(min: 280, ideal: 320)
             .toolbar {
@@ -188,9 +216,15 @@ struct AccountListView: View {
 struct AccountRowView: View {
     @Environment(AppSettings.self) private var settings
     let account: Account
+    var indented: Bool = false
     
     var body: some View {
         HStack {
+            if indented {
+                Spacer()
+                    .frame(width: 16)
+            }
+            
             Image(systemName: account.accountType.iconName)
                 .foregroundStyle(.secondary)
                 .frame(width: 24)
@@ -198,7 +232,7 @@ struct AccountRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text(account.displayName)
-                        .font(.headline)
+                        .font(indented ? .subheadline : .headline)
                     if account.isSystem {
                         Image(systemName: "lock.fill")
                             .font(.caption2)
@@ -236,6 +270,48 @@ struct AccountRowView: View {
         case .equity:
             return .primary
         }
+    }
+}
+
+// MARK: - Account Type Header View
+
+struct AccountTypeHeaderView: View {
+    @Environment(AppSettings.self) private var settings
+    let accountType: AccountType
+    let accounts: [Account]
+    
+    private var totalBalance: Decimal {
+        accounts.reduce(Decimal.zero) { $0 + $1.balance }
+    }
+    
+    private var currency: String {
+        accounts.first?.currency ?? "EUR"
+    }
+    
+    var body: some View {
+        HStack {
+            Image(systemName: accountType.iconName)
+                .foregroundStyle(.secondary)
+                .frame(width: 24)
+            
+            Text(accountType.localizedName)
+                .font(.headline)
+            
+            Text("(\(accounts.count))")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+            
+            Spacer()
+            
+            PrivacyAmountView(
+                amount: CurrencyFormatter.format(totalBalance, currency: currency),
+                isPrivate: settings.privacyMode,
+                font: .subheadline,
+                fontWeight: .medium,
+                color: .secondary
+            )
+        }
+        .padding(.vertical, 4)
     }
 }
 
