@@ -84,39 +84,20 @@ struct AccountListView: View {
                                     .tag(SidebarSelection.scheduled)
                                 }
                                 
-                                // Group accounts by type within each class
-                                let accountTypes = Array(Set(classAccounts.map { $0.accountType }))
-                                    .sorted { $0.localizedName.localizedCaseInsensitiveCompare($1.localizedName) == .orderedAscending }
-                                
-                                ForEach(accountTypes, id: \.self) { accountType in
-                                    let typeAccounts = classAccounts
-                                        .filter { $0.accountType == accountType }
-                                        .sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
-                                    
-                                    if typeAccounts.count == 1 {
-                                        // Single account of this type - show directly
-                                        ForEach(typeAccounts) { account in
-                                            AccountRowView(account: account)
-                                                .tag(SidebarSelection.account(account))
-                                        }
-                                        .onDelete { indexSet in
-                                            deleteAccounts(from: typeAccounts, at: indexSet)
-                                        }
-                                    } else {
-                                        // Multiple accounts - show type header then accounts
-                                        AccountTypeHeaderView(
-                                            accountType: accountType,
-                                            accounts: typeAccounts
-                                        )
-                                        
-                                        ForEach(typeAccounts) { account in
-                                            AccountRowView(account: account, indented: true)
-                                                .tag(SidebarSelection.account(account))
-                                        }
-                                        .onDelete { indexSet in
-                                            deleteAccounts(from: typeAccounts, at: indexSet)
-                                        }
+                                // Show all accounts flat, sorted by type then name
+                                let sortedAccounts = classAccounts.sorted { a, b in
+                                    if a.accountType.localizedName != b.accountType.localizedName {
+                                        return a.accountType.localizedName.localizedCaseInsensitiveCompare(b.accountType.localizedName) == .orderedAscending
                                     }
+                                    return a.displayName.localizedCaseInsensitiveCompare(b.displayName) == .orderedAscending
+                                }
+                                
+                                ForEach(sortedAccounts) { account in
+                                    AccountRowView(account: account)
+                                        .tag(SidebarSelection.account(account))
+                                }
+                                .onDelete { indexSet in
+                                    deleteAccounts(from: sortedAccounts, at: indexSet)
                                 }
                             }
                         }
@@ -216,15 +197,9 @@ struct AccountListView: View {
 struct AccountRowView: View {
     @Environment(AppSettings.self) private var settings
     let account: Account
-    var indented: Bool = false
     
     var body: some View {
         HStack {
-            if indented {
-                Spacer()
-                    .frame(width: 16)
-            }
-            
             Image(systemName: account.accountType.iconName)
                 .foregroundStyle(.secondary)
                 .frame(width: 24)
@@ -232,7 +207,7 @@ struct AccountRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text(account.displayName)
-                        .font(indented ? .subheadline : .headline)
+                        .font(.headline)
                     if account.isSystem {
                         Image(systemName: "lock.fill")
                             .font(.caption2)
@@ -270,48 +245,6 @@ struct AccountRowView: View {
         case .equity:
             return .primary
         }
-    }
-}
-
-// MARK: - Account Type Header View
-
-struct AccountTypeHeaderView: View {
-    @Environment(AppSettings.self) private var settings
-    let accountType: AccountType
-    let accounts: [Account]
-    
-    private var totalBalance: Decimal {
-        accounts.reduce(Decimal.zero) { $0 + $1.balance }
-    }
-    
-    private var currency: String {
-        accounts.first?.currency ?? "EUR"
-    }
-    
-    var body: some View {
-        HStack {
-            Image(systemName: accountType.iconName)
-                .foregroundStyle(.secondary)
-                .frame(width: 24)
-            
-            Text(accountType.localizedName)
-                .font(.headline)
-            
-            Text("(\(accounts.count))")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-            
-            Spacer()
-            
-            PrivacyAmountView(
-                amount: CurrencyFormatter.format(totalBalance, currency: currency),
-                isPrivate: settings.privacyMode,
-                font: .subheadline,
-                fontWeight: .medium,
-                color: .secondary
-            )
-        }
-        .padding(.vertical, 4)
     }
 }
 

@@ -98,6 +98,7 @@ struct LoansView: View {
         .sheet(item: $selectedLoan) { loan in
             LoanDetailView(loan: loan)
         }
+        .navigationTitle("Loans & Mortgages")
     }
     
     private func deleteLoan(_ loan: Loan) {

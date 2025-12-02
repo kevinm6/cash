@@ -18,7 +18,6 @@ struct LoanDetailView: View {
     @State private var showingScenarios = false
     @State private var showingEarlyRepayment = false
     @State private var showingUpdateRate = false
-    @State private var showingRecordPayment = false
     @State private var showingFullPayoff = false
     @State private var showingDeleteConfirmation = false
     @State private var newRateText: String = ""
@@ -95,28 +94,29 @@ struct LoanDetailView: View {
                     .padding()
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                     
-                    // Financial Summary
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 16) {
-                        LoanStatCard(title: "Original Principal", value: loan.principalAmount, currency: loan.currency)
-                        LoanStatCard(title: "Current Payment", value: loan.monthlyPayment, currency: loan.currency, isHighlighted: true)
-                        LoanStatCard(title: "Interest Rate", value: loan.currentInterestRate, suffix: "%", isPercentage: true)
-                        LoanStatCard(title: "Remaining Balance", value: remainingBalance, currency: loan.currency)
-                        LoanStatCard(title: "Interest Paid", value: interestPaidSoFar, currency: loan.currency)
-                        LoanStatCard(title: "Total Interest", value: loan.totalInterest, currency: loan.currency)
-                    }
-                    
-                    // Dates
-                    HStack(spacing: 16) {
-                        DateCard(title: "Start Date", date: loan.startDate)
-                        DateCard(title: "End Date", date: loan.endDate)
+                    // Financial Summary - List style
+                    VStack(spacing: 0) {
+                        LoanInfoRow(title: "Original Principal", value: CurrencyFormatter.format(loan.principalAmount, currency: loan.currency))
+                        Divider()
+                        LoanInfoRow(title: "Current Payment", value: CurrencyFormatter.format(loan.monthlyPayment, currency: loan.currency), isHighlighted: true)
+                        Divider()
+                        LoanInfoRow(title: "Interest Rate", value: "\(loan.currentInterestRate.formatted())%")
+                        Divider()
+                        LoanInfoRow(title: "Remaining Balance", value: CurrencyFormatter.format(remainingBalance, currency: loan.currency))
+                        Divider()
+                        LoanInfoRow(title: "Interest Paid", value: CurrencyFormatter.format(interestPaidSoFar, currency: loan.currency))
+                        Divider()
+                        LoanInfoRow(title: "Total Interest", value: CurrencyFormatter.format(loan.totalInterest, currency: loan.currency))
+                        Divider()
+                        LoanInfoRow(title: "Start Date", value: loan.startDate.formatted(date: .abbreviated, time: .omitted))
+                        Divider()
+                        LoanInfoRow(title: "End Date", value: loan.endDate.formatted(date: .abbreviated, time: .omitted))
                         if let nextPayment = loan.nextPaymentDate {
-                            DateCard(title: "Next Payment", date: nextPayment, isHighlighted: true)
+                            Divider()
+                            LoanInfoRow(title: "Next Payment", value: nextPayment.formatted(date: .abbreviated, time: .omitted), isHighlighted: true)
                         }
                     }
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
                     
                     // Actions
                     VStack(spacing: 12) {
@@ -128,11 +128,6 @@ struct LoanDetailView: View {
                             GridItem(.flexible()),
                             GridItem(.flexible())
                         ], spacing: 12) {
-                            ActionButton(title: "Record Payment", icon: "checkmark.circle", color: .green) {
-                                recordPayment()
-                            }
-                            .disabled(loan.remainingPayments == 0)
-                            
                             ActionButton(title: "Amortization", icon: "tablecells", color: .blue) {
                                 showingAmortization = true
                             }
@@ -170,11 +165,11 @@ struct LoanDetailView: View {
                     Button(role: .destructive) {
                         showingDeleteConfirmation = true
                     } label: {
-                        Image(systemName: "trash")
+                        Label("Delete", systemImage: "trash")
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button("Close") { dismiss() }
                 }
             }
             .sheet(isPresented: $showingAmortization) {
@@ -251,12 +246,6 @@ struct LoanDetailView: View {
         dismiss()
     }
     
-    private func recordPayment() {
-        if loan.paymentsMade < loan.totalPayments {
-            loan.paymentsMade += 1
-        }
-    }
-    
     private func updateRate() {
         if let newRate = Decimal(string: newRateText.replacingOccurrences(of: ",", with: ".")) {
             loan.currentInterestRate = newRate
@@ -274,64 +263,29 @@ struct LoanDetailView: View {
 
 // MARK: - Supporting Views
 
-struct LoanStatCard: View {
+struct LoanInfoRow: View {
     @Environment(AppSettings.self) private var settings
     let title: LocalizedStringKey
-    let value: Decimal
-    var currency: String? = nil
-    var suffix: String? = nil
-    var isPercentage: Bool = false
+    let value: String
     var isHighlighted: Bool = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        HStack {
             Text(title)
-                .font(.caption)
                 .foregroundStyle(.secondary)
-            
-            if isPercentage {
-                Text("\(value.formatted())\(suffix ?? "%")")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-            } else if let currency = currency {
-                PrivacyAmountView(
-                    amount: CurrencyFormatter.format(value, currency: currency),
-                    isPrivate: settings.privacyMode,
-                    font: .headline,
-                    fontWeight: .semibold,
-                    color: isHighlighted ? Color.accentColor : Color.primary
-                )
+            Spacer()
+            if settings.privacyMode {
+                Text("••••")
+                    .fontWeight(.medium)
+                    .foregroundStyle(isHighlighted ? Color.accentColor : .primary)
             } else {
-                Text(value.formatted())
-                    .font(.headline)
-                    .fontWeight(.semibold)
+                Text(value)
+                    .fontWeight(.medium)
+                    .foregroundStyle(isHighlighted ? Color.accentColor : .primary)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
-    }
-}
-
-struct DateCard: View {
-    let title: LocalizedStringKey
-    let date: Date
-    var isHighlighted: Bool = false
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            
-            Text(date.formatted(date: .abbreviated, time: .omitted))
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundStyle(isHighlighted ? Color.accentColor : Color.primary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 
