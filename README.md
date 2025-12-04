@@ -72,6 +72,9 @@ Then restart the application. The setup wizard will appear to create new default
 Cash is fully localized in:
 - 🇬🇧 English
 - 🇮🇹 Italian
+- 🇪🇸 Spanish
+- 🇫🇷 French
+- 🇩🇪 German
 
 Language can be changed on-the-fly in Settings without restarting the app.
 

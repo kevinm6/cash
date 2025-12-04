@@ -54,6 +54,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case system = "system"
     case english = "en"
     case italian = "it"
+    case spanish = "es"
+    case french = "fr"
+    case german = "de"
     
     var id: String { rawValue }
     
@@ -65,6 +68,12 @@ enum AppLanguage: String, CaseIterable, Identifiable {
             return "English"
         case .italian:
             return "Italiano"
+        case .spanish:
+            return "Español"
+        case .french:
+            return "Français"
+        case .german:
+            return "Deutsch"
         }
     }
     
@@ -75,6 +84,12 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .english:
             return "flag.fill"
         case .italian:
+            return "flag.fill"
+        case .spanish:
+            return "flag.fill"
+        case .french:
+            return "flag.fill"
+        case .german:
             return "flag.fill"
         }
     }
@@ -157,6 +172,12 @@ final class AppSettings {
             UserDefaults.standard.set(["en"], forKey: "AppleLanguages")
         case .italian:
             UserDefaults.standard.set(["it"], forKey: "AppleLanguages")
+        case .spanish:
+            UserDefaults.standard.set(["es"], forKey: "AppleLanguages")
+        case .french:
+            UserDefaults.standard.set(["fr"], forKey: "AppleLanguages")
+        case .german:
+            UserDefaults.standard.set(["de"], forKey: "AppleLanguages")
         }
         UserDefaults.standard.synchronize()
     }
