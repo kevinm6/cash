@@ -359,7 +359,9 @@ struct GeneralSettingsTab: View {
             .pickerStyle(.menu)
             
             Picker("Language", selection: $settings.language) {
-                ForEach(AppLanguage.allCases) { language in
+                // Show supported languages in a consistent order
+                let languagesOrder: [AppLanguage] = [.system, .english, .italian, .spanish, .french, .german]
+                ForEach(languagesOrder) { language in
                     Text(language.labelKey).tag(language)
                 }
             }
