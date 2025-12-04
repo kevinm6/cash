@@ -395,52 +395,6 @@ struct GeneralSettingsTabContent: View {
     }
 }
 
-// MARK: - General Settings Tab (Legacy - kept for compatibility)
-
-struct GeneralSettingsTab: View {
-    @Environment(AppSettings.self) private var settings
-    @State private var showingRestartAlert = false
-    
-    var body: some View {
-        @Bindable var settings = settings
-        
-        Form {
-            Picker("Theme", selection: $settings.theme) {
-                ForEach(AppTheme.allCases) { theme in
-                    Text(theme.labelKey).tag(theme)
-                }
-            }
-            .pickerStyle(.menu)
-            
-            Picker("Language", selection: $settings.language) {
-                // Show supported languages in a consistent order
-                let languagesOrder: [AppLanguage] = [.system, .english, .italian, .spanish, .french, .german]
-                ForEach(languagesOrder) { language in
-                    Text(language.labelKey).tag(language)
-                }
-            }
-            .pickerStyle(.menu)
-            .onChange(of: settings.language) {
-                if settings.needsRestart {
-                    showingRestartAlert = true
-                }
-            }
-        }
-        .formStyle(.grouped)
-        .alert("Restart required", isPresented: $showingRestartAlert) {
-            Button("Later") {
-                settings.needsRestart = false
-            }
-            Button("Restart now") {
-                settings.needsRestart = false
-                AppSettings.shared.restartApp()
-            }
-        } message: {
-            Text("The app needs to restart to apply language changes.")
-        }
-    }
-}
-
 // MARK: - Data Settings Tab Content
 
 struct DataSettingsTabContent: View {
@@ -551,49 +505,6 @@ struct DataSettingsTabContent: View {
     }
 }
 
-// MARK: - Data Settings Tab (Legacy)
-
-struct DataSettingsTab: View {
-    @Binding var showingExportFormatPicker: Bool
-    @Binding var showingImportConfirmation: Bool
-    @Binding var showingFirstResetAlert: Bool
-    
-    var body: some View {
-        Form {
-            Section {
-                Button {
-                    showingExportFormatPicker = true
-                } label: {
-                    Label("Export data", systemImage: "square.and.arrow.up")
-                }
-                
-                Button {
-                    showingImportConfirmation = true
-                } label: {
-                    Label("Import data", systemImage: "square.and.arrow.down")
-                }
-            } header: {
-                Text("Export / Import")
-            } footer: {
-                Text("Export your data as JSON (full backup) or OFX (standard bank format). Import will replace all existing data.")
-            }
-            
-            Section {
-                Button(role: .destructive) {
-                    showingFirstResetAlert = true
-                } label: {
-                    Label("Reset all data", systemImage: "trash.fill")
-                }
-            } header: {
-                Text("Danger zone")
-            } footer: {
-                Text("This will delete all accounts and transactions.")
-            }
-        }
-        .formStyle(.grouped)
-    }
-}
-
 // MARK: - About Settings Tab Content
 
 struct AboutSettingsTabContent: View {
@@ -652,84 +563,6 @@ struct AboutSettingsTabContent: View {
             }
             .buttonStyle(.plain)
         }
-        .sheet(isPresented: $showingLicense) {
-            LicenseView()
-        }
-    }
-}
-
-// MARK: - About Settings Tab (Legacy)
-
-struct AboutSettingsTab: View {
-    @State private var showingLicense = false
-    
-    private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-    }
-    
-    private var buildNumber: String {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
-    }
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Spacer()
-            
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 96, height: 96)
-            
-            Text("Cash")
-                .font(.title)
-                .fontWeight(.semibold)
-            
-            VStack(spacing: 2) {
-                Text("\("Version") \(appVersion)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
-                Text(buildNumber)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            
-            Text("A simplified macOS financial management application inspired by Gnucash, built with SwiftUI and SwiftData.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 15)
-            
-            Spacer()
-            
-            VStack(spacing: 5) {
-                Link(destination: URL(string: "https://github.com/thesmokinator/cash")!) {
-                    Text("Get support or contribute on GitHub.")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .underline()
-                }
-                
-                Button {
-                    showingLicense = true
-                } label: {
-                    Text("© 2025 Michele Broggi")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-                .buttonStyle(.plain)
-                .onHover { hovering in
-                    if hovering {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
-                    }
-                }
-            }
-            
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .sheet(isPresented: $showingLicense) {
             LicenseView()
         }

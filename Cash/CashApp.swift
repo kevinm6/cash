@@ -160,29 +160,20 @@ struct SubscriptionSheetView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Header with close button
-            HStack {
-                Text("Subscription")
-                    .font(.headline)
-                Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.borderless)
+        NavigationStack {
+            Form {
+                SubscriptionSettingsTabContent()
             }
-            .padding()
-            
-            Divider()
-            
-            // Content
-            SubscriptionSettingsTab()
+            .formStyle(.grouped)
+            .navigationTitle("Subscription")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                }
+            }
         }
-        .frame(width: 500, height: 450)
+        .frame(width: 500, height: 500)
     }
 }
