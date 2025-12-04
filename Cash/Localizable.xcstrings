@@ -386,6 +386,38 @@
         }
       }
     },
+    "%@ every %lld months" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ every %2$lld months"
+          }
+        }
+      }
+    },
+    "%@ every %lld years" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ every %2$lld years"
+          }
+        }
+      }
+    },
+    "%@/day" : {
+
+    },
+    "%@/month" : {
+
+    },
+    "%@/week" : {
+
+    },
+    "%@/year" : {
+
+    },
     "%@%@" : {
       "localizations" : {
         "de" : {
@@ -1446,6 +1478,9 @@
         }
       }
     },
+    "Account limit reached" : {
+
+    },
     "Account name" : {
       "localizations" : {
         "de" : {
@@ -2064,6 +2099,12 @@
         }
       }
     },
+    "Advanced Reports" : {
+
+    },
+    "Advanced reports and analytics for your finances." : {
+
+    },
     "All data will be permanently deleted." : {
       "localizations" : {
         "de" : {
@@ -2508,6 +2549,9 @@
         }
       }
     },
+    "Appearance" : {
+
+    },
     "Are you absolutely sure?" : {
       "localizations" : {
         "de" : {
@@ -2877,6 +2921,9 @@
           }
         }
       }
+    },
+    "Available plans" : {
+
     },
     "Available:" : {
       "localizations" : {
@@ -3462,6 +3509,18 @@
         }
       }
     },
+    "Billed annually" : {
+
+    },
+    "Billed annually - Save 30%!" : {
+
+    },
+    "Billed monthly" : {
+
+    },
+    "Billing issue - Please update payment method" : {
+
+    },
     "Bimonthly" : {
       "localizations" : {
         "de" : {
@@ -3607,6 +3666,9 @@
           }
         }
       }
+    },
+    "Budgeting" : {
+
     },
     "By Category" : {
       "localizations" : {
@@ -3934,6 +3996,9 @@
         }
       }
     },
+    "Cash Premium" : {
+
+    },
     "Categorize Transactions" : {
       "localizations" : {
         "de" : {
@@ -3989,6 +4054,9 @@
           }
         }
       }
+    },
+    "Category limit reached" : {
+
     },
     "Change" : {
       "localizations" : {
@@ -4051,6 +4119,12 @@
           }
         }
       }
+    },
+    "Checking subscription status..." : {
+
+    },
+    "Choose a plan" : {
+
     },
     "Choose an account from the sidebar to view details" : {
       "localizations" : {
@@ -4590,6 +4664,9 @@
         }
       }
     },
+    "Create and manage budgets to track your spending." : {
+
+    },
     "Create Budget" : {
       "localizations" : {
         "de" : {
@@ -4679,6 +4756,15 @@
           }
         }
       }
+    },
+    "Create unlimited accounts (free: up to 5)." : {
+
+    },
+    "Create unlimited income/expense categories (free: up to 10)." : {
+
+    },
+    "Create unlimited scheduled transactions (free: up to 5)." : {
+
     },
     "Create your first account to get started." : {
       "localizations" : {
@@ -7463,6 +7549,18 @@
     "Français" : {
 
     },
+    "Free" : {
+
+    },
+    "Free users can create up to %lld accounts." : {
+
+    },
+    "Free users can create up to %lld categories." : {
+
+    },
+    "Free users can create up to %lld scheduled transactions." : {
+
+    },
     "Freelance" : {
       "localizations" : {
         "de" : {
@@ -7953,6 +8051,12 @@
         }
       }
     },
+    "GitHub Repository" : {
+
+    },
+    "Go Premium" : {
+
+    },
     "Good" : {
       "localizations" : {
         "de" : {
@@ -8008,6 +8112,9 @@
           }
         }
       }
+    },
+    "Grace period until %@" : {
+
     },
     "Healthcare" : {
       "localizations" : {
@@ -8210,6 +8317,9 @@
           }
         }
       }
+    },
+    "iCloud Sync" : {
+
     },
     "Ideal" : {
       "localizations" : {
@@ -9861,6 +9971,12 @@
         }
       }
     },
+    "Links" : {
+
+    },
+    "Loading plans..." : {
+
+    },
     "Loan" : {
       "localizations" : {
         "de" : {
@@ -9922,6 +10038,9 @@
           }
         }
       }
+    },
+    "Loan calculators, amortization schedules, and mortgage tools." : {
+
     },
     "Loan Details" : {
       "localizations" : {
@@ -10142,6 +10261,9 @@
           }
         }
       }
+    },
+    "Manage subscription" : {
+
     },
     "Manageable" : {
       "localizations" : {
@@ -12165,6 +12287,9 @@
         }
       }
     },
+    "Not Now" : {
+
+    },
     "Not reconciled" : {
       "localizations" : {
         "de" : {
@@ -12192,6 +12317,9 @@
           }
         }
       }
+    },
+    "Not subscribed" : {
+
     },
     "Note: A penalty of %@ (%@%%) has been deducted from your savings." : {
       "localizations" : {
@@ -13334,6 +13462,18 @@
           }
         }
       }
+    },
+    "Premium" : {
+
+    },
+    "Premium Feature" : {
+
+    },
+    "Premium features" : {
+
+    },
+    "Premium Features" : {
+
     },
     "Prepaid expense" : {
       "localizations" : {
@@ -14621,6 +14761,12 @@
         }
       }
     },
+    "Restore purchases" : {
+
+    },
+    "Restore Purchases" : {
+
+    },
     "Results" : {
       "localizations" : {
         "de" : {
@@ -14934,6 +15080,9 @@
           }
         }
       }
+    },
+    "Scheduled limit reached" : {
+
     },
     "Search" : {
       "localizations" : {
@@ -15715,6 +15864,42 @@
         }
       }
     },
+    "Subscribe" : {
+
+    },
+    "Subscribe Now" : {
+
+    },
+    "Subscribe to Cash Premium to unlock %@ and other premium features." : {
+
+    },
+    "Subscribe to unlock all premium features." : {
+
+    },
+    "Subscribed" : {
+
+    },
+    "Subscribed - Expires %@" : {
+
+    },
+    "Subscribed - Renews %@" : {
+
+    },
+    "Subscription" : {
+
+    },
+    "Subscription expired" : {
+
+    },
+    "Subscription revoked" : {
+
+    },
+    "Subscription status" : {
+
+    },
+    "Subscription..." : {
+
+    },
     "Subscriptions" : {
       "localizations" : {
         "de" : {
@@ -15860,6 +16045,9 @@
           }
         }
       }
+    },
+    "Sync your data across all your Apple devices using iCloud." : {
+
     },
     "System" : {
       "localizations" : {
@@ -17145,6 +17333,9 @@
         }
       }
     },
+    "Unable to load subscription plans. Please try again later." : {
+
+    },
     "Unaffordable" : {
       "localizations" : {
         "de" : {
@@ -17200,6 +17391,24 @@
           }
         }
       }
+    },
+    "Unlimited Accounts" : {
+
+    },
+    "Unlimited Categories" : {
+
+    },
+    "Unlimited Scheduled" : {
+
+    },
+    "Unlock all features" : {
+
+    },
+    "Unlock Premium" : {
+
+    },
+    "Unlock with Premium" : {
+
     },
     "Unnamed Envelope" : {
       "localizations" : {
@@ -17380,6 +17589,9 @@
           }
         }
       }
+    },
+    "Upgrade" : {
+
     },
     "Use Average" : {
       "localizations" : {
@@ -17579,6 +17791,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Variabile"
+          }
+        }
+      }
+    },
+    "Version %@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Version %1$@ (%2$@)"
           }
         }
       }

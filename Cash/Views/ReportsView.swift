@@ -56,6 +56,13 @@ struct ReportsView: View {
     @State private var selectedReport: ReportType = .expensesByCategory
     
     var body: some View {
+        PremiumContentWrapper(feature: .reports) {
+            reportsContent
+        }
+    }
+    
+    @ViewBuilder
+    private var reportsContent: some View {
         VStack(spacing: 0) {
             // Report type selector
             HStack {

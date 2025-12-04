@@ -24,6 +24,8 @@ extension Notification.Name {
     static let addNewTransaction = Notification.Name("addNewTransaction")
     static let addNewScheduledTransaction = Notification.Name("addNewScheduledTransaction")
     static let importOFX = Notification.Name("importOFX")
+    static let showSubscription = Notification.Name("showSubscription")
+    static let showSubscriptionTab = Notification.Name("showSubscriptionTab")
 }
 
 @main
@@ -31,6 +33,7 @@ struct CashApp: App {
     @State private var settings = AppSettings.shared
     @State private var menuAppState = AppState()
     @State private var navigationState = NavigationState()
+    @State private var showingSubscriptionSheet = false
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -111,6 +114,15 @@ struct CashApp: App {
                     Label("Import OFX...", systemImage: "doc.badge.arrow.up")
                 }
             }
+            
+            // Subscription menu item in App menu
+            CommandGroup(after: .appSettings) {
+                Button {
+                    showingSubscriptionSheet = true
+                } label: {
+                    Label("Subscription...", systemImage: "crown.fill")
+                }
+            }
         }
         
         Settings {
@@ -127,6 +139,42 @@ struct CashApp: App {
                         .modelContainer(sharedModelContainer)
                         .interactiveDismissDisabled()
                 }
+                .sheet(isPresented: $showingSubscriptionSheet) {
+                    SubscriptionSheetView()
+                }
         }
+    }
+}
+
+// MARK: - Subscription Sheet View
+
+struct SubscriptionSheetView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header with close button
+            HStack {
+                Text("Subscription")
+                    .font(.headline)
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.borderless)
+            }
+            .padding()
+            
+            Divider()
+            
+            // Content
+            SubscriptionSettingsTab()
+        }
+        .frame(width: 500, height: 450)
     }
 }

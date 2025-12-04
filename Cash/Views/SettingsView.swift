@@ -18,6 +18,7 @@ import CloudKit
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "general"
+    case subscription = "subscription"
     #if ENABLE_ICLOUD
     case icloud = "icloud"
     #endif
@@ -30,6 +31,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:
             return "General"
+        case .subscription:
+            return "Subscription"
         #if ENABLE_ICLOUD
         case .icloud:
             return "iCloud"
@@ -45,6 +48,8 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:
             return "gearshape.fill"
+        case .subscription:
+            return "crown.fill"
         #if ENABLE_ICLOUD
         case .icloud:
             return "icloud.fill"
@@ -82,7 +87,7 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Tab Bar
+            // Tab Bar with icons
             tabBar
             
             Divider()
@@ -91,7 +96,7 @@ struct SettingsView: View {
             tabContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 500, height: 400)
+        .frame(width: 580, height: 520)
         .id(settings.refreshID)
         .alert("Reset all data?", isPresented: $showingFirstResetAlert) {
             Button("Cancel", role: .cancel) { }
@@ -144,6 +149,11 @@ struct SettingsView: View {
         } message: {
             Text(errorMessage)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .showSubscriptionTab)) { _ in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                selectedTab = .subscription
+            }
+        }
     }
     
     // MARK: - Tab Bar
@@ -188,22 +198,27 @@ struct SettingsView: View {
     
     @ViewBuilder
     private var tabContent: some View {
-        switch selectedTab {
-        case .general:
-            GeneralSettingsTab()
-        #if ENABLE_ICLOUD
-        case .icloud:
-            iCloudSettingsTab()
-        #endif
-        case .data:
-            DataSettingsTab(
-                showingExportFormatPicker: $showingExportFormatPicker,
-                showingImportConfirmation: $showingImportConfirmation,
-                showingFirstResetAlert: $showingFirstResetAlert
-            )
-        case .about:
-            AboutSettingsTab()
+        Form {
+            switch selectedTab {
+            case .general:
+                GeneralSettingsTabContent()
+            case .subscription:
+                SubscriptionSettingsTabContent()
+            #if ENABLE_ICLOUD
+            case .icloud:
+                iCloudSettingsTabContent()
+            #endif
+            case .data:
+                DataSettingsTabContent(
+                    showingExportFormatPicker: $showingExportFormatPicker,
+                    showingImportConfirmation: $showingImportConfirmation,
+                    showingFirstResetAlert: $showingFirstResetAlert
+                )
+            case .about:
+                AboutSettingsTabContent()
+            }
         }
+        .formStyle(.grouped)
     }
     
     // MARK: - Export
@@ -341,7 +356,51 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - General Settings Tab
+// MARK: - General Settings Tab Content
+
+struct GeneralSettingsTabContent: View {
+    @Environment(AppSettings.self) private var settings
+    @State private var showingRestartAlert = false
+    
+    var body: some View {
+        @Bindable var settings = settings
+        
+        Section("Appearance") {
+            Picker("Theme", selection: $settings.theme) {
+                ForEach(AppTheme.allCases) { theme in
+                    Text(theme.labelKey).tag(theme)
+                }
+            }
+            .pickerStyle(.menu)
+            
+            Picker("Language", selection: $settings.language) {
+                let languagesOrder: [AppLanguage] = [.system, .english, .italian, .spanish, .french, .german]
+                ForEach(languagesOrder) { language in
+                    Text(language.labelKey).tag(language)
+                }
+            }
+            .pickerStyle(.menu)
+            .onChange(of: settings.language) {
+                if settings.needsRestart {
+                    showingRestartAlert = true
+                }
+            }
+        }
+        .alert("Restart required", isPresented: $showingRestartAlert) {
+            Button("Later") {
+                settings.needsRestart = false
+            }
+            Button("Restart now") {
+                settings.needsRestart = false
+                AppSettings.shared.restartApp()
+            }
+        } message: {
+            Text("The app needs to restart to apply language changes.")
+        }
+    }
+}
+
+// MARK: - General Settings Tab (Legacy - kept for compatibility)
 
 struct GeneralSettingsTab: View {
     @Environment(AppSettings.self) private var settings
@@ -388,14 +447,143 @@ struct GeneralSettingsTab: View {
 }
 
 #if ENABLE_ICLOUD
-// MARK: - iCloud Settings Tab
+// MARK: - iCloud Settings Tab Content
+
+struct iCloudSettingsTabContent: View {
+    @State private var cloudManager = CloudKitManager.shared
+    @State private var subscriptionManager = SubscriptionManager.shared
+    @State private var showingRestartAlert = false
+    @State private var showingPaywall = false
+    
+    private var hasICloudAccount: Bool {
+        FileManager.default.ubiquityIdentityToken != nil
+    }
+    
+    var body: some View {
+        // Premium requirement section
+        if !subscriptionManager.isFeatureEnabled(.iCloudSync) {
+            Section {
+                HStack(spacing: 12) {
+                    Image(systemName: "crown.fill")
+                        .font(.title2)
+                        .foregroundStyle(.yellow)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Premium feature")
+                            .font(.headline)
+                        Text("iCloud sync requires an active subscription.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button("Upgrade") {
+                        showingPaywall = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        
+        Section {
+            Toggle("Enable iCloud sync", isOn: Binding(
+                get: { cloudManager.isEnabled },
+                set: { newValue in
+                    cloudManager.isEnabled = newValue
+                    if cloudManager.needsRestart {
+                        showingRestartAlert = true
+                    }
+                }
+            ))
+            .disabled(!cloudManager.isAvailable)
+        } header: {
+            Text("Synchronization")
+        } footer: {
+            Text("When enabled, your accounts and transactions will be synced across all your devices using iCloud.")
+        }
+        
+        Section("iCloud account") {
+            LabeledContent("Status") {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(cloudManager.accountStatus == .available ? Color.green : Color.orange)
+                        .frame(width: 8, height: 8)
+                    Text(cloudManager.accountStatusDescription)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            if cloudManager.isEnabled {
+                LabeledContent("Storage used") {
+                    if cloudManager.isLoadingStorage {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    } else {
+                        Text(cloudManager.formattedStorageUsed)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        
+        if !hasICloudAccount {
+            Section {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                    Text("Sign in to iCloud in System Settings to enable sync.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - iCloud Settings Tab (Legacy)
 
 struct iCloudSettingsTab: View {
     @State private var cloudManager = CloudKitManager.shared
+    @State private var subscriptionManager = SubscriptionManager.shared
     @State private var showingRestartAlert = false
+    @State private var showingPaywall = false
+    
+    /// Whether iCloud account is available (ignoring premium status)
+    private var hasICloudAccount: Bool {
+        FileManager.default.ubiquityIdentityToken != nil
+    }
     
     var body: some View {
         Form {
+            // Premium requirement section
+            if !subscriptionManager.isFeatureEnabled(.iCloudSync) {
+                Section {
+                    HStack(spacing: 12) {
+                        Image(systemName: "crown.fill")
+                            .font(.title2)
+                            .foregroundStyle(.yellow)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Premium feature")
+                                .font(.headline)
+                            Text("iCloud sync requires an active subscription.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button("Upgrade") {
+                            showingPaywall = true
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+            
             Section {
                 Toggle("Enable iCloud sync", isOn: Binding(
                     get: { cloudManager.isEnabled },
@@ -439,7 +627,7 @@ struct iCloudSettingsTab: View {
                 Text("iCloud account")
             }
             
-            if !cloudManager.isAvailable {
+            if !hasICloudAccount {
                 Section {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -469,11 +657,54 @@ struct iCloudSettingsTab: View {
         } message: {
             Text("The app needs to restart to apply iCloud sync changes.")
         }
+        .sheet(isPresented: $showingPaywall) {
+            SubscriptionPaywallView(feature: .iCloudSync)
+        }
     }
 }
 #endif
 
-// MARK: - Data Settings Tab
+// MARK: - Data Settings Tab Content
+
+struct DataSettingsTabContent: View {
+    @Binding var showingExportFormatPicker: Bool
+    @Binding var showingImportConfirmation: Bool
+    @Binding var showingFirstResetAlert: Bool
+    
+    var body: some View {
+        Section {
+            Button {
+                showingExportFormatPicker = true
+            } label: {
+                Label("Export data", systemImage: "square.and.arrow.up")
+            }
+            
+            Button {
+                showingImportConfirmation = true
+            } label: {
+                Label("Import data", systemImage: "square.and.arrow.down")
+            }
+        } header: {
+            Text("Export / Import")
+        } footer: {
+            Text("Export your data as JSON (full backup) or OFX (standard bank format). Import will replace all existing data.")
+        }
+        
+        Section {
+            Button(role: .destructive) {
+                showingFirstResetAlert = true
+            } label: {
+                Label("Reset all data", systemImage: "trash.fill")
+            }
+        } header: {
+            Text("Danger zone")
+        } footer: {
+            Text("This will delete all accounts and transactions.")
+        }
+    }
+}
+
+// MARK: - Data Settings Tab (Legacy)
 
 struct DataSettingsTab: View {
     @Binding var showingExportFormatPicker: Bool
@@ -516,7 +747,71 @@ struct DataSettingsTab: View {
     }
 }
 
-// MARK: - About Settings Tab
+// MARK: - About Settings Tab Content
+
+struct AboutSettingsTabContent: View {
+    @State private var showingLicense = false
+    
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    }
+    
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+    }
+    
+    var body: some View {
+        Section {
+            VStack(spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 80, height: 80)
+                
+                VStack(spacing: 4) {
+                    Text("Cash")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    
+                    Text("Version \(appVersion) (\(buildNumber))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Text("A simplified macOS financial management application inspired by Gnucash, built with SwiftUI and SwiftData.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+        }
+        
+        Section {
+            Link(destination: URL(string: "https://github.com/thesmokinator/cash")!) {
+                Label("GitHub Repository", systemImage: "link")
+            }
+        } header: {
+            Text("Links")
+        }
+        
+        Section {
+            Button {
+                showingLicense = true
+            } label: {
+                Text("© 2025 Michele Broggi")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.plain)
+        }
+        .sheet(isPresented: $showingLicense) {
+            LicenseView()
+        }
+    }
+}
+
+// MARK: - About Settings Tab (Legacy)
 
 struct AboutSettingsTab: View {
     @State private var showingLicense = false

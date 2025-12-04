@@ -27,6 +27,11 @@ final class CloudKitManager {
         #endif
     }
     
+    /// Whether the user has premium access (subscription or compile flag)
+    var isPremiumEnabled: Bool {
+        SubscriptionManager.shared.isFeatureEnabled(.iCloudSync)
+    }
+    
     var isEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isEnabled, forKey: iCloudEnabledKey)
@@ -40,7 +45,8 @@ final class CloudKitManager {
     
     var isAvailable: Bool {
         #if ENABLE_ICLOUD
-        return FileManager.default.ubiquityIdentityToken != nil
+        // iCloud is available only if: iCloud account exists AND premium is enabled
+        return FileManager.default.ubiquityIdentityToken != nil && isPremiumEnabled
         #else
         return false
         #endif
@@ -65,7 +71,7 @@ final class CloudKitManager {
     
     func checkAccountStatus() async {
         #if ENABLE_ICLOUD
-        guard isAvailable else {
+        guard FileManager.default.ubiquityIdentityToken != nil else {
             await MainActor.run {
                 self.accountStatus = .noAccount
             }

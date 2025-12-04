@@ -268,7 +268,9 @@ struct AddScheduledTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppSettings.self) private var settings
     @Query(sort: \Account.accountNumber) private var accounts: [Account]
+    @Query(filter: #Predicate<Transaction> { $0.isRecurring == true }) private var scheduledTransactions: [Transaction]
     
+    @State private var subscriptionManager = SubscriptionManager.shared
     @State private var transactionType: SimpleTransactionType = .expense
     @State private var descriptionText: String = ""
     @State private var amountText: String = ""
@@ -291,6 +293,11 @@ struct AddScheduledTransactionView: View {
     
     @State private var showingValidationError = false
     @State private var validationMessage: LocalizedStringKey = ""
+    @State private var showingPaywall = false
+    
+    private var canCreateScheduled: Bool {
+        subscriptionManager.canCreateScheduled(currentCount: scheduledTransactions.count)
+    }
     
     private var assetAndLiabilityAccounts: [Account] {
         accounts.filter { ($0.accountClass == .asset || $0.accountClass == .liability) && $0.isActive }
@@ -320,6 +327,7 @@ struct AddScheduledTransactionView: View {
     }
     
     private var isValid: Bool {
+        guard canCreateScheduled else { return false }
         guard !amountText.isEmpty, amount > 0 else { return false }
         
         switch transactionType {
@@ -335,6 +343,33 @@ struct AddScheduledTransactionView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // Premium limit warning
+                if !canCreateScheduled {
+                    Section {
+                        HStack(spacing: 12) {
+                            Image(systemName: "crown.fill")
+                                .font(.title2)
+                                .foregroundStyle(.yellow)
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Scheduled limit reached")
+                                    .font(.headline)
+                                Text("Free users can create up to \(FreeTierLimits.maxScheduledTransactions) scheduled transactions.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Button("Upgrade") {
+                                showingPaywall = true
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                
                 Section("Transaction type") {
                     Picker("Type", selection: $transactionType) {
                         ForEach(SimpleTransactionType.allCases) { type in
@@ -389,6 +424,9 @@ struct AddScheduledTransactionView: View {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(validationMessage)
+            }
+            .sheet(isPresented: $showingPaywall) {
+                SubscriptionPaywallView(feature: .unlimitedScheduled)
             }
             .id(settings.refreshID)
         }

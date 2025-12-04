@@ -35,11 +35,20 @@ struct NetWorthView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Net Worth Card
+                // Net Worth Card with Premium button
                 VStack(spacing: 8) {
-                    Text("Net Worth")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
+                    // Header with Premium button
+                    HStack {
+                        Text("Net Worth")
+                            .font(.headline)
+                            .foregroundStyle(.secondary)
+                        
+                        Spacer()
+                        
+                        PremiumPromoBadge()
+                    }
+                    .padding(.horizontal)
+                    
                     PrivacyAmountView(
                         amount: CurrencyFormatter.format(netWorth),
                         isPrivate: settings.privacyMode,
@@ -48,7 +57,7 @@ struct NetWorthView: View {
                     )
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 32)
+                .padding(.vertical, 24)
                 .background(.regularMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 
