@@ -208,9 +208,19 @@ final class SubscriptionManager {
         
         do {
             let productIds = SubscriptionProduct.allCases.map { $0.id }
-            print("Attempting to load subscription products: \(productIds)")
+            print("🔍 DEBUG: Bundle ID = \(Bundle.main.bundleIdentifier ?? "unknown")")
+            print("🔍 DEBUG: Attempting to load subscription products: \(productIds)")
+            
             products = try await Product.products(for: productIds)
-            print("Successfully loaded \(products.count) products: \(products.map { $0.id })")
+            print("✅ DEBUG: Successfully loaded \(products.count) products")
+            for product in products {
+                print("   - ID: \(product.id)")
+                print("     DisplayName: \(product.displayName)")
+                print("     Price: \(product.displayPrice)")
+                if let sub = product.subscription {
+                    print("     Period: \(sub.subscriptionPeriod.value) \(sub.subscriptionPeriod.unit)")
+                }
+            }
             
             // Sort products: monthly first, then yearly
             products.sort { p1, p2 in
@@ -220,7 +230,14 @@ final class SubscriptionManager {
             }
         } catch {
             errorMessage = error.localizedDescription
-            print("Failed to load products: \(error)")
+            print("❌ ERROR: Failed to load products")
+            print("   Error type: \(type(of: error))")
+            print("   Error description: \(error)")
+            if let nsError = error as? NSError {
+                print("   Domain: \(nsError.domain)")
+                print("   Code: \(nsError.code)")
+                print("   UserInfo: \(nsError.userInfo)")
+            }
         }
         
         isLoadingProducts = false
