@@ -126,6 +126,9 @@ struct SubscriptionSettingsTabContent: View {
         Section {
             actionsView
         }
+        .task {
+            await subscriptionManager.loadProducts()
+        }
     }
     
     // MARK: - Status View

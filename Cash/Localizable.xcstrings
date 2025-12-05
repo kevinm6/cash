@@ -5751,9 +5751,6 @@
     "Deutsch" : {
 
     },
-    "DEV" : {
-
-    },
     "Difference" : {
       "localizations" : {
         "de" : {
@@ -7501,6 +7498,9 @@
       }
     },
     "Français" : {
+
+    },
+    "Free" : {
 
     },
     "Freelance" : {
@@ -13364,7 +13364,7 @@
         }
       }
     },
-    "Premium (Development)" : {
+    "Premium" : {
 
     },
     "Premium Feature" : {

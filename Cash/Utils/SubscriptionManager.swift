@@ -67,8 +67,8 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
 
 /// Available subscription products
 enum SubscriptionProduct: String, CaseIterable {
-    case monthly = "com.thesmokinator.cash.premium.monthly"
-    case yearly = "com.thesmokinator.cash.premium.yearly"
+    case monthly = "com.thesmokinator.Cash.premium.monthly"
+    case yearly = "com.thesmokinator.Cash.premium.yearly"
     
     var id: String { rawValue }
 }
@@ -208,7 +208,9 @@ final class SubscriptionManager {
         
         do {
             let productIds = SubscriptionProduct.allCases.map { $0.id }
+            print("Attempting to load subscription products: \(productIds)")
             products = try await Product.products(for: productIds)
+            print("Successfully loaded \(products.count) products: \(products.map { $0.id })")
             
             // Sort products: monthly first, then yearly
             products.sort { p1, p2 in

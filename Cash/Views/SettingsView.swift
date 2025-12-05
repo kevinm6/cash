@@ -97,6 +97,11 @@ struct SettingsView: View {
         }
         .frame(width: 580, height: 520)
         .id(settings.refreshID)
+        .overlay {
+            if appState.isLoading {
+                LoadingOverlayView(message: appState.loadingMessage)
+            }
+        }
         .alert("Reset all data?", isPresented: $showingFirstResetAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Continue", role: .destructive) {
@@ -344,7 +349,6 @@ struct SettingsView: View {
                 }
                 
                 appState.isLoading = false
-                NSApp.keyWindow?.close()
                 AppState.requestShowWelcome()
             }
         }
