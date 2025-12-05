@@ -5795,9 +5795,6 @@
     "Deutsch" : {
 
     },
-    "DEV" : {
-
-    },
     "Difference" : {
       "localizations" : {
         "de" : {
@@ -7547,6 +7544,9 @@
     "Français" : {
 
     },
+    "Free" : {
+
+    },
     "Free users can create up to %lld accounts." : {
 
     },
@@ -8046,9 +8046,6 @@
           }
         }
       }
-    },
-    "GitHub Repository" : {
-
     },
     "Go Premium" : {
 
@@ -13472,7 +13469,7 @@
         }
       }
     },
-    "Premium (Development)" : {
+    "Premium" : {
 
     },
     "Premium Feature" : {
@@ -13739,6 +13736,9 @@
         }
       }
     },
+    "Privacy policy" : {
+
+    },
     "Progress" : {
       "localizations" : {
         "de" : {
@@ -13794,6 +13794,9 @@
           }
         }
       }
+    },
+    "Project website" : {
+
     },
     "Projected" : {
       "localizations" : {
@@ -18201,6 +18204,9 @@
           }
         }
       }
+    },
+    "You can switch plans anytime. Apple will automatically prorate your subscription." : {
+
     },
     "You save %@ in interest!" : {
       "localizations" : {

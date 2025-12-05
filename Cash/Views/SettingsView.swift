@@ -539,6 +539,15 @@ struct AboutSettingsTabContent: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                
+                Button {
+                    showingLicense = true
+                } label: {
+                    Text("© 2025 Michele Broggi")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
@@ -546,22 +555,14 @@ struct AboutSettingsTabContent: View {
         
         Section {
             Link(destination: URL(string: "https://github.com/thesmokinator/cash")!) {
-                Label("GitHub Repository", systemImage: "link")
+                Label("Project website", systemImage: "link")
+            }
+            
+            Link(destination: URL(string: "https://github.com/thesmokinator/cash/blob/main/PRIVACY.md")!) {
+                Label("Privacy policy", systemImage: "hand.raised.fill")
             }
         } header: {
             Text("Links")
-        }
-        
-        Section {
-            Button {
-                showingLicense = true
-            } label: {
-                Text("© 2025 Michele Broggi")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.plain)
         }
         .sheet(isPresented: $showingLicense) {
             LicenseView()

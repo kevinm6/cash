@@ -82,21 +82,12 @@ struct SubscriptionSettingsTabContent: View {
     @State private var subscriptionManager = SubscriptionManager.shared
     
     var body: some View {
-        // Premium Features Section - ONLY if not subscribed
-        if !subscriptionManager.status.isActive {
+        // Premium Features Section - ONLY if not subscribed (hide when subscription active or ENABLE_PREMIUM flag is set)
+        if !subscriptionManager.isPremiumEnabled {
             Section {
                 PremiumFeaturesList(showStatus: false)
             } header: {
                 Text("Premium features")
-            }
-            
-            // Products Section
-            Section {
-                productsView
-            } header: {
-                Text("Available plans")
-            } footer: {
-                Text("Subscribe to unlock all premium features.")
             }
         }
         
@@ -105,6 +96,19 @@ struct SubscriptionSettingsTabContent: View {
             statusView
         } header: {
             Text("Subscription status")
+        }
+        
+        // Products Section - Always show to allow plan changes (Apple handles prorating automatically)
+        Section {
+            productsView
+        } header: {
+            Text("Available plans")
+        } footer: {
+            if subscriptionManager.status.isActive {
+                Text("You can switch plans anytime. Apple will automatically prorate your subscription.")
+            } else {
+                Text("Subscribe to unlock all premium features.")
+            }
         }
         
         // Actions Section
