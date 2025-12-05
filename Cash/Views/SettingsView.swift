@@ -18,9 +18,6 @@ import CloudKit
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "general"
-    #if ENABLE_ICLOUD
-    case icloud = "icloud"
-    #endif
     case data = "data"
     case about = "about"
     
@@ -30,10 +27,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:
             return "General"
-        #if ENABLE_ICLOUD
-        case .icloud:
-            return "iCloud"
-        #endif
         case .data:
             return "Data"
         case .about:
@@ -45,10 +38,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general:
             return "gearshape.fill"
-        #if ENABLE_ICLOUD
-        case .icloud:
-            return "icloud.fill"
-        #endif
         case .data:
             return "externaldrive.fill"
         case .about:
@@ -81,18 +70,33 @@ struct SettingsView: View {
     @Query private var transactions: [Transaction]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Tab Bar
-            tabBar
-            
-            Divider()
-            
-            // Content
-            tabContent
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Tab Bar with icons
+                tabBar
+                
+                Divider()
+                
+                // Content
+                tabContent
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .navigationTitle("Settings")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        dismissSettings()
+                    }
+                }
+            }
         }
-        .frame(width: 500, height: 400)
+        .frame(width: 580, height: 520)
         .id(settings.refreshID)
+        .overlay {
+            if appState.isLoading {
+                LoadingOverlayView(message: appState.loadingMessage)
+            }
+        }
         .alert("Reset all data?", isPresented: $showingFirstResetAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Continue", role: .destructive) {
@@ -188,22 +192,21 @@ struct SettingsView: View {
     
     @ViewBuilder
     private var tabContent: some View {
-        switch selectedTab {
-        case .general:
-            GeneralSettingsTab()
-        #if ENABLE_ICLOUD
-        case .icloud:
-            iCloudSettingsTab()
-        #endif
-        case .data:
-            DataSettingsTab(
-                showingExportFormatPicker: $showingExportFormatPicker,
-                showingImportConfirmation: $showingImportConfirmation,
-                showingFirstResetAlert: $showingFirstResetAlert
-            )
-        case .about:
-            AboutSettingsTab()
+        Form {
+            switch selectedTab {
+            case .general:
+                GeneralSettingsTabContent()
+            case .data:
+                DataSettingsTabContent(
+                    showingExportFormatPicker: $showingExportFormatPicker,
+                    showingImportConfirmation: $showingImportConfirmation,
+                    showingFirstResetAlert: $showingFirstResetAlert
+                )
+            case .about:
+                AboutSettingsTabContent()
+            }
         }
+        .formStyle(.grouped)
     }
     
     // MARK: - Export
@@ -334,23 +337,22 @@ struct SettingsView: View {
                 }
                 
                 appState.isLoading = false
-                NSApp.keyWindow?.close()
                 AppState.requestShowWelcome()
             }
         }
     }
 }
 
-// MARK: - General Settings Tab
+// MARK: - General Settings Tab Content
 
-struct GeneralSettingsTab: View {
+struct GeneralSettingsTabContent: View {
     @Environment(AppSettings.self) private var settings
     @State private var showingRestartAlert = false
     
     var body: some View {
         @Bindable var settings = settings
         
-        Form {
+        Section("Appearance") {
             Picker("Theme", selection: $settings.theme) {
                 ForEach(AppTheme.allCases) { theme in
                     Text(theme.labelKey).tag(theme)
@@ -359,7 +361,6 @@ struct GeneralSettingsTab: View {
             .pickerStyle(.menu)
             
             Picker("Language", selection: $settings.language) {
-                // Show supported languages in a consistent order
                 let languagesOrder: [AppLanguage] = [.system, .english, .italian, .spanish, .french, .german]
                 ForEach(languagesOrder) { language in
                     Text(language.labelKey).tag(language)
@@ -372,7 +373,6 @@ struct GeneralSettingsTab: View {
                 }
             }
         }
-        .formStyle(.grouped)
         .alert("Restart required", isPresented: $showingRestartAlert) {
             Button("Later") {
                 settings.needsRestart = false
@@ -387,33 +387,38 @@ struct GeneralSettingsTab: View {
     }
 }
 
-#if ENABLE_ICLOUD
-// MARK: - iCloud Settings Tab
+// MARK: - Data Settings Tab Content
 
-struct iCloudSettingsTab: View {
+struct DataSettingsTabContent: View {
+    @Binding var showingExportFormatPicker: Bool
+    @Binding var showingImportConfirmation: Bool
+    @Binding var showingFirstResetAlert: Bool
+    
+    #if ENABLE_ICLOUD
     @State private var cloudManager = CloudKitManager.shared
     @State private var showingRestartAlert = false
     
+    private var hasICloudAccount: Bool {
+        FileManager.default.ubiquityIdentityToken != nil
+    }
+    #endif
+    
     var body: some View {
-        Form {
-            Section {
-                Toggle("Enable iCloud sync", isOn: Binding(
-                    get: { cloudManager.isEnabled },
-                    set: { newValue in
-                        cloudManager.isEnabled = newValue
-                        if cloudManager.needsRestart {
-                            showingRestartAlert = true
-                        }
+        #if ENABLE_ICLOUD
+        // iCloud Sync Section
+        Section {
+            Toggle("Enable iCloud sync", isOn: Binding(
+                get: { cloudManager.isEnabled },
+                set: { newValue in
+                    cloudManager.isEnabled = newValue
+                    if cloudManager.needsRestart {
+                        showingRestartAlert = true
                     }
-                ))
-                .disabled(!cloudManager.isAvailable)
-            } header: {
-                Text("Synchronization")
-            } footer: {
-                Text("When enabled, your accounts and transactions will be synced across all your devices using iCloud. Changes may take a few moments to appear on other devices.")
-            }
+                }
+            ))
+            .disabled(!cloudManager.isAvailable)
             
-            Section {
+            if cloudManager.isEnabled {
                 LabeledContent("Status") {
                     HStack(spacing: 6) {
                         Circle()
@@ -424,38 +429,23 @@ struct iCloudSettingsTab: View {
                     }
                 }
                 
-                if cloudManager.isEnabled {
-                    LabeledContent("Storage used") {
-                        if cloudManager.isLoadingStorage {
-                            ProgressView()
-                                .scaleEffect(0.7)
-                        } else {
-                            Text(cloudManager.formattedStorageUsed)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-            } header: {
-                Text("iCloud account")
-            }
-            
-            if !cloudManager.isAvailable {
-                Section {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                        Text("Sign in to iCloud in System Settings to enable sync.")
-                            .font(.callout)
+                LabeledContent("Storage used") {
+                    if cloudManager.isLoadingStorage {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    } else {
+                        Text(cloudManager.formattedStorageUsed)
                             .foregroundStyle(.secondary)
                     }
                 }
             }
-        }
-        .formStyle(.grouped)
-        .onAppear {
-            Task {
-                await cloudManager.checkAccountStatus()
-                await cloudManager.fetchStorageUsed()
+        } header: {
+            Text("iCloud Sync")
+        } footer: {
+            if !hasICloudAccount {
+                Text("Sign in to iCloud in System Settings to enable sync.")
+            } else {
+                Text("Sync your data across all your devices.")
             }
         }
         .alert("Restart required", isPresented: $showingRestartAlert) {
@@ -467,58 +457,45 @@ struct iCloudSettingsTab: View {
                 AppSettings.shared.restartApp()
             }
         } message: {
-            Text("The app needs to restart to apply iCloud sync changes.")
+            Text("The app needs to restart to apply iCloud changes.")
         }
-    }
-}
-#endif
-
-// MARK: - Data Settings Tab
-
-struct DataSettingsTab: View {
-    @Binding var showingExportFormatPicker: Bool
-    @Binding var showingImportConfirmation: Bool
-    @Binding var showingFirstResetAlert: Bool
-    
-    var body: some View {
-        Form {
-            Section {
-                Button {
-                    showingExportFormatPicker = true
-                } label: {
-                    Label("Export data", systemImage: "square.and.arrow.up")
-                }
-                
-                Button {
-                    showingImportConfirmation = true
-                } label: {
-                    Label("Import data", systemImage: "square.and.arrow.down")
-                }
-            } header: {
-                Text("Export / Import")
-            } footer: {
-                Text("Export your data as JSON (full backup) or OFX (standard bank format). Import will replace all existing data.")
+        #endif
+        
+        Section {
+            Button {
+                showingExportFormatPicker = true
+            } label: {
+                Label("Export data", systemImage: "square.and.arrow.up")
             }
             
-            Section {
-                Button(role: .destructive) {
-                    showingFirstResetAlert = true
-                } label: {
-                    Label("Reset all data", systemImage: "trash.fill")
-                }
-            } header: {
-                Text("Danger zone")
-            } footer: {
-                Text("This will delete all accounts and transactions.")
+            Button {
+                showingImportConfirmation = true
+            } label: {
+                Label("Import data", systemImage: "square.and.arrow.down")
             }
+        } header: {
+            Text("Export / Import")
+        } footer: {
+            Text("Export your data as JSON (full backup) or OFX (standard bank format). Import will replace all existing data.")
         }
-        .formStyle(.grouped)
+        
+        Section {
+            Button(role: .destructive) {
+                showingFirstResetAlert = true
+            } label: {
+                Label("Reset all data", systemImage: "trash.fill")
+            }
+        } header: {
+            Text("Danger zone")
+        } footer: {
+            Text("This will delete all accounts and transactions.")
+        }
     }
 }
 
-// MARK: - About Settings Tab
+// MARK: - About Settings Tab Content
 
-struct AboutSettingsTab: View {
+struct AboutSettingsTabContent: View {
     @State private var showingLicense = false
     
     private var appVersion: String {
@@ -528,55 +505,58 @@ struct AboutSettingsTab: View {
     private var buildNumber: String {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
     }
+
+    // Optional short git hash provided during build (set via build script)
+    private var gitShortHash: String? {
+        Bundle.main.infoDictionary?["GitShortHash"] as? String
+    }
     
     var body: some View {
-        VStack(spacing: 12) {
-            Spacer()
-            
-            Image(nsImage: NSApp.applicationIconImage)
-                .resizable()
-                .frame(width: 96, height: 96)
-            
-            Text("Cash")
-                .font(.title)
-                .fontWeight(.semibold)
-            
-            VStack(spacing: 2) {
-                Text("\("Version") \(appVersion)")
+        Section {
+            VStack(spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 80, height: 80)
+                
+                VStack(spacing: 4) {
+                    Text("Cash")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    
+                    Text("Version \(appVersion) (\(buildNumber)\(gitShortHash.map { " • \($0)" } ?? ""))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Text("A simplified macOS financial management application inspired by Gnucash, built with SwiftUI and SwiftData.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
                 
-                Text(buildNumber)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            
-            Text("A simplified macOS financial management application inspired by Gnucash, built with SwiftUI and SwiftData.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 20)
-            
-            Spacer()
-            
-            Button {
-                showingLicense = true
-            } label: {
-                Text("© 2025 Michele Broggi")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
-            .buttonStyle(.plain)
-            .onHover { hovering in
-                if hovering {
-                    NSCursor.pointingHand.push()
-                } else {
-                    NSCursor.pop()
+                Button {
+                    showingLicense = true
+                } label: {
+                    Text("© 2025 Michele Broggi")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+                .buttonStyle(.plain)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
         }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        
+        Section {
+            Link(destination: URL(string: "https://github.com/thesmokinator/cash")!) {
+                Label("Project website", systemImage: "link")
+            }
+            
+            Link(destination: URL(string: "https://github.com/thesmokinator/cash/blob/main/PRIVACY.md")!) {
+                Label("Privacy policy", systemImage: "hand.raised.fill")
+            }
+        } header: {
+            Text("Links")
+        }
         .sheet(isPresented: $showingLicense) {
             LicenseView()
         }

@@ -352,40 +352,6 @@
         }
       }
     },
-    "%@ %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        }
-      }
-    },
     "%@%@" : {
       "localizations" : {
         "de" : {
@@ -2508,6 +2474,9 @@
         }
       }
     },
+    "Appearance" : {
+
+    },
     "Are you absolutely sure?" : {
       "localizations" : {
         "de" : {
@@ -3911,25 +3880,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kasse"
+            "value" : "Cash"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dinero"
+            "value" : "Cash"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Espèces"
+            "value" : "Cash"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contanti"
+            "value" : "Cash"
           }
         }
       }
@@ -6139,6 +6108,9 @@
         }
       }
     },
+    "Enable iCloud sync" : {
+
+    },
     "Enable Rollover" : {
       "localizations" : {
         "de" : {
@@ -8149,33 +8121,17 @@
         }
       }
     },
-    "iCloud not available in this build" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud ist in diesem Build nicht verfügbar"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud no está disponible en esta compilación"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud n'est pas disponible dans cette version"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud non disponibile in questa versione"
-          }
-        }
-      }
+    "iCloud access restricted" : {
+
+    },
+    "iCloud account available" : {
+
+    },
+    "iCloud Sync" : {
+
+    },
+    "iCloud temporarily unavailable" : {
+
     },
     "Ideal" : {
       "localizations" : {
@@ -9603,6 +9559,9 @@
         }
       }
     },
+    "Last synced: %@" : {
+
+    },
     "Last Year" : {
       "localizations" : {
         "de" : {
@@ -9826,6 +9785,9 @@
           }
         }
       }
+    },
+    "Links" : {
+
     },
     "Loan" : {
       "localizations" : {
@@ -11755,6 +11717,9 @@
         }
       }
     },
+    "No iCloud account" : {
+
+    },
     "No loans" : {
       "localizations" : {
         "de" : {
@@ -11879,6 +11844,9 @@
         }
       }
     },
+    "No scheduled transactions are due on this date" : {
+
+    },
     "No transactions" : {
       "localizations" : {
         "de" : {
@@ -11990,6 +11958,9 @@
           }
         }
       }
+    },
+    "No transactions on %@" : {
+
     },
     "No transactions to reconcile" : {
       "localizations" : {
@@ -13559,6 +13530,9 @@
         }
       }
     },
+    "Privacy policy" : {
+
+    },
     "Progress" : {
       "localizations" : {
         "de" : {
@@ -13614,6 +13588,9 @@
           }
         }
       }
+    },
+    "Project website" : {
+
     },
     "Projected" : {
       "localizations" : {
@@ -13962,6 +13939,9 @@
           }
         }
       }
+    },
+    "Ready" : {
+
     },
     "Ready to import" : {
       "localizations" : {
@@ -14642,6 +14622,9 @@
           }
         }
       }
+    },
+    "Retry Sync" : {
+
     },
     "Review" : {
       "localizations" : {
@@ -15361,6 +15344,12 @@
         }
       }
     },
+    "Settings" : {
+
+    },
+    "Settings..." : {
+
+    },
     "Shopping" : {
       "localizations" : {
         "de" : {
@@ -15388,6 +15377,9 @@
           }
         }
       }
+    },
+    "Show all scheduled transactions" : {
+
     },
     "Show amounts" : {
       "localizations" : {
@@ -15422,6 +15414,9 @@
           }
         }
       }
+    },
+    "Sign in to iCloud in System Settings to enable sync." : {
+
     },
     "Similar to French but interest is paid at the beginning of each period." : {
       "localizations" : {
@@ -15681,6 +15676,9 @@
         }
       }
     },
+    "Storage used" : {
+
+    },
     "Subscriptions" : {
       "localizations" : {
         "de" : {
@@ -15827,6 +15825,18 @@
         }
       }
     },
+    "Sync issue" : {
+
+    },
+    "Sync your data across all your devices." : {
+
+    },
+    "Syncing with iCloud..." : {
+
+    },
+    "Syncing..." : {
+
+    },
     "System" : {
       "localizations" : {
         "de" : {
@@ -15882,6 +15892,9 @@
           }
         }
       }
+    },
+    "The app needs to restart to apply iCloud changes." : {
+
     },
     "The app needs to restart to apply language changes." : {
       "localizations" : {
@@ -17111,6 +17124,9 @@
         }
       }
     },
+    "Unable to determine iCloud status" : {
+
+    },
     "Unaffordable" : {
       "localizations" : {
         "de" : {
@@ -17167,6 +17183,9 @@
         }
       }
     },
+    "Unknown iCloud status" : {
+
+    },
     "Unnamed Envelope" : {
       "localizations" : {
         "de" : {
@@ -17222,6 +17241,9 @@
           }
         }
       }
+    },
+    "Up to date" : {
+
     },
     "Upcoming Transactions" : {
       "localizations" : {
@@ -17549,6 +17571,16 @@
         }
       }
     },
+    "Version %@ (%@%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Version %1$@ (%2$@%3$@)"
+          }
+        }
+      }
+    },
     "View Amortization Schedule" : {
       "localizations" : {
         "de" : {
@@ -17734,7 +17766,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bienvenido a efectivo"
+            "value" : "Bienvenido a Cash"
           }
         },
         "fr" : {

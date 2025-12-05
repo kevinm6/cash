@@ -24,6 +24,7 @@ extension Notification.Name {
     static let addNewTransaction = Notification.Name("addNewTransaction")
     static let addNewScheduledTransaction = Notification.Name("addNewScheduledTransaction")
     static let importOFX = Notification.Name("importOFX")
+    static let showSettings = Notification.Name("showSettings")
 }
 
 @main
@@ -31,6 +32,7 @@ struct CashApp: App {
     @State private var settings = AppSettings.shared
     @State private var menuAppState = AppState()
     @State private var navigationState = NavigationState()
+    @State private var showingSettingsSheet = false
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -77,6 +79,18 @@ struct CashApp: App {
         WindowGroup {
             ContentView()
                 .environment(navigationState)
+                .sheet(isPresented: $showingSettingsSheet) {
+                    SettingsView(appState: menuAppState, dismissSettings: { showingSettingsSheet = false })
+                        .environment(settings)
+                        .modelContainer(sharedModelContainer)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .showSettings)) { _ in
+                    showingSettingsSheet = true
+                }
+                .onAppear {
+                    // Start iCloud sync monitoring
+                    CloudKitManager.shared.startListeningForRemoteChanges()
+                }
         }
         .modelContainer(sharedModelContainer)
         .environment(settings)
@@ -111,22 +125,16 @@ struct CashApp: App {
                     Label("Import OFX...", systemImage: "doc.badge.arrow.up")
                 }
             }
-        }
-        
-        Settings {
-            SettingsView(appState: menuAppState, dismissSettings: {})
-                .environment(settings)
-                .modelContainer(sharedModelContainer)
-                .overlay {
-                    if menuAppState.isLoading {
-                        LoadingOverlayView(message: menuAppState.loadingMessage)
-                    }
+            
+            // Settings menu item (replaces system Preferences)
+            CommandGroup(replacing: .appSettings) {
+                Button {
+                    showingSettingsSheet = true
+                } label: {
+                    Text("Settings...")
                 }
-                .sheet(isPresented: $menuAppState.showWelcomeSheet) {
-                    WelcomeSheet(appState: menuAppState)
-                        .modelContainer(sharedModelContainer)
-                        .interactiveDismissDisabled()
-                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
         }
     }
 }
