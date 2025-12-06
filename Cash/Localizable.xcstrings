@@ -15679,34 +15679,6 @@
     "Storage used" : {
 
     },
-    "Subscriptions" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abonnements"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suscripciones"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abonnements"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abbonamenti"
-          }
-        }
-      }
-    },
     "Suggestion" : {
       "localizations" : {
         "de" : {
