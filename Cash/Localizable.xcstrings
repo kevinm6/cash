@@ -17549,15 +17549,8 @@
         }
       }
     },
-    "Version %@ (%@%@)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Version %1$@ (%2$@%3$@)"
-          }
-        }
-      }
+    "Version %@" : {
+
     },
     "View Amortization Schedule" : {
       "localizations" : {
