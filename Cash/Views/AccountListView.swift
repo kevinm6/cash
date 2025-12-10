@@ -112,7 +112,7 @@ struct AccountListView: View {
             }
             .listStyle(.sidebar)
             .navigationTitle("Chart of accounts")
-            .navigationSplitViewColumnWidth(min: 280, ideal: 280, max: 320)
+            .navigationSplitViewColumnWidth(min: 300, ideal: 300, max: 300)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button(action: { showingAddAccount = true }) {
