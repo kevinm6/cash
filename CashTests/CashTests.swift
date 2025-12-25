@@ -2078,6 +2078,26 @@ struct CurrencyHelperTests {
         let currency = CurrencyHelper.defaultCurrency(from: [])
         #expect(currency == "EUR") // Default fallback
     }
+    
+    @Test func netWorthCurrencyUsesAssetCurrency() async throws {
+        // Test for bug fix: Net Worth should use account currency, not hardcoded EUR
+        let usdAsset = Account(
+            name: "US Checking",
+            currency: "USD",
+            accountClass: .asset,
+            accountType: .bank
+        )
+        
+        let usdLiability = Account(
+            name: "US Credit Card",
+            currency: "USD",
+            accountClass: .liability,
+            accountType: .creditCard
+        )
+        
+        let currency = CurrencyHelper.defaultCurrency(from: [usdAsset, usdLiability])
+        #expect(currency == "USD") // Should use asset currency for Net Worth display
+    }
 }
 
 // MARK: - Decimal Rounding Tests

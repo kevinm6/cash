@@ -32,6 +32,10 @@ struct NetWorthView: View {
         totalAssets - totalLiabilities
     }
     
+    private var currency: String {
+        CurrencyHelper.defaultCurrency(from: accounts)
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -48,7 +52,7 @@ struct NetWorthView: View {
                     .padding(.horizontal)
                     
                     PrivacyAmountView(
-                        amount: CurrencyFormatter.format(netWorth),
+                        amount: CurrencyFormatter.format(netWorth, currency: currency),
                         isPrivate: settings.privacyMode,
                         font: .system(size: 48, weight: .bold),
                         color: netWorth >= 0 ? .primary : .red
@@ -66,7 +70,8 @@ struct NetWorthView: View {
                         amount: totalAssets,
                         color: .green,
                         icon: "arrow.up.circle.fill",
-                        privacyMode: settings.privacyMode
+                        privacyMode: settings.privacyMode,
+                        currency: currency
                     )
                     
                     SummaryCard(
@@ -74,7 +79,8 @@ struct NetWorthView: View {
                         amount: totalLiabilities,
                         color: .red,
                         icon: "arrow.down.circle.fill",
-                        privacyMode: settings.privacyMode
+                        privacyMode: settings.privacyMode,
+                        currency: currency
                     )
                 }
                 
@@ -125,6 +131,7 @@ struct SummaryCard: View {
     let color: Color
     let icon: String
     var privacyMode: Bool = false
+    var currency: String = "EUR"
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -137,7 +144,7 @@ struct SummaryCard: View {
             .font(.subheadline)
             
             PrivacyAmountView(
-                amount: CurrencyFormatter.format(amount),
+                amount: CurrencyFormatter.format(amount, currency: currency),
                 isPrivate: privacyMode,
                 font: .title2,
                 fontWeight: .semibold
