@@ -60,6 +60,9 @@
         }
       }
     },
+    ": 1" : {
+
+    },
     "(%@)" : {
       "localizations" : {
         "de" : {
@@ -365,6 +368,9 @@
           }
         }
       }
+    },
+    "%@ shares" : {
+
     },
     "%@%@" : {
       "localizations" : {
@@ -1162,6 +1168,9 @@
         }
       }
     },
+    "2" : {
+
+    },
     "2 Years" : {
       "localizations" : {
         "de" : {
@@ -1304,6 +1313,9 @@
           }
         }
       }
+    },
+    "A stock split changes the number of shares you own without changing the total value. For example, a 2:1 split doubles your shares but halves the price per share." : {
+
     },
     "A transaction will be created to record this payoff in your accounts." : {
       "localizations" : {
@@ -1636,6 +1648,9 @@
           }
         }
       }
+    },
+    "Add a buy transaction to start tracking your investment." : {
+
     },
     "Add a new loan calculation or track an existing loan" : {
       "localizations" : {
@@ -2973,6 +2988,12 @@
         }
       }
     },
+    "Average Cost" : {
+
+    },
+    "Average Cost Method" : {
+
+    },
     "Average Monthly Expenses" : {
       "localizations" : {
         "de" : {
@@ -3040,6 +3061,9 @@
           }
         }
       }
+    },
+    "Avg Cost" : {
+
     },
     "Avg. last 3 months:" : {
       "localizations" : {
@@ -3647,6 +3671,9 @@
         }
       }
     },
+    "Buy" : {
+
+    },
     "By Category" : {
       "localizations" : {
         "de" : {
@@ -3972,6 +3999,12 @@
           }
         }
       }
+    },
+    "Cash Account" : {
+
+    },
+    "Cash payment from a security. Dividends are deposited to your cash account without affecting your share count." : {
+
     },
     "Categorize Transactions" : {
       "localizations" : {
@@ -5088,6 +5121,9 @@
         }
       }
     },
+    "Current Position" : {
+
+    },
     "Current Status" : {
       "localizations" : {
         "de" : {
@@ -5765,6 +5801,9 @@
         }
       }
     },
+    "Description (optional)" : {
+
+    },
     "Details" : {
       "localizations" : {
         "de" : {
@@ -5876,6 +5915,12 @@
           }
         }
       }
+    },
+    "Dividend" : {
+
+    },
+    "Dividend Details" : {
+
     },
     "Dividend income" : {
       "localizations" : {
@@ -6528,6 +6573,9 @@
           }
         }
       }
+    },
+    "Enter the split ratio. For a 2:1 split, enter 2. For a 3:1 split, enter 3." : {
+
     },
     "Enter the starting balance for this account" : {
       "localizations" : {
@@ -7414,6 +7462,9 @@
           }
         }
       }
+    },
+    "Fees" : {
+
     },
     "Financial Details" : {
       "localizations" : {
@@ -9080,6 +9131,9 @@
         }
       }
     },
+    "Income Category" : {
+
+    },
     "Insufficient funds in source envelope" : {
       "localizations" : {
         "de" : {
@@ -9471,7 +9525,16 @@
         }
       }
     },
+    "Investment Account" : {
+
+    },
     "Investment Details" : {
+
+    },
+    "Investment Transaction" : {
+
+    },
+    "Investment Transactions" : {
 
     },
     "Investments" : {
@@ -9603,6 +9666,9 @@
           }
         }
       }
+    },
+    "Journal Entry Preview" : {
+
     },
     "JSON is recommended for full backup and restore. OFX is the standard bank format for importing into other apps." : {
       "localizations" : {
@@ -10480,6 +10546,9 @@
         }
       }
     },
+    "Market Value" : {
+
+    },
     "Maximum" : {
       "localizations" : {
         "de" : {
@@ -11329,6 +11398,9 @@
           }
         }
       }
+    },
+    "New Share Count" : {
+
     },
     "New transaction" : {
       "localizations" : {
@@ -12278,6 +12350,9 @@
         }
       }
     },
+    "No shares held" : {
+
+    },
     "No transactions" : {
       "localizations" : {
         "de" : {
@@ -12983,6 +13058,9 @@
         }
       }
     },
+    "P/L" : {
+
+    },
     "Parse error: %@" : {
       "localizations" : {
         "de" : {
@@ -13623,6 +13701,9 @@
     "Personalization" : {
 
     },
+    "Please enter a valid dividend amount" : {
+
+    },
     "Please enter a valid number for the balance." : {
       "localizations" : {
         "de" : {
@@ -13650,6 +13731,9 @@
           }
         }
       }
+    },
+    "Please enter a valid number of shares" : {
+
     },
     "Please enter a valid positive amount." : {
       "localizations" : {
@@ -13679,6 +13763,12 @@
         }
       }
     },
+    "Please enter a valid price per share" : {
+
+    },
+    "Please enter a valid split ratio" : {
+
+    },
     "Please enter an account name." : {
       "localizations" : {
         "de" : {
@@ -13707,6 +13797,15 @@
         }
       }
     },
+    "Please select a cash account for the transaction" : {
+
+    },
+    "Please select a cash account to receive the dividend" : {
+
+    },
+    "Please select an investment account" : {
+
+    },
     "Please select both accounts." : {
       "localizations" : {
         "de" : {
@@ -13734,6 +13833,9 @@
           }
         }
       }
+    },
+    "Position Summary" : {
+
     },
     "Prepaid expense" : {
       "localizations" : {
@@ -13932,6 +14034,9 @@
       }
     },
     "Price" : {
+
+    },
+    "Price per Share" : {
 
     },
     "Principal" : {
@@ -14275,6 +14380,9 @@
           }
         }
       }
+    },
+    "Purchase shares of a security. Money flows from your cash account to your investment account, and you receive shares." : {
+
     },
     "Quarterly" : {
       "localizations" : {
@@ -15857,6 +15965,12 @@
         }
       }
     },
+    "Sell" : {
+
+    },
+    "Sell shares of a security. Shares are removed from your investment account and money flows to your cash account." : {
+
+    },
     "Semiannual" : {
       "localizations" : {
         "de" : {
@@ -16002,6 +16116,9 @@
           }
         }
       }
+    },
+    "Shares" : {
+
     },
     "Shopping" : {
       "localizations" : {
@@ -16236,6 +16353,12 @@
         }
       }
     },
+    "Split Details" : {
+
+    },
+    "Split Ratio" : {
+
+    },
     "Start date" : {
       "localizations" : {
         "de" : {
@@ -16409,6 +16532,12 @@
           }
         }
       }
+    },
+    "Stock Split" : {
+
+    },
+    "Stock splits do not create accounting entries." : {
+
     },
     "Stock ticker symbol (e.g., IWDA)" : {
 
@@ -17548,6 +17677,9 @@
         }
       }
     },
+    "Total Cost" : {
+
+    },
     "Total Expenses Variation" : {
       "localizations" : {
         "de" : {
@@ -17700,6 +17832,9 @@
         }
       }
     },
+    "Track your investment activity to monitor portfolio performance and calculate gains/losses." : {
+
+    },
     "Track your personal finances with double-entry bookkeeping" : {
       "localizations" : {
         "de" : {
@@ -17840,6 +17975,9 @@
         }
       }
     },
+    "Transaction Details" : {
+
+    },
     "Transaction type" : {
       "localizations" : {
         "de" : {
@@ -17867,6 +18005,9 @@
           }
         }
       }
+    },
+    "Transaction Type" : {
+
     },
     "Transfer" : {
       "localizations" : {
@@ -18210,6 +18351,9 @@
         }
       }
     },
+    "Understanding Your Position" : {
+
+    },
     "Unknown iCloud status" : {
       "localizations" : {
         "de" : {
@@ -18265,6 +18409,9 @@
           }
         }
       }
+    },
+    "Unrealized P/L" : {
+
     },
     "Until" : {
       "localizations" : {
@@ -19049,6 +19196,9 @@
         }
       }
     },
+    "You cannot sell more shares than you own (%@ available)" : {
+
+    },
     "You save %@ in interest!" : {
       "localizations" : {
         "de" : {
@@ -19076,6 +19226,9 @@
           }
         }
       }
+    },
+    "Your cost basis is calculated using the Average Cost Method. When you sell shares, the app calculates your gain or loss based on the average price you paid for all shares." : {
+
     },
     "Your data has been exported successfully." : {
       "localizations" : {

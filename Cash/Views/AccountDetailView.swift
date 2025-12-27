@@ -16,9 +16,11 @@ struct AccountDetailView: View {
     @State private var showingDeleteConfirmation = false
     @State private var showingReconciliation = false
     @Binding var showingAddTransaction: Bool
+    @State private var showingAddInvestmentTransaction = false
     @State private var etfQuote: ETFQuote?
     @State private var isLoadingQuote = false
     @State private var quoteError: String?
+    @State private var investmentPosition: InvestmentPosition = .empty
     
     var body: some View {
         VStack(spacing: 0) {
@@ -86,6 +88,14 @@ struct AccountDetailView: View {
                         currency: account.currency
                     )
                 }
+                
+                // Investment Position Summary
+                if account.accountType == .investment, investmentPosition.hasShares {
+                    InvestmentPositionBadge(
+                        position: investmentPosition,
+                        currency: account.currency
+                    )
+                }
             }
             .padding()
             .background(.regularMaterial)
@@ -100,6 +110,13 @@ struct AccountDetailView: View {
         .navigationTitle(account.displayName)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
+                // Investment transaction button
+                if account.accountType == .investment {
+                    Button(action: { showingAddInvestmentTransaction = true }) {
+                        Label("Investment Transaction", systemImage: "plus.circle")
+                    }
+                }
+                
                 // Reconcile button - only for asset and liability accounts
                 if account.accountClass == .asset || account.accountClass == .liability {
                     Button(action: { showingReconciliation = true }) {
@@ -124,6 +141,9 @@ struct AccountDetailView: View {
         .sheet(isPresented: $showingAddTransaction) {
             AddTransactionView(preselectedAccount: account)
         }
+        .sheet(isPresented: $showingAddInvestmentTransaction) {
+            AddInvestmentTransactionView(preselectedInvestmentAccount: account)
+        }
         .sheet(isPresented: $showingReconciliation) {
             ReconciliationView(account: account)
         }
@@ -141,6 +161,12 @@ struct AccountDetailView: View {
         }
         .task(id: account.isin) {
             await loadETFQuoteIfNeeded()
+        }
+        .task {
+            calculateInvestmentPosition()
+        }
+        .onChange(of: (account.entries ?? []).count) {
+            calculateInvestmentPosition()
         }
         .id(settings.refreshID)
     }
@@ -178,11 +204,29 @@ struct AccountDetailView: View {
             let locale = ETFAPIHelper.getUserLocale()
             let quote = try await ETFAPIHelper.shared.fetchQuote(isin: isin, locale: locale, currency: account.currency)
             etfQuote = quote
+            
+            // Update position with market price
+            investmentPosition = InvestmentHelper.calculatePosition(
+                for: account,
+                currentPrice: quote.latestQuote.raw
+            )
         } catch {
             quoteError = error.localizedDescription
         }
         
         isLoadingQuote = false
+    }
+    
+    private func calculateInvestmentPosition() {
+        guard account.accountType == .investment else { return }
+        
+        // Calculate position (without market price if quote not loaded)
+        let currentPrice = etfQuote?.latestQuote.raw
+        
+        investmentPosition = InvestmentHelper.calculatePosition(
+            for: account,
+            currentPrice: currentPrice
+        )
     }
 }
 
