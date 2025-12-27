@@ -97,7 +97,7 @@ struct AddInvestmentTransactionView: View {
         return InvestmentHelper.calculatePosition(for: account)
     }
     
-    private var updatedBalances: [(account: Account, newBalance: Decimal)] {
+    private func calculateUpdatedBalances() -> [(account: Account, newBalance: Decimal)] {
         switch transactionType {
         case .buy:
             guard let investment = selectedInvestmentAccount, let cash = selectedCashAccount else { return [] }
@@ -394,12 +394,13 @@ struct AddInvestmentTransactionView: View {
     @ViewBuilder
     private var journalPreview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if updatedBalances.isEmpty {
+            let balances = calculateUpdatedBalances()
+            if balances.isEmpty {
                 Text("Stock splits do not create accounting entries.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(updatedBalances, id: \.account.id) { item in
+                ForEach(balances, id: \.account.id) { item in
                     HStack {
                         Text(item.account.displayName)
                             .font(.subheadline)
