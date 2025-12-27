@@ -313,13 +313,14 @@ struct WelcomeOptionButton: View {
                     Text(title)
                         .font(.headline)
                         .foregroundStyle(.primary)
+                        .lineLimit(2)
                     
                     Text(subtitle)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .lineLimit(2)
                 }
-                
-                Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Image(systemName: "chevron.right")
                     .font(.caption)
