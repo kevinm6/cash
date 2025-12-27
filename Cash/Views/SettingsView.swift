@@ -89,6 +89,9 @@ struct SettingsView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var importResult: (accountsCount: Int, transactionsCount: Int) = (0, 0)
+    @State private var exportData: Data?
+    @State private var exportFilename = ""
+    @State private var showingFileExporter = false
     
     @Query private var accounts: [Account]
     @Query private var transactions: [Transaction]
@@ -210,6 +213,20 @@ struct SettingsView: View {
             } message: {
                 Text(errorMessage)
             }
+            .fileExporter(
+                isPresented: $showingFileExporter,
+                document: ExportDocument(data: exportData ?? Data()),
+                contentType: .data,
+                defaultFilename: exportFilename
+            ) { result in
+                switch result {
+                case .success:
+                    showingExportSuccess = true
+                case .failure(let error):
+                    errorMessage = error.localizedDescription
+                    showingError = true
+                }
+            }
     }
     
     var body: some View {
@@ -307,9 +324,10 @@ struct SettingsView: View {
                 }
             }
             #else
-            // iOS export not implemented yet
-            errorMessage = "Export is not available on iOS yet"
-            showingError = true
+            // iOS: prepare data for file exporter
+            self.exportData = data
+            self.exportFilename = filename
+            self.showingFileExporter = true
             #endif
         } catch {
             errorMessage = error.localizedDescription
@@ -813,4 +831,25 @@ struct ExportFormatPickerView: View {
     }
 }
 
+// MARK: - Export Document
 
+struct ExportDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.data] }
+    
+    let data: Data
+    
+    init(data: Data) {
+        self.data = data
+    }
+    
+    init(configuration: ReadConfiguration) throws {
+        guard let data = configuration.file.regularFileContents else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        self.data = data
+    }
+    
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: data)
+    }
+}
