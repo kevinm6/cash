@@ -97,6 +97,31 @@ struct AddInvestmentTransactionView: View {
         return InvestmentHelper.calculatePosition(for: account)
     }
     
+    private var updatedBalances: [(account: Account, newBalance: Decimal)] {
+        switch transactionType {
+        case .buy:
+            guard let investment = selectedInvestmentAccount, let cash = selectedCashAccount else { return [] }
+            return [
+                (investment, investment.balance + totalAmount),
+                (cash, cash.balance - totalAmount)
+            ]
+        case .sell:
+            guard let investment = selectedInvestmentAccount, let cash = selectedCashAccount else { return [] }
+            return [
+                (investment, investment.balance - totalAmount),
+                (cash, cash.balance + totalAmount)
+            ]
+        case .dividend:
+            guard let cash = selectedCashAccount, let income = selectedIncomeAccount else { return [] }
+            return [
+                (cash, cash.balance + dividendAmount),
+                (income, income.balance + dividendAmount)
+            ]
+        case .split:
+            return []
+        }
+    }
+    
     private var isValid: Bool {
         let errors = InvestmentHelper.validateTransaction(
             type: transactionType,
@@ -158,7 +183,7 @@ struct AddInvestmentTransactionView: View {
                 if transactionType.affectsCash {
                     Section("Cash Account") {
                         AccountPicker(
-                            title: transactionType == .buy ? "Pay from" : "Deposit to",
+                            title: transactionType == .buy ? String(localized: "Pay from") : String(localized: "Deposit to"),
                             accounts: cashAccounts,
                             selection: $selectedCashAccount
                         )
@@ -282,50 +307,43 @@ struct AddInvestmentTransactionView: View {
     @ViewBuilder
     private var buySellSection: some View {
         Section("Transaction Details") {
-            HStack {
-                Text("Shares")
-                Spacer()
-                TextField("0", text: $sharesText)
+            LabeledContent("Quantity") {
+                TextField("", text: $sharesText)
                     .multilineTextAlignment(.trailing)
                     .frame(width: 120)
             }
             
-            HStack {
-                Text("Price per Share")
-                Spacer()
-                Text(CurrencyList.symbol(forCode: currentCurrency))
-                    .foregroundStyle(.secondary)
-                ZStack(alignment: .trailing) {
-                    TextField("0.00", text: $pricePerShareText)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 100)
+            LabeledContent("Price per Share") {
+                HStack {
                     if isLoadingQuote {
                         ProgressView()
-                            .scaleEffect(0.5)
-                            .frame(width: 20, height: 20)
+                            .scaleEffect(0.6)
                     }
+                    Text(CurrencyList.symbol(forCode: currentCurrency))
+                        .foregroundStyle(.secondary)
+                    TextField("", text: $pricePerShareText)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 100)
                 }
             }
             
-            HStack {
-                Text("Fees")
-                Spacer()
-                Text(CurrencyList.symbol(forCode: currentCurrency))
-                    .foregroundStyle(.secondary)
-                TextField("0.00", text: $feesText)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 100)
+            LabeledContent("Fees") {
+                HStack {
+                    Text(CurrencyList.symbol(forCode: currentCurrency))
+                        .foregroundStyle(.secondary)
+                    TextField("", text: $feesText)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 100)
+                }
             }
             
             Divider()
             
-            HStack {
-                Text("Total")
-                    .fontWeight(.semibold)
-                Spacer()
+            LabeledContent("Total") {
                 Text(CurrencyFormatter.format(totalAmount, currency: currentCurrency))
                     .fontWeight(.semibold)
             }
+            .fontWeight(.semibold)
         }
     }
     
@@ -376,32 +394,30 @@ struct AddInvestmentTransactionView: View {
     @ViewBuilder
     private var journalPreview: some View {
         VStack(alignment: .leading, spacing: 8) {
-            switch transactionType {
-            case .buy:
-                JournalEntryPreview(
-                    debitAccountName: selectedInvestmentAccount?.displayName,
-                    creditAccountName: selectedCashAccount?.displayName,
-                    amount: totalAmount,
-                    currency: currentCurrency
-                )
-            case .sell:
-                JournalEntryPreview(
-                    debitAccountName: selectedCashAccount?.displayName,
-                    creditAccountName: selectedInvestmentAccount?.displayName,
-                    amount: totalAmount,
-                    currency: currentCurrency
-                )
-            case .dividend:
-                JournalEntryPreview(
-                    debitAccountName: selectedCashAccount?.displayName,
-                    creditAccountName: selectedIncomeAccount?.displayName,
-                    amount: dividendAmount,
-                    currency: currentCurrency
-                )
-            case .split:
+            if updatedBalances.isEmpty {
                 Text("Stock splits do not create accounting entries.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            } else {
+                ForEach(updatedBalances, id: \.account.id) { item in
+                    HStack {
+                        Text(item.account.displayName)
+                            .font(.subheadline)
+                        Spacer()
+                        Text(CurrencyFormatter.format(item.newBalance, currency: item.account.currency))
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .monospacedDigit()
+                    }
+                    .padding(.vertical, 4)
+                }
+                .padding(12)
+                .background(Color.accentColor.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(Color.accentColor.opacity(0.2), lineWidth: 1)
+                )
             }
         }
     }
@@ -449,7 +465,10 @@ struct AddInvestmentTransactionView: View {
             let quote = try await ETFAPIHelper.shared.fetchQuote(isin: isin, locale: locale, currency: account.currency)
             
             // Set the price per share to the latest quote
-            pricePerShareText = CurrencyFormatter.format(quote.latestQuote.raw, currency: account.currency)
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.maximumFractionDigits = 2
+            pricePerShareText = formatter.string(from: quote.latestQuote.raw as NSDecimalNumber) ?? ""
         } catch {
             // Silently fail - user can enter price manually
             print("Failed to load ETF quote: \(error)")
