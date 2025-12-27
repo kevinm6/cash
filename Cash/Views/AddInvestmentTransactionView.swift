@@ -503,10 +503,12 @@ struct AddInvestmentTransactionView: View {
         let description = descriptionText.trimmingCharacters(in: .whitespacesAndNewlines)
         let defaultDescription = "\(transactionType.localizedName) \(investmentAccount.ticker ?? investmentAccount.name)"
         
+        var affectedAccountIDs = Set<UUID>()
+        
         switch transactionType {
         case .buy:
             guard let cashAccount = selectedCashAccount else { return }
-            _ = TransactionBuilder.createInvestmentBuy(
+            let transaction = TransactionBuilder.createInvestmentBuy(
                 date: date,
                 description: description.isEmpty ? defaultDescription : description,
                 shares: shares,
@@ -516,10 +518,11 @@ struct AddInvestmentTransactionView: View {
                 cashAccount: cashAccount,
                 context: modelContext
             )
+            affectedAccountIDs = Set((transaction.entries ?? []).compactMap { $0.account?.id })
             
         case .sell:
             guard let cashAccount = selectedCashAccount else { return }
-            _ = TransactionBuilder.createInvestmentSell(
+            let transaction = TransactionBuilder.createInvestmentSell(
                 date: date,
                 description: description.isEmpty ? defaultDescription : description,
                 shares: shares,
@@ -529,11 +532,12 @@ struct AddInvestmentTransactionView: View {
                 cashAccount: cashAccount,
                 context: modelContext
             )
+            affectedAccountIDs = Set((transaction.entries ?? []).compactMap { $0.account?.id })
             
         case .dividend:
             guard let cashAccount = selectedCashAccount,
                   let incomeAccount = selectedIncomeAccount else { return }
-            _ = TransactionBuilder.createDividend(
+            let transaction = TransactionBuilder.createDividend(
                 date: date,
                 description: description.isEmpty ? "Dividend \(investmentAccount.ticker ?? investmentAccount.name)" : description,
                 amount: dividendAmount,
@@ -542,16 +546,21 @@ struct AddInvestmentTransactionView: View {
                 incomeAccount: incomeAccount,
                 context: modelContext
             )
+            affectedAccountIDs = Set((transaction.entries ?? []).compactMap { $0.account?.id })
             
         case .split:
-            _ = TransactionBuilder.createStockSplit(
+            let transaction = TransactionBuilder.createStockSplit(
                 date: date,
                 description: description.isEmpty ? "Stock split \(investmentAccount.ticker ?? investmentAccount.name)" : description,
                 splitRatio: splitRatio,
                 investmentAccount: investmentAccount,
                 context: modelContext
             )
+            affectedAccountIDs = Set((transaction.entries ?? []).compactMap { $0.account?.id })
         }
+        
+        // Signal balance update for affected accounts
+        BalanceUpdateSignal.send(for: affectedAccountIDs)
         
         dismiss()
     }

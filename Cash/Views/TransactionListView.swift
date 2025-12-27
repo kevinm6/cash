@@ -294,8 +294,16 @@ struct TransactionListView: View {
     }
     
     private func deleteTransaction(_ transaction: Transaction) {
+        // Collect affected account IDs before deletion
+        let affectedAccountIDs = Set((transaction.entries ?? []).compactMap { $0.account?.id })
+        
         withAnimation {
             modelContext.delete(transaction)
+        }
+        
+        // Signal balance update for affected accounts
+        if !affectedAccountIDs.isEmpty {
+            BalanceUpdateSignal.send(for: affectedAccountIDs)
         }
     }
 }
