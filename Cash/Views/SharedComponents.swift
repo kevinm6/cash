@@ -328,25 +328,25 @@ struct IconPickerView: View {
             case .all:
                 return IconCategory.allCases.filter { $0 != .all }.flatMap { $0.icons }
             case .finance:
-                return ["dollarsign.circle", "creditcard", "banknote", "chart.line.uptrend.xyaxis", "chart.pie", "percent", "chart.bar", "bitcoinsign.circle"]
+                return ["dollarsign.circle.fill", "creditcard.fill", "banknote.fill", "chart.line.uptrend.xyaxis", "chart.pie.fill", "percent", "chart.bar.fill", "bitcoinsign.circle.fill"]
             case .shopping:
-                return ["bag", "cart", "basket", "giftcard", "tag", "storefront", "shippingbox"]
+                return ["bag.fill", "cart.fill", "basket.fill", "giftcard.fill", "tag.fill", "storefront.fill", "shippingbox.fill"]
             case .food:
-                return ["fork.knife", "cup.and.saucer", "mug", "wineglass", "birthday.cake", "takeoutbag.and.cup.and.straw", "popcorn"]
+                return ["fork.knife", "cup.and.saucer.fill", "mug.fill", "wineglass.fill", "birthday.cake.fill", "takeoutbag.and.cup.and.straw.fill", "popcorn.fill"]
             case .transportation:
-                return ["car", "bus", "tram", "bicycle", "scooter", "fuelpump", "parkingsign", "ev.charger"]
+                return ["car.fill", "bus.fill", "tram.fill", "bicycle", "scooter", "fuelpump.fill", "parkingsign", "bolt.car.fill"]
             case .home:
-                return ["house", "lightbulb", "fanblades", "washer", "toilet", "bed.double", "sofa", "lamp.table"]
+                return ["house.fill", "lightbulb.fill", "fan.fill", "washer.fill", "toilet.fill", "bed.double.fill", "sofa.fill", "lamp.table.fill"]
             case .health:
-                return ["heart", "figure.walk", "figure.run", "dumbbell", "cross.case", "pills", "syringe", "stethoscope"]
+                return ["heart.fill", "figure.walk", "figure.run", "dumbbell.fill", "cross.case.fill", "pills.fill", "syringe.fill", "stethoscope"]
             case .entertainment:
-                return ["tv", "film", "music.note", "gamecontroller", "sportscourt", "theatermasks", "ticket", "party.popper"]
+                return ["tv.fill", "film.fill", "music.note", "gamecontroller.fill", "sportscourt.fill", "theatermasks.fill", "ticket.fill", "party.popper.fill"]
             case .work:
-                return ["briefcase", "laptopcomputer", "book", "graduationcap", "pencil", "folder", "doc.text", "calendar"]
+                return ["briefcase.fill", "laptopcomputer", "book.fill", "graduationcap.fill", "pencil", "folder.fill", "doc.text.fill", "calendar"]
             case .travel:
-                return ["airplane", "suitcase.rolling", "globe", "map", "location", "camera", "bed.double", "tent"]
+                return ["airplane", "suitcase.rolling.fill", "globe", "map.fill", "location.fill", "camera.fill", "building.2.fill", "tent.fill"]
             case .other:
-                return ["questionmark.circle", "ellipsis.circle", "circle", "square", "triangle", "star", "heart", "flag"]
+                return ["questionmark.circle.fill", "ellipsis.circle.fill", "circle.fill", "square.fill", "triangle.fill", "star.fill", "heart.fill", "flag.fill"]
             }
         }
     }
@@ -362,52 +362,63 @@ struct IconPickerView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Search bar
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.secondary)
-                    TextField("Search icons", text: $searchText)
-                        .textFieldStyle(.plain)
-                }
-                .padding(8)
-                .background(.quaternary.opacity(0.5))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .padding()
-                
-                // Category picker
-                Picker("Category", selection: $selectedCategory) {
-                    ForEach(IconCategory.allCases) { category in
-                        Text(category.rawValue).tag(category)
+                // Search and category in compact header
+                VStack(spacing: 8) {
+                    // Search bar
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                            .font(.body)
+                        TextField("Search icons", text: $searchText)
+                            .textFieldStyle(.plain)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.quaternary.opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    
+                    // Category picker as menu
+                    HStack {
+                        Text("Category:")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        
+                        Picker("", selection: $selectedCategory) {
+                            ForEach(IconCategory.allCases) { category in
+                                Text(category.rawValue).tag(category)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                .pickerStyle(.segmented)
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(.regularMaterial)
                 
-                // Icons grid
+                Divider()
+                
+                // Icons grid with tighter spacing
                 ScrollView {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 6), spacing: 12) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(70), spacing: 0), count: 8), spacing: 0) {
                         ForEach(filteredIcons, id: \.self) { iconName in
                             Button {
                                 selectedIcon = iconName
                                 dismiss()
                             } label: {
-                                VStack(spacing: 4) {
-                                    Image(systemName: iconName)
-                                        .font(.title2)
-                                        .frame(width: 44, height: 44)
-                                        .background(selectedIcon == iconName ? Color.accentColor.opacity(0.2) : Color.clear)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    
-                                    Text(iconName.split(separator: ".").first?.capitalized ?? iconName)
-                                        .font(.caption2)
-                                        .lineLimit(1)
-                                }
-                                .frame(maxWidth: .infinity)
+                                Image(systemName: iconName)
+                                    .font(.title3)
+                                    .frame(width: 70, height: 60)
+                                    .background(selectedIcon == iconName ? Color.accentColor.opacity(0.2) : Color.clear)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .help(iconName)
                         }
                     }
-                    .padding()
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
                 }
             }
             .navigationTitle("Choose Icon")
