@@ -2155,3 +2155,114 @@ struct DataExporterErrorTests {
         #expect(DataExporterError.importFailed("test").errorDescription?.contains("test") == true)
     }
 }
+
+// MARK: - ETF Tests
+
+@MainActor
+struct ETFTests {
+    
+    @Test func etfQuoteJSONParsing() async throws {
+        let jsonString = """
+        {
+            "latestQuote": {"raw": 111.40, "localized": "111.40"},
+            "latestQuoteDate": "2025-12-26",
+            "previousQuote": {"raw": 111.40, "localized": "111.40"},
+            "previousQuoteDate": "2025-12-25",
+            "dtdPrc": {"raw": 0.00, "localized": "0.00"},
+            "dtdAmt": {"raw": 0.00, "localized": "0.00"},
+            "quoteTradingVenue": "XETRA",
+            "quoteLowHigh": {
+                "low": {"raw": 86.59, "localized": "86.59"},
+                "high": {"raw": 112.12, "localized": "112.12"}
+            }
+        }
+        """
+        
+        let jsonData = jsonString.data(using: .utf8)!
+        let decoder = JSONDecoder()
+        let quote = try decoder.decode(ETFQuote.self, from: jsonData)
+        
+        #expect(await quote.latestQuote.raw == 111.40)
+        #expect(await quote.latestQuote.localized == "111.40")
+        #expect(await quote.latestQuoteDate == "2025-12-26")
+        #expect(await quote.previousQuote?.raw == 111.40)
+        #expect(await quote.dtdAmt?.raw == 0.00)
+        #expect(await quote.quoteTradingVenue == "XETRA")
+        #expect(await quote.quoteLowHigh?.low.raw == 86.59)
+        #expect(await quote.quoteLowHigh?.high.raw == 112.12)
+    }
+    
+    @Test func etfQuoteDateParsing() async throws {
+        let jsonString = """
+        {
+            "latestQuote": {"raw": 100.0, "localized": "100.0"},
+            "latestQuoteDate": "2025-12-26",
+            "previousQuote": {"raw": 99.0, "localized": "99.0"},
+            "previousQuoteDate": "2025-12-25"
+        }
+        """
+        
+        let jsonData = jsonString.data(using: .utf8)!
+        let decoder = JSONDecoder()
+        let quote = try decoder.decode(ETFQuote.self, from: jsonData)
+        
+        let latestDate = await quote.latestQuoteDateComponents
+        #expect(latestDate?.year == 2025)
+        #expect(latestDate?.month == 12)
+        #expect(latestDate?.day == 26)
+        
+        let previousDate = await quote.previousQuoteDateComponents
+        #expect(previousDate?.year == 2025)
+        #expect(previousDate?.month == 12)
+        #expect(previousDate?.day == 25)
+    }
+    
+    @Test func etfQuoteMinimalParsing() async throws {
+        let jsonString = """
+        {
+            "latestQuote": {"raw": 50.0, "localized": "50.00"},
+            "latestQuoteDate": "2025-01-01"
+        }
+        """
+        
+        let jsonData = jsonString.data(using: .utf8)!
+        let decoder = JSONDecoder()
+        let quote = try decoder.decode(ETFQuote.self, from: jsonData)
+        
+        #expect(await quote.latestQuote.raw == 50.0)
+        #expect(await quote.latestQuoteDate == "2025-01-01")
+        #expect(await quote.previousQuote == nil)
+        #expect(await quote.dtdAmt == nil)
+        #expect(await quote.quoteTradingVenue == nil)
+        #expect(await quote.quoteLowHigh == nil)
+    }
+    
+    @Test func etfQuoteInvalidJSON() async throws {
+        let invalidJsonString = """
+        {
+            "latestQuote": {"raw": "invalid", "localized": "100.0"},
+            "latestQuoteDate": "2025-12-26"
+        }
+        """
+        
+        let jsonData = invalidJsonString.data(using: .utf8)!
+        let decoder = JSONDecoder()
+        
+        do {
+            _ = try decoder.decode(ETFQuote.self, from: jsonData)
+            #expect(Bool(false), "Should have thrown an error for invalid decimal")
+        } catch {
+            #expect(error is DecodingError)
+        }
+    }
+    
+    @Test func etfAPIHelperURLConstruction() async throws {
+        _ = ETFAPIHelper.shared
+        
+        // Test URL construction (we can't easily test the network call without mocking)
+        // But we can test the locale helper
+        let locale = ETFAPIHelper.getUserLocale()
+        #expect(!locale.isEmpty)
+        #expect(locale.count >= 2) // At least language code
+    }
+}
