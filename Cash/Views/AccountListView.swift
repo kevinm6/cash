@@ -111,7 +111,7 @@ struct AccountListView: View {
                 }
             }
             .listStyle(.sidebar)
-            .navigationTitle("Chart of accounts")
+            .navigationTitle(String(localized: "Cash"))
             .navigationSplitViewColumnWidth(min: 300, ideal: 300, max: 300)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
@@ -130,6 +130,14 @@ struct AccountListView: View {
                         )
                     }
                     .help(settings.privacyMode ? "Show amounts" : "Hide amounts")
+                    
+                    #if os(iOS)
+                    Button {
+                        NotificationCenter.default.post(name: .showSettings, object: nil)
+                    } label: {
+                        Label(String(localized: "Settings"), systemImage: "gear")
+                    }
+                    #endif
                 }
             }
             .safeAreaInset(edge: .bottom) {

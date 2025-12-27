@@ -4471,6 +4471,7 @@
       }
     },
     "Chart of accounts" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

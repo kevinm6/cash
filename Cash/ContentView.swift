@@ -53,7 +53,7 @@ struct ContentView: View {
                 SettingsView(appState: appState, dismissSettings: { showingSettings = false })
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") {
+                            Button(String(localized: "Done")) {
                                 showingSettings = false
                             }
                         }
