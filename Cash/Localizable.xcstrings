@@ -3106,6 +3106,9 @@
         }
       }
     },
+    "Available formats" : {
+
+    },
     "Available:" : {
       "localizations" : {
         "de" : {
@@ -3595,6 +3598,7 @@
       }
     },
     "Bank format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4534,6 +4538,7 @@
       }
     },
     "Choose export format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4588,6 +4593,9 @@
           }
         }
       }
+    },
+    "Choose the format for exporting your financial data. JSON is recommended for full backup and restore, while OFX is the standard bank format for importing into other applications." : {
+
     },
     "Choose your preferences" : {
       "localizations" : {
@@ -4784,6 +4792,9 @@
           }
         }
       }
+    },
+    "Complete backup of all your accounts, transactions, and settings. Perfect for restoring your data or migrating to another device." : {
+
     },
     "Confirm Payoff" : {
       "localizations" : {
@@ -8508,6 +8519,7 @@
       }
     },
     "Full backup" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -10524,6 +10536,7 @@
       }
     },
     "JSON is recommended for full backup and restore. OFX is the standard bank format for importing into other apps." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -17938,6 +17951,9 @@
           }
         }
       }
+    },
+    "Standard banking format compatible with most financial software. Contains transaction data only." : {
+
     },
     "Start date" : {
       "localizations" : {

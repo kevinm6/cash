@@ -18,6 +18,26 @@ import UniformTypeIdentifiers
 import CloudKit
 #endif
 
+// MARK: - Bundle Extension for App Icon
+
+extension Bundle {
+    #if os(iOS)
+    var icon: UIImage? {
+        if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
+           let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+           let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+           let lastIcon = iconFiles.last {
+            return UIImage(named: lastIcon)
+        }
+        return nil
+    }
+    #else
+    var icon: NSImage? {
+        return NSWorkspace.shared.icon(forFile: bundlePath)
+    }
+    #endif
+}
+
 // MARK: - Settings Tab
 
 enum SettingsTab: String, CaseIterable, Identifiable {
@@ -578,8 +598,8 @@ struct AboutSettingsTabContent: View {
     private var iosAppInfoSection: some View {
         Section {
             VStack(spacing: 12) {
-                if let appIcon = Bundle.main.icon {
-                    Image(uiImage: appIcon)
+                if let icon = Bundle.main.icon {
+                    Image(uiImage: icon)
                         .resizable()
                         .frame(width: 64, height: 64)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -587,6 +607,7 @@ struct AboutSettingsTabContent: View {
                     Image(systemName: "app.fill")
                         .resizable()
                         .frame(width: 64, height: 64)
+                        .foregroundStyle(.blue)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 
@@ -624,7 +645,7 @@ struct AboutSettingsTabContent: View {
     private var macAppInfoSection: some View {
         Section {
             VStack(spacing: 16) {
-                Image("AppIcon")
+                Image(nsImage: NSWorkspace.shared.icon(forFile: Bundle.main.bundlePath))
                     .resizable()
                     .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -728,60 +749,68 @@ struct ExportFormatPickerView: View {
     let onSelect: (ExportFormat) -> Void
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text(String(localized: "Choose export format"))
-                .font(.headline)
-            
-            Text(String(localized: "JSON is recommended for full backup and restore. OFX is the standard bank format for importing into other apps."))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            
-            HStack(spacing: 16) {
-                ForEach(ExportFormat.allCases) { format in
-                    Button {
-                        dismiss()
-                        onSelect(format)
-                    } label: {
-                        VStack(spacing: 8) {
-                            Image(systemName: format.iconName)
-                                .font(.largeTitle)
-                            Text(format.localizedName)
-                                .font(.headline)
-                            Text(format == .cashBackup ? String(localized: "Full backup") : String(localized: "Bank format"))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+        NavigationStack {
+            List {
+                Section {
+                    Text(String(localized: "Choose the format for exporting your financial data. JSON is recommended for full backup and restore, while OFX is the standard bank format for importing into other applications."))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Section(String(localized: "Available formats")) {
+                    ForEach(ExportFormat.allCases) { format in
+                        Button {
+                            dismiss()
+                            onSelect(format)
+                        } label: {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(format == .cashBackup ? Color.blue.opacity(0.1) : Color.green.opacity(0.1))
+                                        .frame(width: 48, height: 48)
+                                    
+                                    Image(systemName: format.iconName)
+                                        .font(.title2)
+                                        .foregroundStyle(format == .cashBackup ? .blue : .green)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(format.localizedName)
+                                        .font(.headline)
+                                    
+                                    Text(format.description)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .contentShape(Rectangle())
                         }
-                        .frame(width: 120, height: 100)
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                     }
-                    .buttonStyle(.bordered)
                 }
             }
-            
-            Button(String(localized: "Cancel")) {
-                dismiss()
+            .navigationTitle(String(localized: "Export data"))
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "Cancel")) {
+                        dismiss()
+                    }
+                }
             }
-            .buttonStyle(.plain)
         }
-        #if os(iOS)
-        .padding(20)
-        #else
-        .padding(30)
-        #endif
-        .frame(maxWidth: 340)
+        .presentationDetents([.medium])
     }
 }
 
-// MARK: - Bundle Extension
 
-extension Bundle {
-    var icon: UIImage? {
-        if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
-           let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
-           let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
-           let lastIcon = iconFiles.last {
-            return UIImage(named: lastIcon)
-        }
-        return nil
-    }
-}
