@@ -63,7 +63,7 @@ struct ReportsView: View {
                 Spacer()
                 Picker("Report type", selection: $selectedReport) {
                     ForEach(ReportType.allCases) { report in
-                        Label(report.localizedName, systemImage: report.iconName)
+                        Text(report.localizedName)
                             .tag(report)
                     }
                 }

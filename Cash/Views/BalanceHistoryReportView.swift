@@ -117,6 +117,30 @@ struct BalanceHistoryReportView: View {
         VStack(spacing: 0) {
             // Period picker
             HStack {
+                #if os(iOS)
+                if UIDevice.current.userInterfaceIdiom == .phone {
+                    Picker(selection: $selectedPeriod) {
+                        ForEach(HistoryPeriod.allCases) { period in
+                            Text(period.localizedName).tag(period)
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                } else {
+                    Picker(selection: $selectedPeriod) {
+                        ForEach(HistoryPeriod.allCases) { period in
+                            Text(period.localizedName).tag(period)
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(maxWidth: 400)
+                }
+                #else
                 Picker(selection: $selectedPeriod) {
                     ForEach(HistoryPeriod.allCases) { period in
                         Text(period.localizedName).tag(period)
@@ -127,6 +151,7 @@ struct BalanceHistoryReportView: View {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .frame(maxWidth: 400)
+                #endif
                 
                 Spacer()
             }

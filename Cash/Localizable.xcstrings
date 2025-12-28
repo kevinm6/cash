@@ -619,6 +619,16 @@
         }
       }
     },
+    "%lld of %lld selected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld selected"
+          }
+        }
+      }
+    },
     "%lld payments left" : {
       "localizations" : {
         "de" : {
@@ -2352,6 +2362,7 @@
       }
     },
     "All transactions for this account have been reconciled" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2378,6 +2389,9 @@
           }
         }
       }
+    },
+    "All transactions have been reconciled" : {
+
     },
     "Alphabetical" : {
       "localizations" : {
@@ -3515,6 +3529,9 @@
           }
         }
       }
+    },
+    "Balance Summary" : {
+
     },
     "Balanced!" : {
       "localizations" : {
@@ -4655,6 +4672,9 @@
           }
         }
       }
+    },
+    "Clear" : {
+
     },
     "Clear selection" : {
       "localizations" : {
@@ -6321,6 +6341,9 @@
         }
       }
     },
+    "Deselect all" : {
+
+    },
     "Details" : {
       "localizations" : {
         "de" : {
@@ -7028,6 +7051,9 @@
           }
         }
       }
+    },
+    "Ending balance" : {
+
     },
     "English" : {
       "localizations" : {
@@ -18109,6 +18135,9 @@
           }
         }
       }
+    },
+    "Statement Information" : {
+
     },
     "Status" : {
       "localizations" : {

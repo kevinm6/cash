@@ -107,7 +107,14 @@ struct TransactionListView: View {
                     }
                 },
                 onReconcile: canReconcile ? { showingReconciliation = true } : nil,
-                showReconcile: canReconcile
+                showReconcile: canReconcile,
+                showActionButtons: {
+                    #if os(iOS)
+                    return UIDevice.current.userInterfaceIdiom != .phone
+                    #else
+                    return true
+                    #endif
+                }()
             )
             
             Group {
@@ -193,6 +200,29 @@ struct TransactionListView: View {
             }
         }
         .navigationTitle(account?.name ?? String(localized: "All transactions"))
+        #if os(iOS)
+        .toolbar {
+            if UIDevice.current.userInterfaceIdiom == .phone {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        if account?.accountType == .investment {
+                            showingAddInvestmentTransaction = true
+                        } else {
+                            showingAddTransaction = true
+                        }
+                    } label: {
+                        Label("Add", systemImage: "plus")
+                    }
+                    
+                    if canReconcile {
+                        Button(action: { showingReconciliation = true }) {
+                            Label("Reconcile", systemImage: "checkmark.shield")
+                        }
+                    }
+                }
+            }
+        }
+        #endif
         .sheet(isPresented: $showingAddTransaction) {
             AddTransactionView(preselectedAccount: account)
         }
@@ -315,6 +345,7 @@ struct TransactionFilterBar: View {
     var onAddTransaction: (() -> Void)?
     var onReconcile: (() -> Void)?
     var showReconcile: Bool = false
+    var showActionButtons: Bool = true
     
     var body: some View {
         HStack(spacing: 12) {
@@ -347,15 +378,17 @@ struct TransactionFilterBar: View {
                 .fixedSize()
             }
             
-            if let onAdd = onAddTransaction {
-                Button(action: onAdd) {
-                    Label("Add", systemImage: "plus")
+            if showActionButtons {
+                if let onAdd = onAddTransaction {
+                    Button(action: onAdd) {
+                        Label("Add", systemImage: "plus")
+                    }
                 }
-            }
-            
-            if showReconcile, let onReconcileAction = onReconcile {
-                Button(action: onReconcileAction) {
-                    Label("Reconcile", systemImage: "checkmark.shield")
+                
+                if showReconcile, let onReconcileAction = onReconcile {
+                    Button(action: onReconcileAction) {
+                        Label("Reconcile", systemImage: "checkmark.shield")
+                    }
                 }
             }
         }
@@ -419,7 +452,7 @@ struct TransactionRowView: View {
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
     }
 }
 

@@ -197,18 +197,22 @@ struct BudgetView: View {
         .sheet(item: $envelopeForEdit) { envelope in
             EditEnvelopeView(envelope: envelope)
         }
-        .alert("Delete Envelope", isPresented: .init(
-            get: { envelopeToDelete != nil },
-            set: { if !$0 { envelopeToDelete = nil } }
-        )) {
-            Button("Cancel", role: .cancel) {
-                envelopeToDelete = nil
-            }
+        .confirmationDialog(
+            "Delete Envelope",
+            isPresented: .init(
+                get: { envelopeToDelete != nil },
+                set: { if !$0 { envelopeToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
             Button("Delete", role: .destructive) {
                 if let envelope = envelopeToDelete {
                     modelContext.delete(envelope)
                     envelopeToDelete = nil
                 }
+            }
+            Button("Cancel", role: .cancel) {
+                envelopeToDelete = nil
             }
         } message: {
             if let envelope = envelopeToDelete {

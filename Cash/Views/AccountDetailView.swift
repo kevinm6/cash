@@ -27,6 +27,116 @@ struct AccountDetailView: View {
             // Header Card
             VStack(spacing: 12) {
                 // Main header row
+                #if os(iOS)
+                if UIDevice.current.userInterfaceIdiom == .phone {
+                    // Compact vertical layout for iPhone
+                    VStack(spacing: 12) {
+                        HStack {
+                            Image(systemName: account.effectiveIconName)
+                                .font(.title)
+                                .foregroundStyle(.tint)
+                            
+                            Text(account.displayName)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .lineLimit(1)
+                            
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            // Compact info pills
+                            HStack(spacing: 6) {
+                                CompactPill(text: account.accountClass.localizedName)
+                                CompactPill(text: account.accountType.localizedName)
+                                CompactPill(text: account.currency)
+                                
+                                // Investment-specific info
+                                if account.accountType == .investment {
+                                    if let ticker = account.ticker, !ticker.isEmpty {
+                                        CompactPill(text: ticker, isHighlighted: true)
+                                    }
+                                }
+                                
+                                // Account number if present
+                                if !account.accountNumber.isEmpty && account.accountType != .investment {
+                                    CompactPill(text: "#\(account.accountNumber)")
+                                }
+                            }
+                            .font(.caption2)
+                            
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            PrivacyAmountView(
+                                amount: CurrencyFormatter.format(account.balance, currency: account.currency),
+                                isPrivate: settings.privacyMode,
+                                font: .title,
+                                fontWeight: .semibold,
+                                color: balanceColor
+                            )
+                            
+                            Spacer()
+                            
+                            Text(account.accountClass.normalBalance == .debit ? "Normal: debit" : "Normal: credit")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } else {
+                    // Original horizontal layout for iPad
+                    HStack(alignment: .top) {
+                        Image(systemName: account.effectiveIconName)
+                            .font(.title)
+                            .foregroundStyle(.tint)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(account.displayName)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            
+                            // Compact info row with all details
+                            HStack(spacing: 6) {
+                                CompactPill(text: account.accountClass.localizedName)
+                                CompactPill(text: account.accountType.localizedName)
+                                CompactPill(text: account.currency)
+                                
+                                // Investment-specific info
+                                if account.accountType == .investment {
+                                    if let isin = account.isin, !isin.isEmpty {
+                                        CompactPill(text: isin, icon: "number")
+                                    }
+                                    if let ticker = account.ticker, !ticker.isEmpty {
+                                        CompactPill(text: ticker, isHighlighted: true)
+                                    }
+                                }
+                                
+                                // Account number if present
+                                if !account.accountNumber.isEmpty && account.accountType != .investment {
+                                    CompactPill(text: "#\(account.accountNumber)")
+                                }
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        VStack(alignment: .trailing, spacing: 2) {
+                            PrivacyAmountView(
+                                amount: CurrencyFormatter.format(account.balance, currency: account.currency),
+                                isPrivate: settings.privacyMode,
+                                font: .title,
+                                fontWeight: .semibold,
+                                color: balanceColor
+                            )
+                            Text(account.accountClass.normalBalance == .debit ? "Normal: debit" : "Normal: credit")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                #else
+                // macOS layout - same as iPad
                 HStack(alignment: .top) {
                     Image(systemName: account.effectiveIconName)
                         .font(.title)
@@ -75,6 +185,7 @@ struct AccountDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                #endif
                 
                 // Live ETF Quote Box (only if enabled in settings and has ISIN)
                 if settings.showLiveQuotes,

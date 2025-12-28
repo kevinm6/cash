@@ -126,6 +126,30 @@ struct YearOverYearReportView: View {
         VStack(spacing: 0) {
             // Period picker
             HStack {
+                #if os(iOS)
+                if UIDevice.current.userInterfaceIdiom == .phone {
+                    Picker(selection: $selectedPeriod) {
+                        ForEach(ComparisonPeriod.allCases) { period in
+                            Text(period.localizedName).tag(period)
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                } else {
+                    Picker(selection: $selectedPeriod) {
+                        ForEach(ComparisonPeriod.allCases) { period in
+                            Text(period.localizedName).tag(period)
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(maxWidth: 400)
+                }
+                #else
                 Picker(selection: $selectedPeriod) {
                     ForEach(ComparisonPeriod.allCases) { period in
                         Text(period.localizedName).tag(period)
@@ -136,6 +160,7 @@ struct YearOverYearReportView: View {
                 .pickerStyle(.segmented)
                 .labelsHidden()
                 .frame(maxWidth: 400)
+                #endif
                 
                 Spacer()
             }

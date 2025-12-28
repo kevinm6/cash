@@ -53,11 +53,11 @@ struct InfoRow: View {
 
 // MARK: - List Card Component
 
-struct ListCard<Content: View>: View {
-    let header: Content
+struct ListCard<Header: View, Content: View>: View {
+    let header: Header
     let content: Content
     
-    init(@ViewBuilder header: () -> Content, @ViewBuilder content: () -> Content) {
+    init(@ViewBuilder header: () -> Header, @ViewBuilder content: () -> Content) {
         self.header = header()
         self.content = content()
     }

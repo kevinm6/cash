@@ -221,7 +221,11 @@ struct LoanDetailView: View {
             } message: {
                 Text("Enter the new interest rate. This will recalculate future payments.")
             }
-            .alert("Delete Loan", isPresented: $showingDeleteConfirmation) {
+            .confirmationDialog(
+                "Delete Loan",
+                isPresented: $showingDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
                 Button("Delete", role: .destructive) {
                     deleteLoan()
                 }
