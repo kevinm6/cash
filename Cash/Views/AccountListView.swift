@@ -121,9 +121,22 @@ struct AccountListView: View {
             .navigationSplitViewColumnWidth(min: 300, ideal: 300, max: 300)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
+                    #if os(iOS)
+                    Menu {
+                        Button(action: { showingAddAccount = true }) {
+                            Label("Add account", systemImage: "plus")
+                        }
+                        Button(action: { showingAddTransaction = true }) {
+                            Label(String(localized: "Add transaction"), systemImage: "plus.circle")
+                        }
+                    } label: {
+                        Label("Add", systemImage: "plus")
+                    }
+                    #else
                     Button(action: { showingAddAccount = true }) {
                         Label("Add account", systemImage: "plus")
                     }
+                    #endif
                     
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -151,6 +164,9 @@ struct AccountListView: View {
             }
             .sheet(isPresented: $showingAddAccount) {
                 AddAccountView()
+            }
+            .sheet(isPresented: $showingAddTransaction) {
+                AddTransactionView()
             }
             .id(settings.refreshID)
         } detail: {
