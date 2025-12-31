@@ -265,7 +265,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "GIT_HASH=$(/usr/bin/git -C \"${SRCROOT}\" rev-parse --short HEAD)\nGIT_COMMIT_COUNT=$(/usr/bin/git -C \"${SRCROOT}\" rev-list --count HEAD)\n# Set CFBundleVersion to a numeric build number derived from the commit count\nif /usr/libexec/PlistBuddy -c \"Print :CFBundleVersion\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\" &> /dev/null; then\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $GIT_COMMIT_COUNT\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nelse\n  /usr/libexec/PlistBuddy -c \"Add :CFBundleVersion string $GIT_COMMIT_COUNT\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nfi\n# Store the short git hash as a separate key for display in the app\nif /usr/libexec/PlistBuddy -c \"Print :GitShortHash\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\" &> /dev/null; then\n  /usr/libexec/PlistBuddy -c \"Set :GitShortHash $GIT_HASH\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nelse\n  /usr/libexec/PlistBuddy -c \"Add :GitShortHash string $GIT_HASH\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nfi\n";
+			shellScript = "GIT_HASH=$(/usr/bin/git -C \"${SRCROOT}\" rev-parse --short HEAD)\nGIT_COMMIT_COUNT=$(/usr/bin/git -C \"${SRCROOT}\" rev-list --count HEAD)\n# Set CFBundleShortVersionString if PLATFORM_VERSION is set\nif [ -n \"$PLATFORM_VERSION\" ]; then\n  if /usr/libexec/PlistBuddy -c \"Print :CFBundleShortVersionString\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\" &> /dev/null; then\n    /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $PLATFORM_VERSION\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n  else\n    /usr/libexec/PlistBuddy -c \"Add :CFBundleShortVersionString string $PLATFORM_VERSION\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n  fi\nfi\n# Set CFBundleVersion to a numeric build number derived from the commit count\nif /usr/libexec/PlistBuddy -c \"Print :CFBundleVersion\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\" &> /dev/null; then\n  /usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $GIT_COMMIT_COUNT\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nelse\n  /usr/libexec/PlistBuddy -c \"Add :CFBundleVersion string $GIT_COMMIT_COUNT\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nfi\n# Store the short git hash as a separate key for display in the app\nif /usr/libexec/PlistBuddy -c \"Print :GitShortHash\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\" &> /dev/null; then\n  /usr/libexec/PlistBuddy -c \"Set :GitShortHash $GIT_HASH\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nelse\n  /usr/libexec/PlistBuddy -c \"Add :GitShortHash string $GIT_HASH\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -471,7 +471,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thesmokinator.Cash;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -527,7 +527,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.2.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thesmokinator.Cash;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;

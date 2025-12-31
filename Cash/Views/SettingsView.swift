@@ -5,36 +5,36 @@
 //  Created by Michele Broggi on 25/11/25.
 //
 
-import SwiftUI
 import SwiftData
-
-#if os(macOS)
-import AppKit
-#endif
-
+import SwiftUI
 import UniformTypeIdentifiers
 
+#if os(macOS)
+    import AppKit
+#endif
+
 #if ENABLE_ICLOUD
-import CloudKit
+    import CloudKit
 #endif
 
 // MARK: - Bundle Extension for App Icon
 
 extension Bundle {
     #if os(iOS)
-    var icon: UIImage? {
-        if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
-           let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
-           let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
-           let lastIcon = iconFiles.last {
-            return UIImage(named: lastIcon)
+        var icon: UIImage? {
+            if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
+                let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+                let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+                let lastIcon = iconFiles.last
+            {
+                return UIImage(named: lastIcon)
+            }
+            return nil
         }
-        return nil
-    }
     #else
-    var icon: NSImage? {
-        return NSWorkspace.shared.icon(forFile: bundlePath)
-    }
+        var icon: NSImage? {
+            return NSWorkspace.shared.icon(forFile: bundlePath)
+        }
     #endif
 }
 
@@ -44,9 +44,9 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "general"
     case data = "data"
     case about = "about"
-    
+
     var id: String { rawValue }
-    
+
     var labelKey: LocalizedStringKey {
         switch self {
         case .general:
@@ -57,7 +57,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
             return "About"
         }
     }
-    
+
     var iconName: String {
         switch self {
         case .general:
@@ -77,7 +77,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     let appState: AppState
     let dismissSettings: () -> Void
-    
+
     @State private var selectedTab: SettingsTab = .general
     @State private var showingFirstResetAlert = false
     @State private var showingSecondResetAlert = false
@@ -92,68 +92,68 @@ struct SettingsView: View {
     @State private var exportData: Data?
     @State private var exportFilename = ""
     @State private var showingFileExporter = false
-    
+
     @Query private var accounts: [Account]
     @Query private var transactions: [Transaction]
-    
+
     #if os(iOS)
-    private var iosBody: some View {
-        NavigationStack {
-            List {
-                GeneralSettingsTabContent()
-                DataSettingsTabContent(
-                    showingExportFormatPicker: $showingExportFormatPicker,
-                    showingImportConfirmation: $showingImportConfirmation,
-                    showingFirstResetAlert: $showingFirstResetAlert
-                )
-                AboutSettingsTabContent()
-            }
-            .navigationTitle(String(localized: "Settings"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(String(localized: "Close")) {
-                        dismissSettings()
+        private var iosBody: some View {
+            NavigationStack {
+                List {
+                    GeneralSettingsTabContent()
+                    DataSettingsTabContent(
+                        showingExportFormatPicker: $showingExportFormatPicker,
+                        showingImportConfirmation: $showingImportConfirmation,
+                        showingFirstResetAlert: $showingFirstResetAlert
+                    )
+                    AboutSettingsTabContent()
+                }
+                .navigationTitle(String(localized: "Settings"))
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(String(localized: "Close")) {
+                            dismissSettings()
+                        }
                     }
                 }
             }
         }
-    }
     #endif
-    
+
     #if os(macOS)
-    private var macBody: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Tab Bar with icons
-                tabBar
-                
-                Divider()
-                
-                // Content
-                tabContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .navigationTitle(String(localized: "Settings"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(String(localized: "Close")) {
-                        dismissSettings()
+        private var macBody: some View {
+            NavigationStack {
+                VStack(spacing: 0) {
+                    // Tab Bar with icons
+                    tabBar
+
+                    Divider()
+
+                    // Content
+                    tabContent
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .navigationTitle(String(localized: "Settings"))
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(String(localized: "Close")) {
+                            dismissSettings()
+                        }
                     }
                 }
             }
+            .frame(width: 580, height: 520)
         }
-        .frame(width: 580, height: 520)
-    }
     #endif
-    
+
     private var mainView: some View {
         #if os(iOS)
-        iosBody
+            iosBody
         #else
-        macBody
+            macBody
         #endif
     }
-    
+
     private func applyOverlaysAndAlerts(to view: some View) -> some View {
         view
             .id(settings.refreshID)
@@ -163,15 +163,21 @@ struct SettingsView: View {
                 }
             }
             .alert(String(localized: "Reset all data?"), isPresented: $showingFirstResetAlert) {
-                Button(String(localized: "Cancel"), role: .cancel) { }
+                Button(String(localized: "Cancel"), role: .cancel) {}
                 Button(String(localized: "Continue"), role: .destructive) {
                     showingSecondResetAlert = true
                 }
             } message: {
-                Text(String(localized: "This will permanently delete all your accounts and transactions. This action cannot be undone."))
+                Text(
+                    String(
+                        localized:
+                            "This will permanently delete all your accounts and transactions. This action cannot be undone."
+                    ))
             }
-            .alert(String(localized: "Are you absolutely sure?"), isPresented: $showingSecondResetAlert) {
-                Button(String(localized: "Cancel"), role: .cancel) { }
+            .alert(
+                String(localized: "Are you absolutely sure?"), isPresented: $showingSecondResetAlert
+            ) {
+                Button(String(localized: "Cancel"), role: .cancel) {}
                 Button(String(localized: "Delete everything"), role: .destructive) {
                     resetAllData()
                 }
@@ -184,12 +190,16 @@ struct SettingsView: View {
                 }
             }
             .alert(String(localized: "Import data?"), isPresented: $showingImportConfirmation) {
-                Button(String(localized: "Cancel"), role: .cancel) { }
+                Button(String(localized: "Cancel"), role: .cancel) {}
                 Button(String(localized: "Continue")) {
                     showingImportFilePicker = true
                 }
             } message: {
-                Text(String(localized: "Importing will replace all existing data. Make sure to export your current data first if needed."))
+                Text(
+                    String(
+                        localized:
+                            "Importing will replace all existing data. Make sure to export your current data first if needed."
+                    ))
             }
             .fileImporter(
                 isPresented: $showingImportFilePicker,
@@ -199,17 +209,21 @@ struct SettingsView: View {
                 handleImport(result: result)
             }
             .alert(String(localized: "Export successful"), isPresented: $showingExportSuccess) {
-                Button(String(localized: "OK"), role: .cancel) { }
+                Button(String(localized: "OK"), role: .cancel) {}
             } message: {
                 Text(String(localized: "Your data has been exported successfully."))
             }
             .alert(String(localized: "Import successful"), isPresented: $showingImportSuccess) {
-                Button(String(localized: "OK"), role: .cancel) { }
+                Button(String(localized: "OK"), role: .cancel) {}
             } message: {
-                Text(String(localized: "Imported \(importResult.accountsCount) accounts and \(importResult.transactionsCount) transactions."))
+                Text(
+                    String(
+                        localized:
+                            "Imported \(importResult.accountsCount) accounts and \(importResult.transactionsCount) transactions."
+                    ))
             }
             .alert(String(localized: "Error"), isPresented: $showingError) {
-                Button(String(localized: "OK"), role: .cancel) { }
+                Button(String(localized: "OK"), role: .cancel) {}
             } message: {
                 Text(errorMessage)
             }
@@ -228,13 +242,13 @@ struct SettingsView: View {
                 }
             }
     }
-    
+
     var body: some View {
         applyOverlaysAndAlerts(to: mainView)
     }
-    
+
     // MARK: - Tab Bar
-    
+
     private var tabBar: some View {
         HStack(spacing: 0) {
             ForEach(SettingsTab.allCases) { tab in
@@ -245,7 +259,7 @@ struct SettingsView: View {
         .padding(.vertical, 12)
         .background(Color.platformWindowBackground)
     }
-    
+
     private func tabButton(for tab: SettingsTab) -> some View {
         Button {
             withAnimation(.easeInOut(duration: 0.15)) {
@@ -270,9 +284,9 @@ struct SettingsView: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     // MARK: - Tab Content
-    
+
     @ViewBuilder
     private var tabContent: some View {
         Form {
@@ -291,78 +305,80 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
     }
-    
+
     // MARK: - Export
-    
+
     private func exportData(format: ExportFormat) {
         do {
             let data: Data
-            
+
             switch format {
             case .cashBackup:
-                data = try DataExporter.exportCashBackup(accounts: accounts, transactions: transactions)
+                data = try DataExporter.exportCashBackup(
+                    accounts: accounts, transactions: transactions)
             case .ofx:
                 data = try DataExporter.exportOFX(accounts: accounts, transactions: transactions)
             }
-            
+
             let filename = DataExporter.generateFilename(for: format)
-            
+
             #if os(macOS)
-            let savePanel = NSSavePanel()
-            savePanel.nameFieldStringValue = filename
-            savePanel.canCreateDirectories = true
-            
-            savePanel.begin { response in
-                if response == .OK, let url = savePanel.url {
-                    do {
-                        try data.write(to: url)
-                        showingExportSuccess = true
-                    } catch {
-                        errorMessage = error.localizedDescription
-                        showingError = true
+                let savePanel = NSSavePanel()
+                savePanel.nameFieldStringValue = filename
+                savePanel.canCreateDirectories = true
+
+                savePanel.begin { response in
+                    if response == .OK, let url = savePanel.url {
+                        do {
+                            try data.write(to: url)
+                            showingExportSuccess = true
+                        } catch {
+                            errorMessage = error.localizedDescription
+                            showingError = true
+                        }
                     }
                 }
-            }
             #else
-            // iOS: prepare data for file exporter
-            self.exportData = data
-            self.exportFilename = filename
-            self.showingFileExporter = true
+                // iOS: prepare data for file exporter
+                self.exportData = data
+                self.exportFilename = filename
+                self.showingFileExporter = true
             #endif
         } catch {
             errorMessage = error.localizedDescription
             showingError = true
         }
     }
-    
+
     // MARK: - Import
-    
+
     private func handleImport(result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            
+
             guard url.startAccessingSecurityScopedResource() else {
                 errorMessage = "Cannot access the selected file"
                 showingError = true
                 return
             }
-            
+
             appState.isLoading = true
             appState.loadingMessage = String(localized: "Importing data...")
-            
+
             Task.detached(priority: .userInitiated) {
                 do {
                     let data = try Data(contentsOf: url)
                     url.stopAccessingSecurityScopedResource()
-                    
+
                     await MainActor.run {
                         // Delete existing data first
                         deleteAllData()
-                        
+
                         do {
-                            let result = try DataExporter.importCashBackup(from: data, into: modelContext)
-                            
+                            let result = try DataExporter.importCashBackup(
+                                from: data, into: modelContext)
+
                             importResult = result
                             appState.isLoading = false
                             showingImportSuccess = true
@@ -381,59 +397,64 @@ struct SettingsView: View {
                     }
                 }
             }
-            
+
         case .failure(let error):
             errorMessage = error.localizedDescription
             showingError = true
         }
     }
-    
+
     private func deleteAllData() {
         let attachments = (try? modelContext.fetch(FetchDescriptor<Attachment>())) ?? []
         for attachment in attachments { modelContext.delete(attachment) }
-        
+
         let rules = (try? modelContext.fetch(FetchDescriptor<RecurrenceRule>())) ?? []
         for rule in rules { modelContext.delete(rule) }
-        
+
         let entries = (try? modelContext.fetch(FetchDescriptor<Entry>())) ?? []
         for entry in entries { modelContext.delete(entry) }
-        
+
         let txns = (try? modelContext.fetch(FetchDescriptor<Transaction>())) ?? []
         for txn in txns { modelContext.delete(txn) }
-        
+
         let accts = (try? modelContext.fetch(FetchDescriptor<Account>())) ?? []
         for acct in accts { modelContext.delete(acct) }
-        
+
         let budgets = (try? modelContext.fetch(FetchDescriptor<Budget>())) ?? []
         for budget in budgets { modelContext.delete(budget) }
-        
+
         let loans = (try? modelContext.fetch(FetchDescriptor<Loan>())) ?? []
         for loan in loans { modelContext.delete(loan) }
     }
-    
+
     // MARK: - Reset
-    
+
     private func resetAllData() {
         dismissSettings()
-        
+
         appState.isLoading = true
         appState.loadingMessage = String(localized: "Erasing data...")
-        
+
         Task {
             try? await Task.sleep(nanoseconds: 300_000_000)
-            
-            await MainActor.run {
-                deleteAllData()
-                AppConfiguration.markSetupNeeded(in: modelContext)
-                
-                do {
-                    try modelContext.save()
-                } catch {
-                    print("Error saving after delete: \(error)")
+
+            // Perform data deletion in background to avoid blocking UI
+            Task.detached(priority: .background) {
+                await deleteAllData()
+
+                // Update UI and save on main thread
+                await MainActor.run {
+                    AppConfiguration.markSetupNeeded(in: modelContext)
+
+                    do {
+                        try modelContext.save()
+                    } catch {
+                        print("Error saving after delete: \(error)")
+                    }
+
+                    appState.isLoading = false
+                    AppState.requestShowWelcome()
                 }
-                
-                appState.isLoading = false
-                AppState.requestShowWelcome()
             }
         }
     }
@@ -444,10 +465,10 @@ struct SettingsView: View {
 struct GeneralSettingsTabContent: View {
     @Environment(AppSettings.self) private var settings
     @State private var showingRestartAlert = false
-    
+
     var body: some View {
         @Bindable var settings = settings
-        
+
         Section("Appearance") {
             Picker("Theme", selection: $settings.theme) {
                 ForEach(AppTheme.allCases) { theme in
@@ -455,9 +476,11 @@ struct GeneralSettingsTabContent: View {
                 }
             }
             .pickerStyle(.menu)
-            
+
             Picker("Language", selection: $settings.language) {
-                let languagesOrder: [AppLanguage] = [.system, .english, .italian, .spanish, .french, .german]
+                let languagesOrder: [AppLanguage] = [
+                    .system, .english, .italian, .spanish, .french, .german,
+                ]
                 ForEach(languagesOrder) { language in
                     Text(language.labelKey).tag(language)
                 }
@@ -469,13 +492,15 @@ struct GeneralSettingsTabContent: View {
                 }
             }
         }
-        
+
         Section {
             Toggle("Show live ETF quotes", isOn: $settings.showLiveQuotes)
         } header: {
             Text("Investments")
         } footer: {
-            Text("When enabled, displays real-time price quotes for investment accounts with an ISIN code. This setting syncs across your devices via iCloud.")
+            Text(
+                "When enabled, displays real-time price quotes for investment accounts with an ISIN code. This setting syncs across your devices via iCloud."
+            )
         }
         .alert("Restart required", isPresented: $showingRestartAlert) {
             Button("Later") {
@@ -497,87 +522,93 @@ struct DataSettingsTabContent: View {
     @Binding var showingExportFormatPicker: Bool
     @Binding var showingImportConfirmation: Bool
     @Binding var showingFirstResetAlert: Bool
-    
+
     #if ENABLE_ICLOUD
-    @State private var cloudManager = CloudKitManager.shared
-    @State private var showingRestartAlert = false
-    
-    private var hasICloudAccount: Bool {
-        FileManager.default.ubiquityIdentityToken != nil
-    }
+        @State private var cloudManager = CloudKitManager.shared
+        @State private var showingRestartAlert = false
+
+        private var hasICloudAccount: Bool {
+            FileManager.default.ubiquityIdentityToken != nil
+        }
     #endif
-    
+
     var body: some View {
         #if ENABLE_ICLOUD
-        // iCloud Sync Section
-        Section {
-            Toggle("Enable iCloud sync", isOn: Binding(
-                get: { cloudManager.isEnabled },
-                set: { newValue in
-                    cloudManager.isEnabled = newValue
-                    if cloudManager.needsRestart {
-                        showingRestartAlert = true
+            // iCloud Sync Section
+            Section {
+                Toggle(
+                    "Enable iCloud sync",
+                    isOn: Binding(
+                        get: { cloudManager.isEnabled },
+                        set: { newValue in
+                            cloudManager.isEnabled = newValue
+                            if cloudManager.needsRestart {
+                                showingRestartAlert = true
+                            }
+                        }
+                    )
+                )
+                .disabled(!cloudManager.isAvailable)
+
+                if cloudManager.isEnabled {
+                    LabeledContent("Status") {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(
+                                    cloudManager.accountStatus == .available
+                                        ? Color.green : Color.orange
+                                )
+                                .frame(width: 8, height: 8)
+                            Text(cloudManager.accountStatusDescription)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    LabeledContent("Storage used") {
+                        if cloudManager.isLoadingStorage {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                        } else {
+                            Text(cloudManager.formattedStorageUsed)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
-            ))
-            .disabled(!cloudManager.isAvailable)
-            
-            if cloudManager.isEnabled {
-                LabeledContent("Status") {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(cloudManager.accountStatus == .available ? Color.green : Color.orange)
-                            .frame(width: 8, height: 8)
-                        Text(cloudManager.accountStatusDescription)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                
-                LabeledContent("Storage used") {
-                    if cloudManager.isLoadingStorage {
-                        ProgressView()
-                            .scaleEffect(0.7)
-                    } else {
-                        Text(cloudManager.formattedStorageUsed)
-                            .foregroundStyle(.secondary)
-                    }
+            } header: {
+                Text("iCloud Sync")
+            } footer: {
+                if !hasICloudAccount {
+                    Text("Sign in to iCloud in System Settings to enable sync.")
+                } else {
+                    Text("Sync your data across all your devices.")
                 }
             }
-        } header: {
-            Text("iCloud Sync")
-        } footer: {
-            if !hasICloudAccount {
-                Text("Sign in to iCloud in System Settings to enable sync.")
-            } else {
-                Text("Sync your data across all your devices.")
+            .onAppear {
+                Task {
+                    await cloudManager.checkAccountStatus()
+                    await cloudManager.fetchStorageUsed()
+                }
             }
-        }
-        .onAppear {
-            Task {
-                await cloudManager.checkAccountStatus()
-                await cloudManager.fetchStorageUsed()
+            .alert("Restart required", isPresented: $showingRestartAlert) {
+                Button("Later") {
+                    cloudManager.needsRestart = false
+                }
+                Button("Restart now") {
+                    cloudManager.needsRestart = false
+                    AppSettings.shared.restartApp()
+                }
+            } message: {
+                Text("The app needs to restart to apply iCloud changes.")
             }
-        }
-        .alert("Restart required", isPresented: $showingRestartAlert) {
-            Button("Later") {
-                cloudManager.needsRestart = false
-            }
-            Button("Restart now") {
-                cloudManager.needsRestart = false
-                AppSettings.shared.restartApp()
-            }
-        } message: {
-            Text("The app needs to restart to apply iCloud changes.")
-        }
         #endif
-        
+
         Section {
             Button {
                 showingExportFormatPicker = true
             } label: {
                 Label("Export data", systemImage: "square.and.arrow.up")
             }
-            
+
             Button {
                 showingImportConfirmation = true
             } label: {
@@ -586,9 +617,11 @@ struct DataSettingsTabContent: View {
         } header: {
             Text("Export / Import")
         } footer: {
-            Text("Export your data as JSON (full backup) or OFX (standard bank format). Import will replace all existing data.")
+            Text(
+                "Export your data as JSON (full backup) or OFX (standard bank format). Import will replace all existing data."
+            )
         }
-        
+
         Section {
             Button(role: .destructive) {
                 showingFirstResetAlert = true
@@ -607,110 +640,123 @@ struct DataSettingsTabContent: View {
 
 struct AboutSettingsTabContent: View {
     @State private var showingLicense = false
-    
+
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     }
-    
+
     #if os(iOS)
-    private var iosAppInfoSection: some View {
-        Section {
-            VStack(spacing: 12) {
-                if let icon = Bundle.main.icon {
-                    Image(uiImage: icon)
-                        .resizable()
-                        .frame(width: 64, height: 64)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                } else {
-                    Image(systemName: "app.fill")
-                        .resizable()
-                        .frame(width: 64, height: 64)
-                        .foregroundStyle(.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-                
-                VStack(spacing: 4) {
-                    Text(String(localized: "Cash"))
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    
-                    Text("Version \(appVersion)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Text(String(localized: "A personal finance management application inspired by Gnucash, built with SwiftUI and SwiftData."))
+        private var iosAppInfoSection: some View {
+            Section {
+                VStack(spacing: 12) {
+                    if let icon = Bundle.main.icon {
+                        Image(uiImage: icon)
+                            .resizable()
+                            .frame(width: 64, height: 64)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    } else {
+                        Image(systemName: "app.fill")
+                            .resizable()
+                            .frame(width: 64, height: 64)
+                            .foregroundStyle(.blue)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+
+                    VStack(spacing: 4) {
+                        Text(String(localized: "Cash"))
+                            .font(.title2)
+                            .fontWeight(.semibold)
+
+                        Text("Version \(appVersion)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(
+                        String(
+                            localized:
+                                "A personal finance management application inspired by Gnucash, built with SwiftUI and SwiftData."
+                        )
+                    )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                
-                Button {
-                    showingLicense = true
-                } label: {
-                    Text(String(localized: "© 2025 Michele Broggi"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+
+                    Button {
+                        showingLicense = true
+                    } label: {
+                        Text(String(localized: "© 2025 Michele Broggi"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
         }
-    }
     #endif
-    
+
     #if os(macOS)
-    private var macAppInfoSection: some View {
-        Section {
-            VStack(spacing: 16) {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: Bundle.main.bundlePath))
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                
-                VStack(spacing: 4) {
-                    Text(String(localized: "Cash"))
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    
-                    Text("Version \(appVersion)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                
-                Text(String(localized: "A personal finance management application inspired by Gnucash, built with SwiftUI and SwiftData."))
+        private var macAppInfoSection: some View {
+            Section {
+                VStack(spacing: 16) {
+                    Image(nsImage: NSWorkspace.shared.icon(forFile: Bundle.main.bundlePath))
+                        .resizable()
+                        .frame(width: 80, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+
+                    VStack(spacing: 4) {
+                        Text(String(localized: "Cash"))
+                            .font(.title2)
+                            .fontWeight(.semibold)
+
+                        Text("Version \(appVersion)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Text(
+                        String(
+                            localized:
+                                "A personal finance management application inspired by Gnucash, built with SwiftUI and SwiftData."
+                        )
+                    )
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                
-                Button {
-                    showingLicense = true
-                } label: {
-                    Text(String(localized: "© 2025 Michele Broggi"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+
+                    Button {
+                        showingLicense = true
+                    } label: {
+                        Text(String(localized: "© 2025 Michele Broggi"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
         }
-    }
     #endif
-    
+
     var body: some View {
         #if os(iOS)
-        iosAppInfoSection
+            iosAppInfoSection
         #else
-        macAppInfoSection
+            macAppInfoSection
         #endif
-        
+
         Section {
             Link(destination: URL(string: "https://github.com/thesmokinator/cash")!) {
                 Label(String(localized: "Project website"), systemImage: "link")
             }
-            
-            Link(destination: URL(string: "https://github.com/thesmokinator/cash/blob/main/PRIVACY.md")!) {
+
+            Link(
+                destination: URL(
+                    string: "https://github.com/thesmokinator/cash/blob/main/PRIVACY.md")!
+            ) {
                 Label(String(localized: "Privacy policy"), systemImage: "hand.raised.fill")
             }
         } header: {
@@ -722,25 +768,25 @@ struct AboutSettingsTabContent: View {
     }
 }
 
-
 // MARK: - License View
 
 struct LicenseView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     private var licenseText: String {
         guard let url = Bundle.main.url(forResource: "LICENSE", withExtension: "md"),
-              let content = try? String(contentsOf: url, encoding: .utf8) else {
+            let content = try? String(contentsOf: url, encoding: .utf8)
+        else {
             return "License file not found"
         }
         return content
     }
-    
+
     var body: some View {
         VStack(spacing: 16) {
             Text("MIT License")
                 .font(.headline)
-            
+
             ScrollView {
                 Text(licenseText)
                     .font(.system(.caption, design: .monospaced))
@@ -749,7 +795,7 @@ struct LicenseView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxHeight: .infinity)
-            
+
             Button("Close") {
                 dismiss()
             }
@@ -765,16 +811,21 @@ struct LicenseView: View {
 struct ExportFormatPickerView: View {
     @Environment(\.dismiss) private var dismiss
     let onSelect: (ExportFormat) -> Void
-    
+
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    Text(String(localized: "Choose the format for exporting your financial data. JSON is recommended for full backup and restore, while OFX is the standard bank format for importing into other applications."))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Text(
+                        String(
+                            localized:
+                                "Choose the format for exporting your financial data. JSON is recommended for full backup and restore, while OFX is the standard bank format for importing into other applications."
+                        )
+                    )
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                 }
-                
+
                 Section(String(localized: "Available formats")) {
                     ForEach(ExportFormat.allCases) { format in
                         Button {
@@ -784,26 +835,29 @@ struct ExportFormatPickerView: View {
                             HStack(spacing: 16) {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 8)
-                                        .fill(format == .cashBackup ? Color.blue.opacity(0.1) : Color.green.opacity(0.1))
+                                        .fill(
+                                            format == .cashBackup
+                                                ? Color.blue.opacity(0.1) : Color.green.opacity(0.1)
+                                        )
                                         .frame(width: 48, height: 48)
-                                    
+
                                     Image(systemName: format.iconName)
                                         .font(.title2)
                                         .foregroundStyle(format == .cashBackup ? .blue : .green)
                                 }
-                                
+
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(format.localizedName)
                                         .font(.headline)
-                                    
+
                                     Text(format.description)
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                         .lineLimit(2)
                                 }
-                                
+
                                 Spacer()
-                                
+
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
                                     .foregroundStyle(.tertiary)
@@ -817,7 +871,7 @@ struct ExportFormatPickerView: View {
             }
             .navigationTitle(String(localized: "Export data"))
             #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
+                .navigationBarTitleDisplayMode(.inline)
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -835,20 +889,20 @@ struct ExportFormatPickerView: View {
 
 struct ExportDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.data] }
-    
+
     let data: Data
-    
+
     init(data: Data) {
         self.data = data
     }
-    
+
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents else {
             throw CocoaError(.fileReadCorruptFile)
         }
         self.data = data
     }
-    
+
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         FileWrapper(regularFileWithContents: data)
     }

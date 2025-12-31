@@ -5,12 +5,12 @@
 //  Created by Michele Broggi on 25/11/25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 import UniformTypeIdentifiers
 
 #if os(macOS)
-import AppKit
+    import AppKit
 #endif
 
 // MARK: - App Notifications
@@ -26,7 +26,7 @@ class AppState {
     var isLoading = false
     var loadingMessage = ""
     var showWelcomeSheet = false
-    
+
     // Post notification to show welcome sheet globally
     static func requestShowWelcome() {
         NotificationCenter.default.post(name: .showWelcomeSheet, object: nil)
@@ -46,7 +46,7 @@ struct ContentView: View {
     @State private var parsedOFXTransactions: [OFXTransaction] = []
     @State private var showingOFXError = false
     @State private var ofxErrorMessage = ""
-    
+
     var body: some View {
         AccountListView()
             .sheet(isPresented: $showingSettings) {
@@ -58,7 +58,7 @@ struct ContentView: View {
                             }
                         }
                     }
-                .environment(settings)
+                    .environment(settings)
             }
             .sheet(isPresented: $appState.showWelcomeSheet) {
                 WelcomeSheet(appState: appState)
@@ -77,7 +77,7 @@ struct ContentView: View {
                 handleOFXImport(result: result)
             }
             .alert("Error", isPresented: $showingOFXError) {
-                Button("OK", role: .cancel) { }
+                Button("OK", role: .cancel) {}
             } message: {
                 Text(ofxErrorMessage)
             }
@@ -106,20 +106,20 @@ struct ContentView: View {
                 showingOFXImportPicker = true
             }
     }
-    
+
     private func handleOFXImport(result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            
+
             guard url.startAccessingSecurityScopedResource() else {
                 ofxErrorMessage = String(localized: "Cannot access the selected file")
                 showingOFXError = true
                 return
             }
-            
+
             defer { url.stopAccessingSecurityScopedResource() }
-            
+
             do {
                 let data = try Data(contentsOf: url)
                 let transactions = try OFXParser.parse(data: data)
@@ -129,7 +129,7 @@ struct ContentView: View {
                 ofxErrorMessage = error.localizedDescription
                 showingOFXError = true
             }
-            
+
         case .failure(let error):
             ofxErrorMessage = error.localizedDescription
             showingOFXError = true
@@ -146,30 +146,30 @@ struct WelcomeSheet: View {
     @State private var showingImportPicker = false
     @State private var showingError = false
     @State private var errorMessage = ""
-    
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
-            
+
             // Icon
             Image(systemName: "building.columns.fill")
                 .font(.system(size: 72))
                 .foregroundStyle(.tint)
-            
+
             // Title
             VStack(spacing: 8) {
                 Text("Welcome to Cash")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                
+
                 Text("Track your personal finances with double-entry bookkeeping")
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
-            
+
             Spacer()
-            
+
             // Options
             VStack(spacing: 16) {
                 WelcomeOptionButton(
@@ -180,7 +180,7 @@ struct WelcomeSheet: View {
                 ) {
                     startFresh()
                 }
-                
+
                 WelcomeOptionButton(
                     title: "Use Demo Data",
                     subtitle: "Set up example accounts to explore the app",
@@ -189,7 +189,7 @@ struct WelcomeSheet: View {
                 ) {
                     setupDemoAccounts()
                 }
-                
+
                 WelcomeOptionButton(
                     title: "Import Backup",
                     subtitle: "Restore from a previous JSON export",
@@ -198,25 +198,25 @@ struct WelcomeSheet: View {
                 ) {
                     showingImportPicker = true
                 }
-                
+
                 #if os(macOS)
-                WelcomeOptionButton(
-                    title: "Quit",
-                    subtitle: "Exit the application",
-                    icon: "xmark.circle.fill",
-                    color: .red
-                ) {
-                    NSApplication.shared.terminate(nil)
-                }
+                    WelcomeOptionButton(
+                        title: "Quit",
+                        subtitle: "Exit the application",
+                        icon: "xmark.circle.fill",
+                        color: .red
+                    ) {
+                        NSApplication.shared.terminate(nil)
+                    }
                 #endif
             }
             .padding(.horizontal, 20)
-            
+
             Spacer()
         }
         .padding(40)
         #if os(macOS)
-        .frame(width: 450, height: 560)
+            .frame(width: 450, height: 560)
         #endif
         .overlay {
             if appState.isLoading {
@@ -231,48 +231,52 @@ struct WelcomeSheet: View {
             handleImport(result: result)
         }
         .alert("Import Error", isPresented: $showingError) {
-            Button("OK", role: .cancel) { }
+            Button("OK", role: .cancel) {}
         } message: {
             Text(errorMessage)
         }
     }
-    
+
     private func startFresh() {
         AppConfiguration.markSetupCompleted(in: modelContext)
         appState.showWelcomeSheet = false
     }
-    
+
     private func setupDemoAccounts() {
-        let defaultAccounts = ChartOfAccounts.createDefaultAccounts(currency: "EUR")
-        for account in defaultAccounts {
-            modelContext.insert(account)
+        // Check if accounts already exist to avoid duplicates during iCloud sync
+        let descriptor = FetchDescriptor<Account>()
+        if let existingAccounts = try? modelContext.fetch(descriptor), existingAccounts.isEmpty {
+            let defaultAccounts = ChartOfAccounts.createDefaultAccounts(currency: "EUR")
+            for account in defaultAccounts {
+                modelContext.insert(account)
+            }
         }
         AppConfiguration.markSetupCompleted(in: modelContext)
         appState.showWelcomeSheet = false
     }
-    
+
     private func handleImport(result: Result<[URL], Error>) {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            
+
             guard url.startAccessingSecurityScopedResource() else {
                 errorMessage = "Cannot access the selected file"
                 showingError = true
                 return
             }
-            
+
             appState.isLoading = true
             appState.loadingMessage = String(localized: "Importing data...")
-            
+
             Task {
                 // Small delay to allow UI to show the spinner
                 try? await Task.sleep(nanoseconds: 100_000_000)
-                
+
                 do {
                     let data = try Data(contentsOf: url)
                     url.stopAccessingSecurityScopedResource()
-                    
+
                     _ = try DataExporter.importCashBackup(from: data, into: modelContext)
                     AppConfiguration.markSetupCompleted(in: modelContext)
                     appState.isLoading = false
@@ -284,7 +288,7 @@ struct WelcomeSheet: View {
                     showingError = true
                 }
             }
-            
+
         case .failure(let error):
             errorMessage = error.localizedDescription
             showingError = true
@@ -300,7 +304,7 @@ struct WelcomeOptionButton: View {
     let icon: String
     let color: Color
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
@@ -308,20 +312,20 @@ struct WelcomeOptionButton: View {
                     .font(.title2)
                     .foregroundStyle(color)
                     .frame(width: 32)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.headline)
                         .foregroundStyle(.primary)
                         .lineLimit(2)
-                    
+
                     Text(subtitle)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
@@ -338,17 +342,17 @@ struct WelcomeOptionButton: View {
 
 struct LoadingOverlayView: View {
     let message: String
-    
+
     var body: some View {
         ZStack {
             Color.black.opacity(0.4)
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 16) {
                 ProgressView()
                     .scaleEffect(1.5)
                     .progressViewStyle(.circular)
-                
+
                 Text(message)
                     .font(.headline)
                     .foregroundStyle(.white)
