@@ -9,10 +9,6 @@ import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
 
-#if os(macOS)
-    import AppKit
-#endif
-
 #if ENABLE_ICLOUD
     import CloudKit
 #endif
@@ -20,22 +16,16 @@ import UniformTypeIdentifiers
 // MARK: - Bundle Extension for App Icon
 
 extension Bundle {
-    #if os(iOS)
-        var icon: UIImage? {
-            if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
-                let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
-                let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
-                let lastIcon = iconFiles.last
-            {
-                return UIImage(named: lastIcon)
-            }
-            return nil
+    var icon: UIImage? {
+        if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
+            let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+            let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+            let lastIcon = iconFiles.last
+        {
+            return UIImage(named: lastIcon)
         }
-    #else
-        var icon: NSImage? {
-            return NSWorkspace.shared.icon(forFile: bundlePath)
-        }
-    #endif
+        return nil
+    }
 }
 
 // MARK: - Settings Tab
@@ -96,214 +86,111 @@ struct SettingsView: View {
     @Query private var accounts: [Account]
     @Query private var transactions: [Transaction]
 
-    #if os(iOS)
-        private var iosBody: some View {
-            NavigationStack {
-                List {
-                    GeneralSettingsTabContent()
-                    DataSettingsTabContent(
-                        showingExportFormatPicker: $showingExportFormatPicker,
-                        showingImportConfirmation: $showingImportConfirmation,
-                        showingFirstResetAlert: $showingFirstResetAlert
-                    )
-                    AboutSettingsTabContent()
-                }
-                .navigationTitle(String(localized: "Settings"))
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(String(localized: "Close")) {
-                            dismissSettings()
-                        }
-                    }
-                }
-            }
-        }
-    #endif
-
-    #if os(macOS)
-        private var macBody: some View {
-            NavigationStack {
-                VStack(spacing: 0) {
-                    // Tab Bar with icons
-                    tabBar
-
-                    Divider()
-
-                    // Content
-                    tabContent
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                .navigationTitle(String(localized: "Settings"))
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(String(localized: "Close")) {
-                            dismissSettings()
-                        }
-                    }
-                }
-            }
-            .frame(width: 580, height: 520)
-        }
-    #endif
-
-    private var mainView: some View {
-        #if os(iOS)
-            iosBody
-        #else
-            macBody
-        #endif
-    }
-
-    private func applyOverlaysAndAlerts(to view: some View) -> some View {
-        view
-            .id(settings.refreshID)
-            .overlay {
-                if appState.isLoading {
-                    LoadingOverlayView(message: appState.loadingMessage)
-                }
-            }
-            .alert(String(localized: "Reset all data?"), isPresented: $showingFirstResetAlert) {
-                Button(String(localized: "Cancel"), role: .cancel) {}
-                Button(String(localized: "Continue"), role: .destructive) {
-                    showingSecondResetAlert = true
-                }
-            } message: {
-                Text(
-                    String(
-                        localized:
-                            "This will permanently delete all your accounts and transactions. This action cannot be undone."
-                    ))
-            }
-            .alert(
-                String(localized: "Are you absolutely sure?"), isPresented: $showingSecondResetAlert
-            ) {
-                Button(String(localized: "Cancel"), role: .cancel) {}
-                Button(String(localized: "Delete everything"), role: .destructive) {
-                    resetAllData()
-                }
-            } message: {
-                Text(String(localized: "All data will be permanently deleted."))
-            }
-            .sheet(isPresented: $showingExportFormatPicker) {
-                ExportFormatPickerView { format in
-                    exportData(format: format)
-                }
-            }
-            .alert(String(localized: "Import data?"), isPresented: $showingImportConfirmation) {
-                Button(String(localized: "Cancel"), role: .cancel) {}
-                Button(String(localized: "Continue")) {
-                    showingImportFilePicker = true
-                }
-            } message: {
-                Text(
-                    String(
-                        localized:
-                            "Importing will replace all existing data. Make sure to export your current data first if needed."
-                    ))
-            }
-            .fileImporter(
-                isPresented: $showingImportFilePicker,
-                allowedContentTypes: [.data],
-                allowsMultipleSelection: false
-            ) { result in
-                handleImport(result: result)
-            }
-            .alert(String(localized: "Export successful"), isPresented: $showingExportSuccess) {
-                Button(String(localized: "OK"), role: .cancel) {}
-            } message: {
-                Text(String(localized: "Your data has been exported successfully."))
-            }
-            .alert(String(localized: "Import successful"), isPresented: $showingImportSuccess) {
-                Button(String(localized: "OK"), role: .cancel) {}
-            } message: {
-                Text(
-                    String(
-                        localized:
-                            "Imported \(importResult.accountsCount) accounts and \(importResult.transactionsCount) transactions."
-                    ))
-            }
-            .alert(String(localized: "Error"), isPresented: $showingError) {
-                Button(String(localized: "OK"), role: .cancel) {}
-            } message: {
-                Text(errorMessage)
-            }
-            .fileExporter(
-                isPresented: $showingFileExporter,
-                document: ExportDocument(data: exportData ?? Data()),
-                contentType: .data,
-                defaultFilename: exportFilename
-            ) { result in
-                switch result {
-                case .success:
-                    showingExportSuccess = true
-                case .failure(let error):
-                    errorMessage = error.localizedDescription
-                    showingError = true
-                }
-            }
-    }
-
     var body: some View {
-        applyOverlaysAndAlerts(to: mainView)
-    }
-
-    // MARK: - Tab Bar
-
-    private var tabBar: some View {
-        HStack(spacing: 0) {
-            ForEach(SettingsTab.allCases) { tab in
-                tabButton(for: tab)
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
-        .background(Color.platformWindowBackground)
-    }
-
-    private func tabButton(for tab: SettingsTab) -> some View {
-        Button {
-            withAnimation(.easeInOut(duration: 0.15)) {
-                selectedTab = tab
-            }
-        } label: {
-            VStack(spacing: 4) {
-                Image(systemName: tab.iconName)
-                    .font(.system(size: 24))
-                    .frame(height: 28)
-                Text(tab.labelKey)
-                    .font(.caption)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(selectedTab == tab ? Color.accentColor.opacity(0.15) : Color.clear)
-            )
-            .foregroundStyle(selectedTab == tab ? Color.accentColor : .secondary)
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Tab Content
-
-    @ViewBuilder
-    private var tabContent: some View {
-        Form {
-            switch selectedTab {
-            case .general:
+        NavigationStack {
+            List {
                 GeneralSettingsTabContent()
-            case .data:
                 DataSettingsTabContent(
                     showingExportFormatPicker: $showingExportFormatPicker,
                     showingImportConfirmation: $showingImportConfirmation,
                     showingFirstResetAlert: $showingFirstResetAlert
                 )
-            case .about:
                 AboutSettingsTabContent()
             }
+            .navigationTitle(String(localized: "Settings"))
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(String(localized: "Close")) {
+                        dismissSettings()
+                    }
+                }
+            }
         }
-        .formStyle(.grouped)
+        .id(settings.refreshID)
+        .overlay {
+            if appState.isLoading {
+                LoadingOverlayView(message: appState.loadingMessage)
+            }
+        }
+        .alert(String(localized: "Reset all data?"), isPresented: $showingFirstResetAlert) {
+            Button(String(localized: "Cancel"), role: .cancel) {}
+            Button(String(localized: "Continue"), role: .destructive) {
+                showingSecondResetAlert = true
+            }
+        } message: {
+            Text(
+                String(
+                    localized:
+                        "This will permanently delete all your accounts and transactions. This action cannot be undone."
+                ))
+        }
+        .alert(
+            String(localized: "Are you absolutely sure?"), isPresented: $showingSecondResetAlert
+        ) {
+            Button(String(localized: "Cancel"), role: .cancel) {}
+            Button(String(localized: "Delete everything"), role: .destructive) {
+                resetAllData()
+            }
+        } message: {
+            Text(String(localized: "All data will be permanently deleted."))
+        }
+        .sheet(isPresented: $showingExportFormatPicker) {
+            ExportFormatPickerView { format in
+                exportData(format: format)
+            }
+        }
+        .alert(String(localized: "Import data?"), isPresented: $showingImportConfirmation) {
+            Button(String(localized: "Cancel"), role: .cancel) {}
+            Button(String(localized: "Continue")) {
+                showingImportFilePicker = true
+            }
+        } message: {
+            Text(
+                String(
+                    localized:
+                        "Importing will replace all existing data. Make sure to export your current data first if needed."
+                ))
+        }
+        .fileImporter(
+            isPresented: $showingImportFilePicker,
+            allowedContentTypes: [.data],
+            allowsMultipleSelection: false
+        ) { result in
+            handleImport(result: result)
+        }
+        .alert(String(localized: "Export successful"), isPresented: $showingExportSuccess) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(String(localized: "Your data has been exported successfully."))
+        }
+        .alert(String(localized: "Import successful"), isPresented: $showingImportSuccess) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(
+                String(
+                    localized:
+                        "Imported \(importResult.accountsCount) accounts and \(importResult.transactionsCount) transactions."
+                ))
+        }
+        .alert(String(localized: "Error"), isPresented: $showingError) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(errorMessage)
+        }
+        .fileExporter(
+            isPresented: $showingFileExporter,
+            document: ExportDocument(data: exportData ?? Data()),
+            contentType: .data,
+            defaultFilename: exportFilename
+        ) { result in
+            switch result {
+            case .success:
+                showingExportSuccess = true
+            case .failure(let error):
+                errorMessage = error.localizedDescription
+                showingError = true
+            }
+        }
     }
 
     // MARK: - Export
@@ -322,28 +209,9 @@ struct SettingsView: View {
 
             let filename = DataExporter.generateFilename(for: format)
 
-            #if os(macOS)
-                let savePanel = NSSavePanel()
-                savePanel.nameFieldStringValue = filename
-                savePanel.canCreateDirectories = true
-
-                savePanel.begin { response in
-                    if response == .OK, let url = savePanel.url {
-                        do {
-                            try data.write(to: url)
-                            showingExportSuccess = true
-                        } catch {
-                            errorMessage = error.localizedDescription
-                            showingError = true
-                        }
-                    }
-                }
-            #else
-                // iOS: prepare data for file exporter
-                self.exportData = data
-                self.exportFilename = filename
-                self.showingFileExporter = true
-            #endif
+            self.exportData = data
+            self.exportFilename = filename
+            self.showingFileExporter = true
         } catch {
             errorMessage = error.localizedDescription
             showingError = true
@@ -438,11 +306,9 @@ struct SettingsView: View {
         Task {
             try? await Task.sleep(nanoseconds: 300_000_000)
 
-            // Perform data deletion in background to avoid blocking UI
             Task.detached(priority: .background) {
                 await deleteAllData()
 
-                // Update UI and save on main thread
                 await MainActor.run {
                     AppConfiguration.markSetupNeeded(in: modelContext)
 
@@ -503,15 +369,11 @@ struct GeneralSettingsTabContent: View {
             )
         }
         .alert("Restart required", isPresented: $showingRestartAlert) {
-            Button("Later") {
+            Button("OK") {
                 settings.needsRestart = false
-            }
-            Button("Restart now") {
-                settings.needsRestart = false
-                AppSettings.shared.restartApp()
             }
         } message: {
-            Text("The app needs to restart to apply language changes.")
+            Text("Please close and reopen the app to apply language changes.")
         }
     }
 }
@@ -534,7 +396,6 @@ struct DataSettingsTabContent: View {
 
     var body: some View {
         #if ENABLE_ICLOUD
-            // iCloud Sync Section
             Section {
                 Toggle(
                     "Enable iCloud sync",
@@ -578,7 +439,7 @@ struct DataSettingsTabContent: View {
                 Text("iCloud Sync")
             } footer: {
                 if !hasICloudAccount {
-                    Text("Sign in to iCloud in System Settings to enable sync.")
+                    Text("Sign in to iCloud in Settings to enable sync.")
                 } else {
                     Text("Sync your data across all your devices.")
                 }
@@ -590,15 +451,11 @@ struct DataSettingsTabContent: View {
                 }
             }
             .alert("Restart required", isPresented: $showingRestartAlert) {
-                Button("Later") {
+                Button("OK") {
                     cloudManager.needsRestart = false
-                }
-                Button("Restart now") {
-                    cloudManager.needsRestart = false
-                    AppSettings.shared.restartApp()
                 }
             } message: {
-                Text("The app needs to restart to apply iCloud changes.")
+                Text("Please close and reopen the app to apply iCloud changes.")
             }
         #endif
 
@@ -645,108 +502,54 @@ struct AboutSettingsTabContent: View {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     }
 
-    #if os(iOS)
-        private var iosAppInfoSection: some View {
-            Section {
-                VStack(spacing: 12) {
-                    if let icon = Bundle.main.icon {
-                        Image(uiImage: icon)
-                            .resizable()
-                            .frame(width: 64, height: 64)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    } else {
-                        Image(systemName: "app.fill")
-                            .resizable()
-                            .frame(width: 64, height: 64)
-                            .foregroundStyle(.blue)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    }
-
-                    VStack(spacing: 4) {
-                        Text(String(localized: "Cash"))
-                            .font(.title2)
-                            .fontWeight(.semibold)
-
-                        Text("Version \(appVersion)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Text(
-                        String(
-                            localized:
-                                "A personal finance management application inspired by Gnucash, built with SwiftUI and SwiftData."
-                        )
-                    )
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-
-                    Button {
-                        showingLicense = true
-                    } label: {
-                        Text(String(localized: "© 2025 Michele Broggi"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-            }
-        }
-    #endif
-
-    #if os(macOS)
-        private var macAppInfoSection: some View {
-            Section {
-                VStack(spacing: 16) {
-                    Image(nsImage: NSWorkspace.shared.icon(forFile: Bundle.main.bundlePath))
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                    VStack(spacing: 4) {
-                        Text(String(localized: "Cash"))
-                            .font(.title2)
-                            .fontWeight(.semibold)
-
-                        Text("Version \(appVersion)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    Text(
-                        String(
-                            localized:
-                                "A personal finance management application inspired by Gnucash, built with SwiftUI and SwiftData."
-                        )
-                    )
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-
-                    Button {
-                        showingLicense = true
-                    } label: {
-                        Text(String(localized: "© 2025 Michele Broggi"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-            }
-        }
-    #endif
-
     var body: some View {
-        #if os(iOS)
-            iosAppInfoSection
-        #else
-            macAppInfoSection
-        #endif
+        Section {
+            VStack(spacing: 12) {
+                if let icon = Bundle.main.icon {
+                    Image(uiImage: icon)
+                        .resizable()
+                        .frame(width: 64, height: 64)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                } else {
+                    Image(systemName: "app.fill")
+                        .resizable()
+                        .frame(width: 64, height: 64)
+                        .foregroundStyle(.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+
+                VStack(spacing: 4) {
+                    Text(String(localized: "Cash"))
+                        .font(.title2)
+                        .fontWeight(.semibold)
+
+                    Text("Version \(appVersion)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+
+                Text(
+                    String(
+                        localized:
+                            "A personal finance management application inspired by Gnucash, built with SwiftUI and SwiftData."
+                    )
+                )
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+                Button {
+                    showingLicense = true
+                } label: {
+                    Text(String(localized: "© 2025 Michele Broggi"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+        }
 
         Section {
             Link(destination: URL(string: "https://github.com/thesmokinator/cash")!) {
@@ -783,26 +586,25 @@ struct LicenseView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text("MIT License")
-                .font(.headline)
-
+        NavigationStack {
             ScrollView {
                 Text(licenseText)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
             }
-            .frame(maxHeight: .infinity)
-
-            Button("Close") {
-                dismiss()
+            .navigationTitle("MIT License")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                }
             }
-            .keyboardShortcut(.defaultAction)
         }
-        .padding(20)
-        .frame(width: 450, height: 350)
     }
 }
 
@@ -870,9 +672,7 @@ struct ExportFormatPickerView: View {
                 }
             }
             .navigationTitle(String(localized: "Export data"))
-            #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
-            #endif
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(String(localized: "Cancel")) {

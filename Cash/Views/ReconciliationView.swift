@@ -57,7 +57,6 @@ struct ReconciliationView: View {
     
     var body: some View {
         Group {
-            #if os(iOS)
             if UIDevice.current.userInterfaceIdiom == .phone {
                 // Modern iPhone layout
                 NavigationStack {
@@ -221,10 +220,6 @@ struct ReconciliationView: View {
             // iPad layout (keep existing)
             iphoneLegacyLayout
         }
-        #else
-        // macOS layout (keep existing)
-        iphoneLegacyLayout
-        #endif
         }
         .task {
             await loadTransactions()
@@ -321,11 +316,6 @@ struct ReconciliationView: View {
                         }
                     }
                     Spacer()
-                    #if !os(iOS)
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    #endif
                 }
                 
                 HStack(spacing: 20) {
@@ -480,12 +470,8 @@ struct ReconciliationView: View {
             .padding()
             .background(.regularMaterial)
         }
-        #if os(iOS)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        #else
-        .frame(minWidth: 700, minHeight: 500)
-        #endif
         .task {
             await loadTransactions()
         }

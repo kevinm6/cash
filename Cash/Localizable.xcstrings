@@ -5,6 +5,7 @@
 
     },
     "-" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -117,6 +118,7 @@
       }
     },
     "(%@%@)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -235,6 +237,7 @@
       }
     },
     "#" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -319,6 +322,7 @@
       }
     },
     "% Change" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -409,6 +413,7 @@
       }
     },
     "%@ %@" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1076,6 +1081,12 @@
         }
       }
     },
+    "••••••" : {
+
+    },
+    "••••••••" : {
+
+    },
     "© 2025 Michele Broggi" : {
       "localizations" : {
         "de" : {
@@ -1441,6 +1452,7 @@
       }
     },
     "52W Range" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2298,6 +2310,9 @@
         }
       }
     },
+    "Add your first transaction to get started" : {
+
+    },
     "Adequate" : {
       "localizations" : {
         "de" : {
@@ -2771,6 +2786,9 @@
         }
       }
     },
+    "Analytics" : {
+
+    },
     "And %lld more transactions..." : {
       "localizations" : {
         "de" : {
@@ -3106,6 +3124,9 @@
           }
         }
       }
+    },
+    "Assets and liabilities overview" : {
+
     },
     "At Risk" : {
       "localizations" : {
@@ -4219,6 +4240,9 @@
           }
         }
       }
+    },
+    "Calculate payments and interest" : {
+
     },
     "Calculating forecast..." : {
       "localizations" : {
@@ -7983,6 +8007,7 @@
       }
     },
     "Exit the application" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -8037,6 +8062,9 @@
           }
         }
       }
+    },
+    "Expense analysis and trends" : {
+
     },
     "Expense Category" : {
       "localizations" : {
@@ -8385,6 +8413,9 @@
           }
         }
       }
+    },
+    "Finance Tools" : {
+
     },
     "Financial Details" : {
       "localizations" : {
@@ -9275,6 +9306,9 @@
         }
       }
     },
+    "Home" : {
+
+    },
     "Housing" : {
       "localizations" : {
         "de" : {
@@ -9470,6 +9504,9 @@
           }
         }
       }
+    },
+    "Import" : {
+
     },
     "Import %lld Transactions" : {
       "localizations" : {
@@ -9729,6 +9766,9 @@
         }
       }
     },
+    "Import from OFX/QFX files" : {
+
+    },
     "Import OFX" : {
       "localizations" : {
         "de" : {
@@ -9758,6 +9798,7 @@
       }
     },
     "Import OFX..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -9812,6 +9853,9 @@
           }
         }
       }
+    },
+    "Import Transactions" : {
+
     },
     "Imported %lld accounts and %lld transactions." : {
       "localizations" : {
@@ -10162,6 +10206,7 @@
       }
     },
     "Interest" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -11207,6 +11252,7 @@
       }
     },
     "Later" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -11431,6 +11477,7 @@
       }
     },
     "Live Quote" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -11458,7 +11505,11 @@
         }
       }
     },
+    "Loading quote..." : {
+
+    },
     "Loading..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -11768,6 +11819,9 @@
         }
       }
     },
+    "Manage loans and view amortization" : {
+
+    },
     "Manageable" : {
       "localizations" : {
         "de" : {
@@ -11795,6 +11849,9 @@
           }
         }
       }
+    },
+    "Market Price" : {
+
     },
     "Market Value" : {
       "localizations" : {
@@ -12105,6 +12162,7 @@
       }
     },
     "Monthly Diff" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -12255,6 +12313,9 @@
           }
         }
       }
+    },
+    "More" : {
+
     },
     "Mortgage" : {
       "localizations" : {
@@ -12539,6 +12600,7 @@
       }
     },
     "New Rate" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13050,7 +13112,11 @@
         }
       }
     },
+    "No Accounts" : {
+
+    },
     "No active budget" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13077,6 +13143,9 @@
           }
         }
       }
+    },
+    "No Active Budget" : {
+
     },
     "No adjustment" : {
       "localizations" : {
@@ -13303,6 +13372,7 @@
       }
     },
     "No envelopes" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -13329,6 +13399,9 @@
           }
         }
       }
+    },
+    "No Envelopes" : {
+
     },
     "No expense categories available" : {
       "localizations" : {
@@ -13705,6 +13778,9 @@
           }
         }
       }
+    },
+    "No Transactions" : {
+
     },
     "No transactions found for the selected period" : {
       "localizations" : {
@@ -14408,6 +14484,9 @@
         }
       }
     },
+    "Overview" : {
+
+    },
     "P/L" : {
       "localizations" : {
         "de" : {
@@ -15100,6 +15179,12 @@
         }
       }
     },
+    "Please close and reopen the app to apply iCloud changes." : {
+
+    },
+    "Please close and reopen the app to apply language changes." : {
+
+    },
     "Please enter a valid dividend amount" : {
       "localizations" : {
         "de" : {
@@ -15633,6 +15718,7 @@
       }
     },
     "Price" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -15833,6 +15919,9 @@
           }
         }
       }
+    },
+    "Project future balances" : {
+
     },
     "Project website" : {
       "localizations" : {
@@ -16114,6 +16203,9 @@
         }
       }
     },
+    "Quick Actions" : {
+
+    },
     "Quick:" : {
       "localizations" : {
         "de" : {
@@ -16143,6 +16235,7 @@
       }
     },
     "Quit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -16171,6 +16264,7 @@
       }
     },
     "Quote data unavailable" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -16378,6 +16472,9 @@
         }
       }
     },
+    "Recent Transactions" : {
+
+    },
     "Reconcile" : {
       "localizations" : {
         "de" : {
@@ -16573,6 +16670,9 @@
           }
         }
       }
+    },
+    "Recurring and upcoming payments" : {
+
     },
     "Recurring transaction" : {
       "localizations" : {
@@ -16907,6 +17007,7 @@
       }
     },
     "Restart now" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -17428,6 +17529,9 @@
         }
       }
     },
+    "See All" : {
+
+    },
     "Select a category" : {
       "localizations" : {
         "de" : {
@@ -17945,6 +18049,7 @@
       }
     },
     "Settings..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -18119,6 +18224,7 @@
       }
     },
     "Show Main Window" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -18146,7 +18252,11 @@
         }
       }
     },
+    "Sign in to iCloud in Settings to enable sync." : {
+
+    },
     "Sign in to iCloud in System Settings to enable sync." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -19027,6 +19137,7 @@
       }
     },
     "The app needs to restart to apply iCloud changes." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -19055,6 +19166,7 @@
       }
     },
     "The app needs to restart to apply language changes." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -19194,6 +19306,9 @@
         }
       }
     },
+    "Theme, language, and preferences" : {
+
+    },
     "These accounts will be created. Set opening balances for your asset and liability accounts." : {
       "localizations" : {
         "de" : {
@@ -19277,6 +19392,9 @@
           }
         }
       }
+    },
+    "This Month" : {
+
     },
     "This payment exceeds your available surplus. Not recommended." : {
       "localizations" : {
@@ -19697,6 +19815,9 @@
           }
         }
       }
+    },
+    "Tools" : {
+
     },
     "Total" : {
       "localizations" : {

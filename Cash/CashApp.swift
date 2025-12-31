@@ -8,10 +8,6 @@
 import SwiftData
 import SwiftUI
 
-#if os(macOS)
-    import AppKit
-#endif
-
 // MARK: - Navigation State
 
 @Observable
@@ -21,7 +17,7 @@ class NavigationState {
     var currentAccount: Account? = nil
 }
 
-// MARK: - Cmd+N Notifications
+// MARK: - Notifications
 
 extension Notification.Name {
     static let addNewAccount = Notification.Name("addNewAccount")
@@ -37,10 +33,6 @@ struct CashApp: App {
     @State private var menuAppState = AppState()
     @State private var navigationState = NavigationState()
     @State private var showingSettingsSheet = false
-
-    #if os(macOS)
-        @Environment(\.openWindow) private var openWindow
-    #endif
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -92,8 +84,8 @@ struct CashApp: App {
     }()
 
     var body: some Scene {
-        WindowGroup(id: "main") {
-            ContentView()
+        WindowGroup {
+            MainTabView()
                 .environment(navigationState)
                 .sheet(isPresented: $showingSettingsSheet) {
                     SettingsView(
@@ -112,81 +104,5 @@ struct CashApp: App {
         }
         .modelContainer(sharedModelContainer)
         .environment(settings)
-        #if os(macOS)
-            .commands {
-                // Add Window menu with option to show main window
-                CommandGroup(after: .windowList) {
-                    Button("Show Main Window") {
-                        if let window = NSApplication.shared.windows.first(where: {
-                            $0.identifier?.rawValue == "main"
-                        }) {
-                            window.makeKeyAndOrderFront(nil)
-                            NSApplication.shared.activate(ignoringOtherApps: true)
-                        } else {
-                            openWindow(id: "main")
-                        }
-                    }
-                    .keyboardShortcut("0", modifiers: .command)
-                }
-
-                // Replace default New Window command with contextual actions
-                CommandGroup(replacing: .newItem) {
-                    Button {
-                        ensureMainWindowOpen()
-                        if navigationState.isViewingAccount {
-                            NotificationCenter.default.post(name: .addNewTransaction, object: nil)
-                        } else if navigationState.isViewingScheduled {
-                            NotificationCenter.default.post(
-                                name: .addNewScheduledTransaction, object: nil)
-                        } else {
-                            NotificationCenter.default.post(name: .addNewAccount, object: nil)
-                        }
-                    } label: {
-                        if navigationState.isViewingAccount {
-                            Text("New transaction")
-                        } else if navigationState.isViewingScheduled {
-                            Text("New scheduled transaction")
-                        } else {
-                            Text("New account")
-                        }
-                    }
-                    .keyboardShortcut("n", modifiers: .command)
-                }
-
-                // Import menu
-                CommandGroup(replacing: .importExport) {
-                    Button {
-                        ensureMainWindowOpen()
-                        NotificationCenter.default.post(name: .importOFX, object: nil)
-                    } label: {
-                        Label("Import OFX...", systemImage: "doc.badge.arrow.up")
-                    }
-                }
-
-                // Settings menu item (replaces system Preferences)
-                CommandGroup(replacing: .appSettings) {
-                    Button {
-                        ensureMainWindowOpen()
-                        showingSettingsSheet = true
-                    } label: {
-                        Text("Settings...")
-                    }
-                    .keyboardShortcut(",", modifiers: .command)
-                }
-            }
-        #endif
     }
-
-    #if os(macOS)
-        private func ensureMainWindowOpen() {
-            if let window = NSApplication.shared.windows.first(where: {
-                $0.isVisible && $0.identifier?.rawValue.contains("main") == true
-            }) {
-                window.makeKeyAndOrderFront(nil)
-            } else {
-                openWindow(id: "main")
-            }
-            NSApplication.shared.activate(ignoringOtherApps: true)
-        }
-    #endif
 }

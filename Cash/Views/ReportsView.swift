@@ -58,7 +58,6 @@ struct ReportsView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Report type selector
-            #if os(iOS)
             HStack {
                 Spacer()
                 Picker("Report type", selection: $selectedReport) {
@@ -72,27 +71,6 @@ struct ReportsView: View {
             }
             .padding()
             .background(.bar)
-            #else
-            HStack {
-                ForEach(ReportType.allCases) { report in
-                    Button {
-                        selectedReport = report
-                    } label: {
-                        Label(report.localizedName, systemImage: report.iconName)
-                            .font(.subheadline)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(selectedReport == report ? Color.accentColor.opacity(0.2) : Color.clear)
-                            .foregroundStyle(selectedReport == report ? .primary : .secondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                    }
-                    .buttonStyle(.plain)
-                }
-                Spacer()
-            }
-            .padding()
-            .background(.bar)
-            #endif
             
             Divider()
             

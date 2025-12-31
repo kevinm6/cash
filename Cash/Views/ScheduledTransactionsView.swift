@@ -756,9 +756,6 @@ struct AddScheduledTransactionView: View {
             }
             .id(settings.refreshID)
         }
-        #if os(macOS)
-        .frame(minWidth: 450, minHeight: 500)
-        #endif
     }
     
     @ViewBuilder

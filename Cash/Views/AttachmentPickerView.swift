@@ -9,45 +9,27 @@ import SwiftUI
 import UniformTypeIdentifiers
 import PDFKit
 
-#if os(macOS)
-import AppKit
-#else
-import UIKit
-#endif
 
 // MARK: - Cross-Platform Image Helper
 
 struct PlatformImage {
     let data: Data
-    
-    #if os(macOS)
-    var image: NSImage? {
-        NSImage(data: data)
-    }
-    
-    @ViewBuilder
-    var swiftUIImage: some View {
-        if let nsImage = NSImage(data: data) {
-            Image(nsImage: nsImage)
-                .resizable()
-        }
-    }
-    #else
+
     var image: UIImage? {
         UIImage(data: data)
     }
-    
-    @ViewBuilder
-    var swiftUIImage: some View {
-        if let uiImage = UIImage(data: data) {
-            Image(uiImage: uiImage)
-                .resizable()
-        }
-    }
-    #endif
-    
+
     var hasValidImage: Bool {
         image != nil
+    }
+
+    var swiftUIImage: Image {
+        if let uiImage = image {
+            return Image(uiImage: uiImage)
+                .resizable()
+        }
+        return Image(systemName: "photo")
+            .resizable()
     }
 }
 
@@ -267,9 +249,6 @@ struct AttachmentPreviewView: View {
                 }
             }
         }
-        #if os(macOS)
-        .frame(minWidth: 500, minHeight: 400)
-        #endif
     }
     
     private var previewUnavailableView: some View {
@@ -281,37 +260,23 @@ struct AttachmentPreviewView: View {
 
 // MARK: - PDF Preview
 
-#if os(macOS)
-struct PDFPreviewView: NSViewRepresentable {
-    let data: Data
-    
-    func makeNSView(context: Context) -> PDFView {
-        let pdfView = PDFView()
-        pdfView.autoScales = true
-        if let document = PDFDocument(data: data) {
-            pdfView.document = document
-        }
-        return pdfView
-    }
-    
-    func updateNSView(_ nsView: PDFView, context: Context) {}
-}
-#else
 struct PDFPreviewView: UIViewRepresentable {
     let data: Data
-    
+
     func makeUIView(context: Context) -> PDFView {
         let pdfView = PDFView()
         pdfView.autoScales = true
+        pdfView.displayMode = .singlePageContinuous
+        pdfView.displayDirection = .vertical
+        return pdfView
+    }
+
+    func updateUIView(_ pdfView: PDFView, context: Context) {
         if let document = PDFDocument(data: data) {
             pdfView.document = document
         }
-        return pdfView
     }
-    
-    func updateUIView(_ uiView: PDFView, context: Context) {}
 }
-#endif
 
 // View for existing attachments from database
 struct ExistingAttachmentRow: View {
@@ -433,9 +398,6 @@ struct ExistingAttachmentPreviewView: View {
                 }
             }
         }
-        #if os(macOS)
-        .frame(minWidth: 500, minHeight: 400)
-        #endif
     }
     
     private var previewUnavailableView: some View {

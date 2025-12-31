@@ -5,8 +5,8 @@
 //  Created by Michele Broggi on 25/11/25.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 enum SidebarSelection: Hashable {
     case patrimony
@@ -23,21 +23,17 @@ struct AccountListView: View {
     @Environment(AppSettings.self) private var settings
     @Environment(NavigationState.self) private var navigationState
     @Query(sort: \Account.accountNumber) private var accounts: [Account]
-    @Query(filter: #Predicate<Transaction> { $0.isRecurring == true }) private var scheduledTransactions: [Transaction]
+    @Query(filter: #Predicate<Transaction> { $0.isRecurring == true }) private
+        var scheduledTransactions: [Transaction]
     @State private var showingAddAccount = false
     @State private var showingAddTransaction = false
-    @State private var selection: SidebarSelection? = {
-        #if os(iOS)
-        return UIDevice.current.userInterfaceIdiom == .phone ? nil : .patrimony
-        #else
-        return .patrimony
-        #endif
-    }()
-    
+    @State private var selection: SidebarSelection? =
+        UIDevice.current.userInterfaceIdiom == .phone ? nil : .patrimony
+
     private var hasAccounts: Bool {
         !accounts.filter { $0.isActive && !$0.isSystem }.isEmpty
     }
-    
+
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
@@ -53,29 +49,33 @@ struct AccountListView: View {
                             Label("Net Worth", systemImage: "chart.pie.fill")
                                 .tag(SidebarSelection.patrimony)
                                 .accessibilityIdentifier("netWorthItem")
-                            
+
                             Label("Forecast", systemImage: "chart.line.uptrend.xyaxis")
                                 .tag(SidebarSelection.forecast)
                                 .accessibilityIdentifier("forecastItem")
-                            
+
                             Label("Budget", systemImage: "envelope.fill")
                                 .tag(SidebarSelection.budget)
                                 .accessibilityIdentifier("budgetItem")
-                            
+
                             Label("Loans & Mortgages", systemImage: "house.fill")
                                 .tag(SidebarSelection.loans)
                                 .accessibilityIdentifier("loansItem")
-                            
+
                             Label("Reports", systemImage: "chart.bar.fill")
                                 .tag(SidebarSelection.reports)
                                 .accessibilityIdentifier("reportsItem")
                         }
                     }
-                    
-                    ForEach(AccountClass.allCases.sorted(by: { $0.displayOrder < $1.displayOrder })) { accountClass in
-                        let classAccounts = accounts
-                            .filter { $0.accountClass == accountClass && $0.isActive && !$0.isSystem }
-                        
+
+                    ForEach(AccountClass.allCases.sorted(by: { $0.displayOrder < $1.displayOrder }))
+                    { accountClass in
+                        let classAccounts =
+                            accounts
+                            .filter {
+                                $0.accountClass == accountClass && $0.isActive && !$0.isSystem
+                            }
+
                         if !classAccounts.isEmpty {
                             Section(accountClass.localizedPluralName) {
                                 // Add Scheduled as first item in Expenses section
@@ -95,15 +95,18 @@ struct AccountListView: View {
                                     .tag(SidebarSelection.scheduled)
                                     .accessibilityIdentifier("scheduledItem")
                                 }
-                                
+
                                 // Show all accounts flat, sorted by type then name
                                 let sortedAccounts = classAccounts.sorted { a, b in
                                     if a.accountType.localizedName != b.accountType.localizedName {
-                                        return a.accountType.localizedName.localizedCaseInsensitiveCompare(b.accountType.localizedName) == .orderedAscending
+                                        return a.accountType.localizedName
+                                            .localizedCaseInsensitiveCompare(
+                                                b.accountType.localizedName) == .orderedAscending
                                     }
-                                    return a.displayName.localizedCaseInsensitiveCompare(b.displayName) == .orderedAscending
+                                    return a.displayName.localizedCaseInsensitiveCompare(
+                                        b.displayName) == .orderedAscending
                                 }
-                                
+
                                 ForEach(sortedAccounts) { account in
                                     AccountRowView(account: account)
                                         .tag(SidebarSelection.account(account))
@@ -118,10 +121,8 @@ struct AccountListView: View {
             }
             .listStyle(.sidebar)
             .navigationTitle(String(localized: "Cash"))
-            .navigationSplitViewColumnWidth(min: 300, ideal: 300, max: 300)
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
-                    #if os(iOS)
                     Menu {
                         Button(action: { showingAddAccount = true }) {
                             Label("Add account", systemImage: "plus")
@@ -132,12 +133,7 @@ struct AccountListView: View {
                     } label: {
                         Label("Add", systemImage: "plus")
                     }
-                    #else
-                    Button(action: { showingAddAccount = true }) {
-                        Label("Add account", systemImage: "plus")
-                    }
-                    #endif
-                    
+
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             settings.privacyMode.toggle()
@@ -148,15 +144,12 @@ struct AccountListView: View {
                             systemImage: settings.privacyMode ? "eye.slash.fill" : "eye.fill"
                         )
                     }
-                    .help(settings.privacyMode ? "Show amounts" : "Hide amounts")
-                    
-                    #if os(iOS)
+
                     Button {
                         NotificationCenter.default.post(name: .showSettings, object: nil)
                     } label: {
                         Label(String(localized: "Settings"), systemImage: "gear")
                     }
-                    #endif
                 }
             }
             .safeAreaInset(edge: .bottom) {
@@ -198,7 +191,8 @@ struct AccountListView: View {
                     case .scheduled:
                         ScheduledTransactionsView()
                     case .account(let account):
-                        AccountDetailView(account: account, showingAddTransaction: $showingAddTransaction)
+                        AccountDetailView(
+                            account: account, showingAddTransaction: $showingAddTransaction)
                     case nil:
                         ContentUnavailableView {
                             Label("Select an account", systemImage: "building.columns")
@@ -251,7 +245,7 @@ struct AccountListView: View {
             }
         }
     }
-    
+
     private func deleteAccounts(from filteredAccounts: [Account], at offsets: IndexSet) {
         withAnimation {
             for index in offsets {
@@ -270,13 +264,13 @@ struct AccountRowView: View {
     @Environment(AppSettings.self) private var settings
     let account: Account
     @State private var isCalculating = false
-    
+
     var body: some View {
         HStack {
             Image(systemName: account.effectiveIconName)
                 .foregroundStyle(.secondary)
                 .frame(width: 24)
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
                     Text(account.displayName)
@@ -288,9 +282,9 @@ struct AccountRowView: View {
                     }
                 }
             }
-            
+
             Spacer()
-            
+
             if isCalculating {
                 ProgressView()
                     .scaleEffect(0.5)
@@ -312,7 +306,8 @@ struct AccountRowView: View {
                 calculateBalanceAsync()
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .accountBalancesNeedUpdate)) { notification in
+        .onReceive(NotificationCenter.default.publisher(for: .accountBalancesNeedUpdate)) {
+            notification in
             // Recalculate balance if this account is affected
             let accountIDs = notification.userInfo?["accountIDs"] as? Set<UUID>
             if accountIDs == nil || accountIDs!.contains(account.id) {
@@ -320,7 +315,7 @@ struct AccountRowView: View {
             }
         }
     }
-    
+
     private func calculateBalanceAsync() {
         isCalculating = true
         // Capture values needed for background work
@@ -344,7 +339,7 @@ struct AccountRowView: View {
             }
         }
     }
-    
+
     private var balanceColor: Color {
         let balance = account.cachedBalance
         if balance == 0 {

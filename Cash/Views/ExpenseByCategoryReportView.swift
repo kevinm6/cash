@@ -111,7 +111,6 @@ struct ExpenseByCategoryReportView: View {
             // Header with controls
             HStack {
                 // Period picker
-                #if os(iOS)
                 if UIDevice.current.userInterfaceIdiom == .phone {
                     Picker(selection: $selectedPeriod) {
                         ForEach(ReportPeriod.allCases) { period in
@@ -134,18 +133,6 @@ struct ExpenseByCategoryReportView: View {
                     .labelsHidden()
                     .frame(maxWidth: 400)
                 }
-                #else
-                Picker(selection: $selectedPeriod) {
-                    ForEach(ReportPeriod.allCases) { period in
-                        Text(period.localizedName).tag(period)
-                    }
-                } label: {
-                    EmptyView()
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(maxWidth: 400)
-                #endif
                 
                 Spacer()
                 

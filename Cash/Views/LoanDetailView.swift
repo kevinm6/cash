@@ -238,9 +238,6 @@ struct LoanDetailView: View {
                 }
             }
         }
-        #if os(macOS)
-        .frame(minWidth: 600, minHeight: 500)
-        #endif
     }
     
     private func deleteLoan() {

@@ -54,9 +54,9 @@ struct BudgetView: View {
                     currency: currency,
                     isPrivate: settings.privacyMode
                 )
-                
-                Divider()
-                
+
+                GlassDivider()
+
                 // Filter bar with search - mostra solo se ci sono envelopes
                 if let envelopes = budget.envelopes, !envelopes.isEmpty {
                     TransactionFilterBar(
@@ -65,7 +65,7 @@ struct BudgetView: View {
                         showDateFilter: false,
                         showActionButtons: false
                     )
-                    .padding(.vertical, 8)
+                    .padding(.vertical, CashSpacing.sm)
                 }
                 
                 // Envelopes List
@@ -122,37 +122,45 @@ struct BudgetView: View {
                 } else {
                     VStack {
                         Spacer()
-                        ContentUnavailableView {
-                            Label("No envelopes", systemImage: "envelope")
-                        } description: {
-                            Text("Add envelopes to start budgeting")
-                        } actions: {
-                            Button {
-                                budgetForEnvelope = budget
-                            } label: {
-                                Text("Add Envelope")
-                            }
+                        GlassEmptyState(
+                            icon: "envelope",
+                            title: "No Envelopes",
+                            description: "Add envelopes to start budgeting"
+                        )
+                        .padding()
+                        Button {
+                            budgetForEnvelope = budget
+                        } label: {
+                            Text("Add Envelope")
                         }
+                        .buttonStyle(GlassPrimaryButtonStyle())
                         Spacer()
                     }
                 }
-                
+
             } else {
                 // No active budget
-                ContentUnavailableView {
-                    Label("No active budget", systemImage: "envelope.badge.shield.half.filled")
-                } description: {
-                    Text("Create a budget to start tracking your spending by category")
-                } actions: {
+                VStack {
+                    Spacer()
+                    GlassEmptyState(
+                        icon: "envelope.badge.shield.half.filled",
+                        title: "No Active Budget",
+                        description: "Create a budget to start tracking your spending by category"
+                    )
+                    .padding()
                     Button {
                         showingCreateBudget = true
                     } label: {
                         Text("Create Budget")
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(GlassPrimaryButtonStyle())
+                    Spacer()
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(CashColors.backgroundGradient.ignoresSafeArea())
         .navigationTitle("Budget")
         .toolbar {
             if activeBudget != nil {
@@ -234,83 +242,68 @@ struct BudgetHeaderView: View {
     let budget: Budget
     let currency: String
     let isPrivate: Bool
-    
+
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: CashSpacing.lg) {
             // Period info
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CashSpacing.xs) {
                     Text(budget.displayName)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                    
+                        .font(CashTypography.title2)
+
                     Text(periodDescription)
-                        .font(.caption)
+                        .font(CashTypography.caption)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
+
                 // Period type badge
-                HStack(spacing: 4) {
-                    Image(systemName: budget.periodType.iconName)
-                    Text(budget.periodType.localizedName)
-                }
-                .font(.caption)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.quaternary)
-                .clipShape(Capsule())
+                GlassChip(
+                    label: budget.periodType.localizedName,
+                    icon: budget.periodType.iconName
+                )
             }
-            
+
             // Progress bar
-            VStack(spacing: 8) {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(height: 12)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                        
-                        Rectangle()
-                            .fill(progressColor.gradient)
-                            .frame(width: min(geometry.size.width * CGFloat(budget.percentageUsed / 100), geometry.size.width), height: 12)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                    }
-                }
-                .frame(height: 12)
-                
+            VStack(spacing: CashSpacing.sm) {
+                GlassProgressBar(
+                    progress: budget.percentageUsed / 100,
+                    height: 12,
+                    foregroundColor: progressColor
+                )
+
                 HStack {
                     PrivacyAmountView(
                         amount: "\(String(localized: "Spent")): \(CurrencyFormatter.format(budget.totalSpent, currency: currency))",
                         isPrivate: isPrivate,
-                        font: .caption,
+                        font: CashTypography.caption,
                         fontWeight: .medium,
                         color: .secondary
                     )
-                    
+
                     Spacer()
-                    
+
                     PrivacyAmountView(
                         amount: "\(String(localized: "Budget")): \(CurrencyFormatter.format(budget.totalBudgeted, currency: currency))",
                         isPrivate: isPrivate,
-                        font: .caption,
+                        font: CashTypography.caption,
                         fontWeight: .medium,
                         color: .secondary
                     )
                 }
             }
-            
+
             // Summary cards
-            HStack(spacing: 12) {
+            HStack(spacing: CashSpacing.md) {
                 BudgetSummaryCard(
                     title: String(localized: "Available"),
                     amount: budget.totalAvailable,
                     currency: currency,
-                    color: budget.totalAvailable >= 0 ? .green : .red,
+                    color: budget.totalAvailable >= 0 ? CashColors.success : CashColors.error,
                     isPrivate: isPrivate
                 )
-                
+
                 BudgetSummaryCard(
                     title: String(localized: "Used"),
                     amount: nil,
@@ -321,8 +314,15 @@ struct BudgetHeaderView: View {
                 )
             }
         }
-        .padding()
-        .background(.bar)
+        .padding(CashSpacing.lg)
+        .background(.ultraThinMaterial)
+        .background(
+            LinearGradient(
+                colors: [CashColors.primary.opacity(0.1), CashColors.primaryLight.opacity(0.05)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
     }
     
     private var periodDescription: String {
@@ -352,33 +352,32 @@ struct BudgetSummaryCard: View {
     let currency: String
     let color: Color
     let isPrivate: Bool
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: CashSpacing.xs) {
             Text(title)
-                .font(.caption)
+                .font(CashTypography.caption)
                 .foregroundStyle(.secondary)
-            
+
             if let amount = amount {
                 PrivacyAmountView(
                     amount: CurrencyFormatter.format(amount, currency: currency),
                     isPrivate: isPrivate,
-                    font: .title3,
+                    font: CashTypography.headline,
                     fontWeight: .semibold,
                     color: color
                 )
             } else if let percentage = percentage {
                 Text(String(format: "%.0f%%", percentage))
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                    .font(CashTypography.headline)
                     .foregroundStyle(color)
                     .privacyBlur(isPrivate)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.quaternary.opacity(0.5))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(CashSpacing.md)
+        .background(color.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: CashRadius.medium))
     }
 }
 
@@ -388,39 +387,32 @@ struct EnvelopeRowView: View {
     let envelope: Envelope
     let currency: String
     let isPrivate: Bool
-    
+
     var body: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 12) {
+        VStack(spacing: CashSpacing.sm) {
+            HStack(spacing: CashSpacing.md) {
                 // Icon
-                Image(systemName: envelope.iconName)
-                    .foregroundStyle(statusColor)
-                    .frame(width: 24)
-                
+                GlassIconCircle(
+                    icon: envelope.iconName,
+                    color: statusColor,
+                    size: 36
+                )
+
                 // Name and progress
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: CashSpacing.xs) {
                     Text(envelope.displayName)
-                        .font(.body)
-                    
+                        .font(CashTypography.body)
+
                     // Progress bar
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(height: 6)
-                                .clipShape(RoundedRectangle(cornerRadius: 3))
-                            
-                            Rectangle()
-                                .fill(statusColor.gradient)
-                                .frame(width: geometry.size.width * CGFloat(min(envelope.percentageUsed, 100) / 100), height: 6)
-                                .clipShape(RoundedRectangle(cornerRadius: 3))
-                        }
-                    }
-                    .frame(height: 6)
+                    GlassProgressBar(
+                        progress: min(envelope.percentageUsed, 100) / 100,
+                        height: 6,
+                        foregroundColor: statusColor
+                    )
                 }
-                
+
                 Spacer()
-                
+
                 // Amounts
                 VStack(alignment: .trailing, spacing: 2) {
                     HStack(spacing: 4) {
@@ -431,50 +423,50 @@ struct EnvelopeRowView: View {
                         Text(CurrencyFormatter.format(envelope.effectiveBudget, currency: currency))
                             .privacyBlur(isPrivate)
                     }
-                    .font(.callout)
-                    
+                    .font(CashTypography.subheadline)
+
                     HStack(spacing: 4) {
                         Text(String(localized: "Available:"))
                             .foregroundStyle(.secondary)
                         Text(CurrencyFormatter.format(envelope.availableAmount, currency: currency))
-                            .foregroundStyle(envelope.availableAmount >= 0 ? .green : .red)
+                            .foregroundStyle(envelope.availableAmount >= 0 ? CashColors.success : CashColors.error)
                             .privacyBlur(isPrivate)
                     }
-                    .font(.caption)
+                    .font(CashTypography.caption)
                 }
-                
+
                 // Warning indicator
                 if envelope.isOverBudget {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.red)
+                        .foregroundStyle(CashColors.error)
                 }
             }
-            
+
             // Rollover indicator
             if envelope.rolloverAmount > 0 {
                 HStack {
                     Image(systemName: "arrow.uturn.forward")
                         .font(.caption2)
                     Text("Includes \(CurrencyFormatter.format(envelope.rolloverAmount, currency: currency)) rollover")
-                        .font(.caption2)
+                        .font(CashTypography.caption)
                         .privacyBlur(isPrivate)
                 }
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 36)
+                .padding(.leading, 48)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, CashSpacing.sm)
     }
-    
+
     private var statusColor: Color {
         switch envelope.statusColor {
         case .healthy:
-            return .green
+            return CashColors.success
         case .warning:
-            return .orange
+            return CashColors.warning
         case .exceeded:
-            return .red
+            return CashColors.error
         }
     }
 }

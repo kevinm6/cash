@@ -249,9 +249,6 @@ struct LoanCalculatorView: View {
                 }
             }
         }
-        #if os(macOS)
-        .frame(minWidth: 500, minHeight: 650)
-        #endif
     }
     
     private func calculate() {
@@ -333,9 +330,6 @@ struct AmortizationHelpView: View {
                 }
             }
         }
-        #if os(macOS)
-        .frame(minWidth: 400, minHeight: 300)
-        #endif
     }
 }
 
