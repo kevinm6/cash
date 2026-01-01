@@ -129,6 +129,7 @@ struct ScheduledTransactionsView: View {
                 }
             }
         }
+        .cashBackground()
         .navigationTitle("Scheduled")
         .sheet(isPresented: $showingAddScheduled) {
             AddScheduledTransactionView()

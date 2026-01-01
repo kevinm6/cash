@@ -88,6 +88,7 @@ struct ReportsView: View {
                 LongTermProjectionReportView()
             }
         }
+        .cashBackground()
         .navigationTitle("Reports")
     }
 }

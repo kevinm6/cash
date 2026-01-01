@@ -216,6 +216,7 @@ struct AccountDetailView: View {
                 .disabled(account.isSystem)
             }
         }
+        .cashBackground()
         .sheet(isPresented: $showingEditSheet) {
             EditAccountView(account: account)
         }

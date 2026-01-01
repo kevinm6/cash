@@ -267,6 +267,7 @@ struct ForecastView: View {
             }
             .padding()
         }
+        .cashBackground()
         .navigationTitle("Forecast")
         .id(settings.refreshID)
         .task {

@@ -93,6 +93,7 @@ struct LoansView: View {
                 }
             }
         }
+        .cashBackground()
         .sheet(isPresented: $showingNewLoanCalculator) {
             LoanCalculatorView()
         }
