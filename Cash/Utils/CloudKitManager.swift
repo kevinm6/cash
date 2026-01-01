@@ -38,8 +38,13 @@ final class CloudKitManager {
     private let lastSyncKey = "lastCloudKitSync"
     let containerIdentifier = "iCloud.com.thesmokinator.Cash"
 
-    /// Model context for database operations
-    var modelContext: ModelContext?
+    /// Model container for creating background contexts
+    var modelContainer: ModelContainer?
+
+    /// Model context for database operations (main thread only)
+    var modelContext: ModelContext? {
+        modelContainer?.mainContext
+    }
 
     /// Current sync state
     var syncState: SyncState = .idle
@@ -99,6 +104,8 @@ final class CloudKitManager {
 
     private var remoteChangeObserver: NSObjectProtocol?
     private var syncTimeoutTask: Task<Void, Never>?
+    private var deduplicationTask: Task<Void, Never>?
+    private var isDeduplicating = false
 
     private init() {
         #if ENABLE_ICLOUD
@@ -165,16 +172,50 @@ final class CloudKitManager {
             lastSyncDate = now
             syncState = .synced(now)
 
-            // Deduplicate accounts after sync (in background)
-            if let context = modelContext {
-                Task.detached(priority: .background) {
-                    await self.deduplicateAccounts(in: context)
-                }
-            }
+            // Schedule deduplication with debounce (2 seconds)
+            scheduleDeduplication()
 
             // Start a new timeout for any subsequent changes
             startSyncTimeout()
         #endif
+    }
+
+    /// Schedule deduplication with debounce to avoid multiple concurrent runs
+    private func scheduleDeduplication() {
+        // Cancel any pending deduplication task
+        deduplicationTask?.cancel()
+
+        // Schedule new deduplication after 2 seconds debounce
+        deduplicationTask = Task { @MainActor in
+            // Wait 2 seconds to batch multiple sync events
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+
+            guard !Task.isCancelled else { return }
+
+            // Check if already deduplicating
+            guard !self.isDeduplicating else {
+                print("⏳ Deduplication already in progress, skipping")
+                return
+            }
+
+            // Check if container is available
+            guard let container = self.modelContainer else {
+                print("❌ No ModelContainer available for deduplication")
+                return
+            }
+
+            self.isDeduplicating = true
+
+            // Run deduplication in background with its own context
+            Task.detached(priority: .background) {
+                let backgroundContext = ModelContext(container)
+                await self.deduplicateAccounts(in: backgroundContext)
+
+                await MainActor.run {
+                    self.isDeduplicating = false
+                }
+            }
+        }
     }
 
     /// Start a timeout that marks sync as complete if no changes received

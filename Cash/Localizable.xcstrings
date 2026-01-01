@@ -2215,6 +2215,9 @@
         }
       }
     },
+    "All transactions loaded" : {
+
+    },
     "Alphabetical" : {
       "localizations" : {
         "de" : {
@@ -10556,6 +10559,9 @@
     "Loading quote..." : {
 
     },
+    "Loading transactions..." : {
+
+    },
     "Loan" : {
       "localizations" : {
         "de" : {
@@ -12701,6 +12707,9 @@
           }
         }
       }
+    },
+    "No transactions found in the last 90 days" : {
+
     },
     "No transactions match your search" : {
       "localizations" : {

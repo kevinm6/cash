@@ -57,7 +57,7 @@ struct CashApp: App {
                         cloudKitDatabase: .private(cloudManager.containerIdentifier)
                     )
                     let container = try ModelContainer(for: schema, configurations: [cloudConfig])
-                    cloudManager.modelContext = container.mainContext
+                    cloudManager.modelContainer = container
                     return container
                 } catch {
                     // CloudKit failed, fall back to local storage
@@ -73,7 +73,7 @@ struct CashApp: App {
                 for: schema,
                 configurations: [ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)])
             #if ENABLE_ICLOUD
-                CloudKitManager.shared.modelContext = container.mainContext
+                CloudKitManager.shared.modelContainer = container
             #endif
             return container
         } catch {

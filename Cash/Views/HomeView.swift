@@ -435,46 +435,180 @@ struct QuickActionCard: View {
 
 struct AllTransactionsView: View {
     @Environment(AppSettings.self) private var settings
-    @Query private var transactions: [Transaction]
+    @Environment(\.modelContext) private var modelContext
 
+    @State private var isInitialLoading = true
+    @State private var isLoadingMore = false
+    @State private var hasMoreData = true
+    @State private var displayedTransactions: [Transaction] = []
+    @State private var currentPage = 0
+    @State private var detectedCurrency = "EUR"
+    @State private var errorMessage: String?
     @State private var selectedTransaction: Transaction?
 
-    init() {
-        let cutoffDate = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
-        _transactions = Query(
-            filter: #Predicate<Transaction> { transaction in
-                !transaction.isRecurring && transaction.date >= cutoffDate
-            },
-            sort: \.date,
-            order: .reverse
-        )
-    }
+    private let pageSize = 50
 
     private var currency: String {
-        transactions.first?.entries?.first?.account?.currency ?? "EUR"
+        detectedCurrency
+    }
+
+    private func fetchTransactions(page: Int) async throws -> [Transaction] {
+        let offset = page * pageSize
+        let cutoffDate = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
+
+        let predicate = #Predicate<Transaction> { transaction in
+            !transaction.isRecurring && transaction.date >= cutoffDate
+        }
+
+        var descriptor = FetchDescriptor<Transaction>(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = pageSize
+        descriptor.fetchOffset = offset
+
+        return try modelContext.fetch(descriptor)
+    }
+
+    private func loadInitialTransactions() async {
+        isInitialLoading = true
+        currentPage = 0
+        displayedTransactions = []
+        hasMoreData = true
+        errorMessage = nil
+
+        do {
+            let transactions = try await fetchTransactions(page: 0)
+
+            await MainActor.run {
+                displayedTransactions = transactions
+                currentPage = 0
+                hasMoreData = transactions.count == pageSize
+
+                if let firstTransaction = transactions.first {
+                    detectedCurrency = firstTransaction.entries?.first?.account?.currency ?? "EUR"
+                }
+
+                isInitialLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = "Failed to load transactions: \(error.localizedDescription)"
+                displayedTransactions = []
+                hasMoreData = false
+                isInitialLoading = false
+            }
+        }
+    }
+
+    private func loadMoreTransactions() async {
+        guard !isLoadingMore && !isInitialLoading && hasMoreData else { return }
+
+        await MainActor.run {
+            isLoadingMore = true
+        }
+
+        do {
+            let nextPage = currentPage + 1
+            let newTransactions = try await fetchTransactions(page: nextPage)
+
+            await MainActor.run {
+                displayedTransactions.append(contentsOf: newTransactions)
+                currentPage = nextPage
+                hasMoreData = newTransactions.count == pageSize
+                isLoadingMore = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = "Failed to load more transactions"
+                hasMoreData = false
+                isLoadingMore = false
+            }
+        }
     }
 
     var body: some View {
-        List {
-            ForEach(transactions) { transaction in
-                Button {
-                    selectedTransaction = transaction
-                } label: {
-                    TransactionRowHome(
-                        transaction: transaction,
-                        currency: currency,
-                        isPrivate: settings.privacyMode
-                    )
+        Group {
+            if isInitialLoading {
+                VStack {
+                    Spacer()
+                    ProgressView()
+                        .scaleEffect(1.5)
+                    Text("Loading transactions...")
+                        .font(CashTypography.subheadline)
+                        .foregroundColor(.secondary)
+                        .padding(.top, CashSpacing.md)
+                    Spacer()
                 }
-                .buttonStyle(.plain)
+            } else if displayedTransactions.isEmpty {
+                ContentUnavailableView {
+                    Label("No Transactions", systemImage: "list.bullet.rectangle")
+                } description: {
+                    Text("No transactions found in the last 90 days")
+                }
+            } else {
+                List {
+                    ForEach(displayedTransactions) { transaction in
+                        Button {
+                            selectedTransaction = transaction
+                        } label: {
+                            TransactionRowHome(
+                                transaction: transaction,
+                                currency: currency,
+                                isPrivate: settings.privacyMode
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .onAppear {
+                            // Trigger pagination when last item appears
+                            if transaction.id == displayedTransactions.last?.id {
+                                Task {
+                                    await loadMoreTransactions()
+                                }
+                            }
+                        }
+                    }
+
+                    // Bottom loading indicator
+                    if isLoadingMore {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
+                        .padding()
+                    }
+
+                    // End of data indicator
+                    if !hasMoreData && !displayedTransactions.isEmpty {
+                        Text("All transactions loaded")
+                            .font(CashTypography.caption)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                }
+                .listStyle(.insetGrouped)
             }
         }
-        .listStyle(.insetGrouped)
         .navigationTitle("Recent Transactions")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await loadInitialTransactions()
+        }
+        .refreshable {
+            await loadInitialTransactions()
+        }
         .sheet(item: $selectedTransaction) { transaction in
             NavigationStack {
                 EditTransactionView(transaction: transaction)
+            }
+        }
+        .alert("Error", isPresented: .constant(errorMessage != nil)) {
+            Button("OK") { errorMessage = nil }
+        } message: {
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
             }
         }
     }
