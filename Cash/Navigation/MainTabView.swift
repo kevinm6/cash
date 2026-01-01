@@ -17,7 +17,7 @@ class AppState {
     var loadingMessage = ""
 }
 
-// MARK: - Main Tab Enum
+// MARK: - Main Tab Enum (iPhone)
 
 enum MainTab: Int, CaseIterable, Identifiable {
     case home = 0
@@ -59,6 +59,50 @@ enum MainTab: Int, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - iPad Sidebar Item Enum
+
+enum iPadSidebarItem: String, CaseIterable, Identifiable, Hashable {
+    // Overview
+    case home
+    case accounts
+    case budget
+    // Finance Tools
+    case loans
+    case scheduled
+    // Analytics
+    case reports
+    case netWorth
+    case forecast
+
+    var id: String { rawValue }
+
+    var title: LocalizedStringKey {
+        switch self {
+        case .home: return "Home"
+        case .accounts: return "Accounts"
+        case .budget: return "Budget"
+        case .loans: return "Loans & Mortgages"
+        case .scheduled: return "Scheduled"
+        case .reports: return "Reports"
+        case .netWorth: return "Net Worth"
+        case .forecast: return "Forecast"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .home: return "house.fill"
+        case .accounts: return "creditcard.fill"
+        case .budget: return "chart.pie.fill"
+        case .loans: return "building.columns.fill"
+        case .scheduled: return "calendar.badge.clock"
+        case .reports: return "doc.text.fill"
+        case .netWorth: return "chart.bar.fill"
+        case .forecast: return "chart.line.uptrend.xyaxis"
+        }
+    }
+}
+
 // MARK: - Main Tab View
 
 struct MainTabView: View {
@@ -66,9 +110,32 @@ struct MainTabView: View {
     @Environment(AppSettings.self) private var settings
     @Environment(NavigationState.self) private var navigationState
 
+    // Data queries for export
+    @Query private var accounts: [Account]
+    @Query private var transactions: [Transaction]
+
     @State private var selectedTab: MainTab = .home
     @State private var showingAddTransaction = false
     @State private var addTransactionType: SimpleTransactionType = .expense
+
+    // iPad sidebar state
+    @State private var selectedSidebarItem: iPadSidebarItem? = .home
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+
+    // iPad settings sheets
+    @State private var showingThemeSheet = false
+    @State private var showingLanguageSheet = false
+    @State private var showingETFQuotesSheet = false
+    @State private var showingICloudSheet = false
+    @State private var showingExportFormatPicker = false
+
+    // Export state
+    @State private var exportDataContent: Data?
+    @State private var exportFilename = ""
+    @State private var showingFileExporter = false
+    @State private var showingExportSuccess = false
+    @State private var showingExportError = false
+    @State private var exportErrorMessage = ""
 
     // OFX Import state
     @State private var showingOFXImportPicker = false
@@ -116,6 +183,60 @@ struct MainTabView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .importOFX)) { _ in
             showingOFXImportPicker = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .exportData)) { notification in
+            if let formatRaw = notification.userInfo?["format"] as? String,
+               let format = ExportFormat(rawValue: formatRaw) {
+                performExport(format: format)
+            }
+        }
+        .fileExporter(
+            isPresented: $showingFileExporter,
+            document: ExportDocument(data: exportDataContent ?? Data()),
+            contentType: .data,
+            defaultFilename: exportFilename
+        ) { result in
+            switch result {
+            case .success:
+                showingExportSuccess = true
+            case .failure(let error):
+                exportErrorMessage = error.localizedDescription
+                showingExportError = true
+            }
+        }
+        .alert(String(localized: "Export successful"), isPresented: $showingExportSuccess) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text("Your data has been exported successfully.")
+        }
+        .alert(String(localized: "Export error"), isPresented: $showingExportError) {
+            Button(String(localized: "OK"), role: .cancel) {}
+        } message: {
+            Text(exportErrorMessage)
+        }
+    }
+
+    // MARK: - Export Handler
+
+    private func performExport(format: ExportFormat) {
+        do {
+            let data: Data
+
+            switch format {
+            case .cashBackup:
+                data = try DataExporter.exportCashBackup(accounts: accounts, transactions: transactions)
+            case .ofx:
+                data = try DataExporter.exportOFX(accounts: accounts, transactions: transactions)
+            }
+
+            let filename = DataExporter.generateFilename(for: format)
+
+            self.exportDataContent = data
+            self.exportFilename = filename
+            self.showingFileExporter = true
+        } catch {
+            exportErrorMessage = error.localizedDescription
+            showingExportError = true
         }
     }
 
@@ -188,47 +309,161 @@ struct MainTabView: View {
     // MARK: - iPad Sidebar View
 
     private var iPadSidebarView: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             iPadSidebar
         } detail: {
             iPadDetailView
         }
+        .sheet(isPresented: $showingThemeSheet) {
+            ThemeSettingsSheet()
+                .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $showingLanguageSheet) {
+            LanguageSettingsSheet()
+                .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $showingETFQuotesSheet) {
+            ETFQuotesSettingsSheet()
+                .presentationDetents([.medium])
+        }
+        #if ENABLE_ICLOUD
+        .sheet(isPresented: $showingICloudSheet) {
+            ICloudSyncSettingsSheet()
+                .presentationDetents([.medium])
+        }
+        #endif
+        .sheet(isPresented: $showingExportFormatPicker) {
+            iPadExportFormatPicker
+        }
     }
 
     private var iPadSidebar: some View {
-        List {
+        List(selection: $selectedSidebarItem) {
+            // Overview Section
             Section("Overview") {
-                sidebarButton(for: .home, label: "Home", icon: "house.fill")
-                sidebarButton(for: .accounts, label: "Accounts", icon: "creditcard.fill")
-                sidebarButton(for: .budget, label: "Budget", icon: "chart.pie.fill")
+                ForEach([iPadSidebarItem.home, .accounts, .budget]) { item in
+                    NavigationLink(value: item) {
+                        Label(item.title, systemImage: item.icon)
+                    }
+                }
             }
 
-            Section("Tools") {
-                NavigationLink {
-                    LoansView()
+            // Finance Tools Section
+            Section("Finance Tools") {
+                ForEach([iPadSidebarItem.loans, .scheduled]) { item in
+                    NavigationLink(value: item) {
+                        Label(item.title, systemImage: item.icon)
+                    }
+                }
+            }
+
+            // Analytics Section
+            Section("Analytics") {
+                ForEach([iPadSidebarItem.reports, .netWorth, .forecast]) { item in
+                    NavigationLink(value: item) {
+                        Label(item.title, systemImage: item.icon)
+                    }
+                }
+            }
+
+            // Investments Section
+            Section("Investments") {
+                Button {
+                    showingETFQuotesSheet = true
                 } label: {
-                    Label("Loans & Mortgages", systemImage: "building.columns.fill")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Live ETF Quotes")
+                            Text(settings.showLiveQuotes ? "Enabled" : "Disabled")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } icon: {
+                        Image(systemName: "chart.line.uptrend.xyaxis.circle.fill")
+                    }
+                }
+            }
+
+            // Data Section
+            Section("Data") {
+                #if ENABLE_ICLOUD
+                Button {
+                    showingICloudSheet = true
+                } label: {
+                    Label("iCloud Sync", systemImage: "icloud.fill")
+                }
+                #endif
+
+                Button {
+                    NotificationCenter.default.post(name: .importOFX, object: nil)
+                } label: {
+                    Label("Import OFX", systemImage: "square.and.arrow.down.fill")
                 }
 
-                NavigationLink {
-                    ForecastView()
+                Button {
+                    showingExportFormatPicker = true
                 } label: {
-                    Label("Forecast", systemImage: "chart.line.uptrend.xyaxis")
+                    Label("Export Data", systemImage: "square.and.arrow.up.fill")
+                }
+            }
+
+            // Settings Section
+            Section("Settings") {
+                Button {
+                    showingThemeSheet = true
+                } label: {
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Theme")
+                            Text(settings.theme.labelKey)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } icon: {
+                        Image(systemName: "paintbrush.fill")
+                    }
                 }
 
-                NavigationLink {
-                    ScheduledTransactionsView()
+                Button {
+                    showingLanguageSheet = true
                 } label: {
-                    Label("Scheduled", systemImage: "calendar.badge.clock")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Language")
+                            Text(settings.language.labelKey)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } icon: {
+                        Image(systemName: "globe")
+                    }
                 }
+            }
 
-                NavigationLink {
-                    ReportsView()
-                } label: {
-                    Label("Reports", systemImage: "chart.bar.fill")
+            // About Section
+            Section("About") {
+                VStack(spacing: CashSpacing.md) {
+                    if let icon = Bundle.main.icon {
+                        Image(uiImage: icon)
+                            .resizable()
+                            .frame(width: 48, height: 48)
+                            .clipShape(RoundedRectangle(cornerRadius: CashRadius.medium))
+                    }
+
+                    VStack(spacing: CashSpacing.xs) {
+                        Text("Cash")
+                            .font(CashTypography.headline)
+
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
+                            .font(CashTypography.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, CashSpacing.sm)
             }
         }
+        .listStyle(.sidebar)
         .navigationTitle("Cash")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -243,28 +478,48 @@ struct MainTabView: View {
         }
     }
 
-    private func sidebarButton(for tab: MainTab, label: String, icon: String) -> some View {
-        Button {
-            selectedTab = tab
-        } label: {
-            Label(label, systemImage: icon)
-        }
-        .listRowBackground(selectedTab == tab ? Color.accentColor.opacity(0.15) : Color.clear)
-    }
-
     @ViewBuilder
     private var iPadDetailView: some View {
-        switch selectedTab {
-        case .home:
+        switch selectedSidebarItem {
+        case .home, .none:
             HomeView()
         case .accounts:
             AccountsTabView()
         case .budget:
-            BudgetView()
-        case .add:
-            HomeView() // Fallback
-        case .more:
-            MoreMenuView()
+            NavigationStack {
+                BudgetView()
+            }
+        case .loans:
+            NavigationStack {
+                LoansView()
+            }
+        case .scheduled:
+            NavigationStack {
+                ScheduledTransactionsView()
+            }
+        case .reports:
+            NavigationStack {
+                ReportsView()
+            }
+        case .netWorth:
+            NavigationStack {
+                NetWorthView()
+            }
+        case .forecast:
+            NavigationStack {
+                ForecastView()
+            }
+        }
+    }
+
+    private var iPadExportFormatPicker: some View {
+        ExportFormatPickerView { format in
+            // Export handled by MoreMenuView's export logic
+            NotificationCenter.default.post(
+                name: .exportData,
+                object: nil,
+                userInfo: ["format": format.rawValue]
+            )
         }
     }
 }

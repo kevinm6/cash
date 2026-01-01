@@ -435,23 +435,28 @@ struct QuickActionCard: View {
 
 struct AllTransactionsView: View {
     @Environment(AppSettings.self) private var settings
-    @Query(filter: #Predicate<Transaction> { !$0.isRecurring }, sort: \Transaction.date, order: .reverse)
-    private var allTransactions: [Transaction]
+    @Query private var transactions: [Transaction]
 
     @State private var selectedTransaction: Transaction?
 
-    private var last90DaysTransactions: [Transaction] {
+    init() {
         let cutoffDate = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
-        return allTransactions.filter { $0.date >= cutoffDate }
+        _transactions = Query(
+            filter: #Predicate<Transaction> { transaction in
+                !transaction.isRecurring && transaction.date >= cutoffDate
+            },
+            sort: \.date,
+            order: .reverse
+        )
     }
 
     private var currency: String {
-        last90DaysTransactions.first?.entries?.first?.account?.currency ?? "EUR"
+        transactions.first?.entries?.first?.account?.currency ?? "EUR"
     }
 
     var body: some View {
         List {
-            ForEach(last90DaysTransactions) { transaction in
+            ForEach(transactions) { transaction in
                 Button {
                     selectedTransaction = transaction
                 } label: {

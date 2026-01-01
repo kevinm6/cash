@@ -24,6 +24,7 @@ extension Notification.Name {
     static let addNewTransaction = Notification.Name("addNewTransaction")
     static let addNewScheduledTransaction = Notification.Name("addNewScheduledTransaction")
     static let importOFX = Notification.Name("importOFX")
+    static let exportData = Notification.Name("exportData")
 }
 
 @main
