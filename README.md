@@ -2,10 +2,6 @@
 
 A simplified personal finance management application for macOS and iOS (iPhone and iPad), inspired by Gnucash, built with SwiftUI and SwiftData. It's completely free, works offline, and is privacy-first focused.
 
-## Screenshots
-
-![Main Screenshot](Screenshots/001.png)
-
 ## Getting Started
 
 ### Prerequisites
