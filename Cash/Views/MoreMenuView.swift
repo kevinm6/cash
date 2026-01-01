@@ -599,7 +599,6 @@ struct ThemeSettingsSheet: View {
 struct LanguageSettingsSheet: View {
     @Environment(AppSettings.self) private var settings
     @Environment(\.dismiss) private var dismiss
-    @State private var showingRestartAlert = false
 
     private let languagesOrder: [AppLanguage] = [
         .system, .english, .italian, .spanish, .french, .german
@@ -611,11 +610,7 @@ struct LanguageSettingsSheet: View {
                 Section {
                     ForEach(languagesOrder) { language in
                         Button {
-                            let previousLanguage = settings.language
                             settings.language = language
-                            if previousLanguage != language {
-                                showingRestartAlert = true
-                            }
                         } label: {
                             HStack(spacing: CashSpacing.md) {
                                 Image(systemName: language.iconName)
@@ -644,8 +639,6 @@ struct LanguageSettingsSheet: View {
                     }
                 } header: {
                     Text("Select your preferred language")
-                } footer: {
-                    Text("Please restart the app to apply language changes")
                 }
             }
             .listStyle(.insetGrouped)
@@ -657,13 +650,6 @@ struct LanguageSettingsSheet: View {
                         dismiss()
                     }
                 }
-            }
-            .alert("Restart required", isPresented: $showingRestartAlert) {
-                Button("OK") {
-                    settings.needsRestart = false
-                }
-            } message: {
-                Text("Please close and reopen the app to apply language changes.")
             }
         }
     }
@@ -731,7 +717,6 @@ struct ETFQuotesSettingsSheet: View {
 struct ICloudSyncSettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var cloudManager = CloudKitManager.shared
-    @State private var showingRestartAlert = false
 
     private var hasICloudAccount: Bool {
         FileManager.default.ubiquityIdentityToken != nil
@@ -767,13 +752,14 @@ struct ICloudSyncSettingsSheet: View {
                         get: { cloudManager.isEnabled },
                         set: { newValue in
                             cloudManager.isEnabled = newValue
-                            if cloudManager.needsRestart {
-                                showingRestartAlert = true
-                            }
                         }
                     ))
                     .disabled(!cloudManager.isAvailable)
                     .font(CashTypography.body)
+                    
+                    Text("Changes will take effect when you restart the app")
+                        .font(CashTypography.caption)
+                        .foregroundStyle(.secondary)
 
                     if cloudManager.isEnabled {
                         HStack {
@@ -821,13 +807,6 @@ struct ICloudSyncSettingsSheet: View {
                     await cloudManager.checkAccountStatus()
                     await cloudManager.fetchStorageUsed()
                 }
-            }
-            .alert("Restart required", isPresented: $showingRestartAlert) {
-                Button("OK") {
-                    cloudManager.needsRestart = false
-                }
-            } message: {
-                Text("Please close and reopen the app to apply iCloud changes.")
             }
         }
     }

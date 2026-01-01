@@ -58,6 +58,23 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case german = "de"
 
     var id: String { rawValue }
+    
+    var locale: Locale {
+        switch self {
+        case .system:
+            return Locale.current
+        case .english:
+            return Locale(identifier: "en")
+        case .italian:
+            return Locale(identifier: "it")
+        case .spanish:
+            return Locale(identifier: "es")
+        case .french:
+            return Locale(identifier: "fr")
+        case .german:
+            return Locale(identifier: "de")
+        }
+    }
 
     var labelKey: LocalizedStringKey {
         switch self {
@@ -113,7 +130,6 @@ final class AppSettings {
         didSet {
             UserDefaults.standard.set(language.rawValue, forKey: languageKey)
             applyLanguage()
-            needsRestart = true
         }
     }
 
@@ -130,8 +146,6 @@ final class AppSettings {
             syncToCloud()
         }
     }
-
-    var needsRestart: Bool = false
 
     // Used to force UI refresh when settings change
     var refreshID = UUID()

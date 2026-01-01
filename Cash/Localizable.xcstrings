@@ -4207,6 +4207,9 @@
         }
       }
     },
+    "Changes will take effect when you restart the app" : {
+
+    },
     "Choose an account from the sidebar to view details" : {
       "localizations" : {
         "de" : {
@@ -13765,12 +13768,6 @@
         }
       }
     },
-    "Please close and reopen the app to apply iCloud changes." : {
-
-    },
-    "Please close and reopen the app to apply language changes." : {
-
-    },
     "Please enter a valid dividend amount" : {
       "localizations" : {
         "de" : {
@@ -13966,9 +13963,6 @@
           }
         }
       }
-    },
-    "Please restart the app to apply language changes" : {
-
     },
     "Please select a cash account for the transaction" : {
       "localizations" : {
@@ -15394,6 +15388,7 @@
       }
     },
     "Restart required" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

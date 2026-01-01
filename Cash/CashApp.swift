@@ -85,6 +85,7 @@ struct CashApp: App {
         WindowGroup {
             MainTabView()
                 .environment(navigationState)
+                .environment(\.locale, settings.language.locale)
                 .preferredColorScheme(settings.theme.colorScheme)
                 .onAppear {
                     // Start iCloud sync monitoring

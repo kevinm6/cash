@@ -67,13 +67,8 @@ final class CloudKitManager {
     var isEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isEnabled, forKey: iCloudEnabledKey)
-            if isEnabled != oldValue {
-                needsRestart = true
-            }
         }
     }
-
-    var needsRestart: Bool = false
 
     var isAvailable: Bool {
         #if ENABLE_ICLOUD
