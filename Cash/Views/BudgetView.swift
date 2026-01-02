@@ -71,55 +71,64 @@ struct BudgetView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            if let budget = activeBudget {
-                // Budget Header with swipe gesture
-                BudgetHeaderView(
-                    budget: budget,
-                    currency: currency,
-                    isPrivate: settings.privacyMode
-                )
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 50)
-                        .onEnded { value in
-                            if value.translation.width > 0 {
-                                // Swipe right -> previous budget (older)
-                                navigateToPreviousBudget()
-                            } else {
-                                // Swipe left -> next budget (newer)
-                                navigateToNextBudget()
-                            }
-                        }
-                )
-
-                GlassDivider()
-
-                // Filter bar with search - mostra solo se ci sono envelopes
-                if let envelopes = budget.envelopes, !envelopes.isEmpty {
-                    TransactionFilterBar(
-                        dateFilter: .constant(.thisMonth),
-                        searchText: $searchText,
-                        showDateFilter: false,
-                        showActionButtons: false
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                if let budget = activeBudget {
+                    // Budget Header with swipe gesture
+                    BudgetHeaderView(
+                        budget: budget,
+                        currency: currency,
+                        isPrivate: settings.privacyMode
                     )
-                    .padding(.vertical, CashSpacing.sm)
-                }
+                    .contentShape(Rectangle())
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 50)
+                            .onEnded { value in
+                                // Only trigger if the swipe is predominantly horizontal
+                                // (horizontal distance > vertical distance)
+                                let horizontalDistance = abs(value.translation.width)
+                                let verticalDistance = abs(value.translation.height)
 
-                // Envelopes List
-                if let envelopes = budget.envelopes, !envelopes.isEmpty {
-                    let filtered = filteredEnvelopes(from: envelopes)
-                    if filtered.isEmpty {
-                        ContentUnavailableView.search(text: searchText)
-                    } else {
-                        List {
+                                guard horizontalDistance > verticalDistance else { return }
+
+                                if value.translation.width > 0 {
+                                    // Swipe right -> previous budget (older)
+                                    navigateToPreviousBudget()
+                                } else {
+                                    // Swipe left -> next budget (newer)
+                                    navigateToNextBudget()
+                                }
+                            }
+                    )
+
+                    GlassDivider()
+
+                    // Filter bar with search - mostra solo se ci sono envelopes
+                    if let envelopes = budget.envelopes, !envelopes.isEmpty {
+                        TransactionFilterBar(
+                            dateFilter: .constant(.thisMonth),
+                            searchText: $searchText,
+                            showDateFilter: false,
+                            showActionButtons: false
+                        )
+                        .padding(.vertical, CashSpacing.sm)
+                    }
+
+                    // Envelopes List
+                    if let envelopes = budget.envelopes, !envelopes.isEmpty {
+                        let filtered = filteredEnvelopes(from: envelopes)
+                        if filtered.isEmpty {
+                            ContentUnavailableView.search(text: searchText)
+                                .frame(minHeight: 200)
+                        } else {
                             ForEach(filtered) { envelope in
                                 EnvelopeRowView(
                                     envelope: envelope,
                                     currency: currency,
                                     isPrivate: settings.privacyMode
                                 )
-                                .listRowSeparator(.hidden)
+                                .padding(.horizontal, CashSpacing.md)
+                                .padding(.vertical, CashSpacing.sm)
                                 .contextMenu {
                                     Button {
                                         envelopeForEdit = envelope
@@ -136,68 +145,61 @@ struct BudgetView: View {
                                     }
                                 }
                             }
-                            .onDelete { indexSet in
-                                let envelope = filtered[indexSet.first!]
-                                envelopeToDelete = envelope
+
+                            // Bottom toolbar for transfer
+                            if envelopes.count >= 2 {
+                                HStack {
+                                    Spacer()
+                                    Button {
+                                        budgetForTransfer = budget
+                                    } label: {
+                                        Label("Transfer", systemImage: "arrow.left.arrow.right")
+                                    }
+                                }
+                                .padding()
                             }
                         }
-                        .listStyle(.inset)
+                    } else {
+                        VStack(spacing: CashSpacing.lg) {
+                            GlassEmptyState(
+                                icon: "envelope",
+                                title: "No Envelopes",
+                                description: "Add envelopes to start budgeting"
+                            )
+                            .padding()
+                            Button {
+                                budgetForEnvelope = budget
+                            } label: {
+                                Label("Add Envelope", systemImage: "plus.circle")
+                            }
+                            .buttonStyle(GlassActionButtonStyle())
+                        }
+                        .frame(minHeight: 300)
+                        .frame(maxWidth: .infinity)
                     }
 
-                    // Bottom toolbar for transfer
-                    if envelopes.count >= 2 {
-                        HStack {
-                            Spacer()
-                            Button {
-                                budgetForTransfer = budget
-                            } label: {
-                                Label("Transfer", systemImage: "arrow.left.arrow.right")
-                            }
-                        }
-                        .padding()
-                        .background(.bar)
-                    }
                 } else {
-                    VStack {
-                        Spacer()
+                    // No active budget
+                    VStack(spacing: CashSpacing.lg) {
                         GlassEmptyState(
-                            icon: "envelope",
-                            title: "No Envelopes",
-                            description: "Add envelopes to start budgeting"
+                            icon: "envelope.badge.shield.half.filled",
+                            title: "No Active Budget",
+                            description:
+                                "Create a budget to start tracking your spending by category"
                         )
                         .padding()
                         Button {
-                            budgetForEnvelope = budget
+                            showingCreateBudget = true
                         } label: {
-                            Label("Add Envelope", systemImage: "plus.circle")
+                            Label("Create Budget", systemImage: "plus.circle")
                         }
                         .buttonStyle(GlassActionButtonStyle())
-                        Spacer()
                     }
+                    .frame(minHeight: 400)
+                    .frame(maxWidth: .infinity)
                 }
-
-            } else {
-                // No active budget
-                VStack {
-                    Spacer()
-                    GlassEmptyState(
-                        icon: "envelope.badge.shield.half.filled",
-                        title: "No Active Budget",
-                        description: "Create a budget to start tracking your spending by category"
-                    )
-                    .padding()
-                    Button {
-                        showingCreateBudget = true
-                    } label: {
-                        Label("Create Budget", systemImage: "plus.circle")
-                    }
-                    .buttonStyle(GlassActionButtonStyle())
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .cashBackground()
         .navigationTitle("Budget")
         .toolbar {
