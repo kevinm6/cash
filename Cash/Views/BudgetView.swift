@@ -586,8 +586,11 @@ struct AddEnvelopeView: View {
                         Picker("Category", selection: $selectedCategory) {
                             Text("Select a category").tag(nil as Account?)
                             ForEach(availableCategories) { category in
-                                Label(category.displayName, systemImage: category.accountType.iconName)
-                                    .tag(category as Account?)
+                                HStack(spacing: 8) {
+                                    Image(systemName: category.accountType.iconName)
+                                    Text(category.displayName)
+                                }
+                                .tag(category as Account?)
                             }
                         }
                     }

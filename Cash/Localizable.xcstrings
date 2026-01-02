@@ -228,34 +228,6 @@
         }
       }
     },
-    "% of repayment amount" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "% des Rückzahlungsbetrags"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "% del importe del reembolso"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "% du montant du remboursement"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "% dell'importo del rimborso"
-          }
-        }
-      }
-    },
     "%@ - %@" : {
       "localizations" : {
         "de" : {
@@ -535,35 +507,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld di %2$lld selezionato"
-          }
-        }
-      }
-    },
-    "%lld payments left" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Restzahlungen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld quedan pagos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld paiements restants"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld rate rimanenti"
           }
         }
       }
@@ -1021,6 +964,9 @@
           }
         }
       }
+    },
+    "0" : {
+
     },
     "0.00" : {
       "localizations" : {
@@ -2379,35 +2325,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Americano (bullet)"
-          }
-        }
-      }
-    },
-    "Amortization" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Amortisation"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Amortización"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Amortissement"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ammortamento"
           }
         }
       }
@@ -4692,35 +4609,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verificato"
-          }
-        }
-      }
-    },
-    "Close" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schließen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cerca"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fermer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chiudi"
           }
         }
       }
@@ -16294,40 +16182,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reddito da affitto"
-          }
-        }
-      }
-    },
-    "Repayment Amount" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rückzahlungsbetrag"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repayment amount"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Monto del reembolso"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Montant du remboursement"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importo rimborso"
           }
         }
       }
