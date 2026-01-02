@@ -166,36 +166,34 @@ struct BudgetView: View {
         .toolbar {
             if activeBudget != nil {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        budgetForEnvelope = activeBudget
-                    } label: {
-                        Label("Add", systemImage: "plus")
-                    }
-                }
-
-                ToolbarItem(placement: .secondaryAction) {
                     Menu {
+                        Button {
+                            budgetForEnvelope = activeBudget
+                        } label: {
+                            Label("Add Envelope", systemImage: "envelope")
+                        }
+
+                        Divider()
+
                         Button {
                             showingCreateBudget = true
                         } label: {
-                            Label("New Budget", systemImage: "plus")
+                            Label("New Budget", systemImage: "calendar")
                         }
 
                         if !budgets.isEmpty {
                             Divider()
 
-                            Menu("Previous Budgets") {
-                                ForEach(budgets.prefix(5)) { budget in
-                                    Button {
-                                        // View historical budget
-                                    } label: {
-                                        Text(budget.displayName)
-                                    }
+                            ForEach(budgets.prefix(5)) { budget in
+                                Button {
+                                    // View historical budget
+                                } label: {
+                                    Text(budget.displayName)
                                 }
                             }
                         }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
+                        Label("Add", systemImage: "plus")
                     }
                 }
             }
